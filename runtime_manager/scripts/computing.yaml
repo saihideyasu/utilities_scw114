@@ -172,6 +172,10 @@ subs :
       - name : can2odom
         desc : can2odom desc sample
         cmd  : roslaunch autoware_connector can2odom.launch
+      - name : can2odom_scw
+        desc : can2odom_scw desc sample
+        cmd  : roslaunch autoware_connector can2odom_scw.launch
+        param: can2odom_scw
       - name : vel_pose_connect
         desc : vel_pose_connect desc sample
         cmd  : roslaunch autoware_connector vel_pose_connect.launch
@@ -6690,7 +6694,7 @@ params :
       desc    : namespace1
       label   : 'namespace1'
       kind    : str
-      v       : /novatel_oem7_1
+      v       : /nmea2tfpose_RTK1
       cmd_param :
         dash  : ''
         delim : ':='
@@ -6698,7 +6702,21 @@ params :
       desc    : namespace2
       label   : 'namespace2'
       kind    : str
-      v       : /novatel_oem7_2
+      v       : /nmea2tfpose_RTK2
       cmd_param :
         dash  : ''
         delim : ':='
+
+  - name  : can2odom_scw
+    topic : /config/can2odom_scw
+    msg   : ConfigCanOdometry
+    vars  :
+    - name : kmph_th
+      desc : kmph_th
+      label: kmph_th
+      min  : 0.0
+      max  : 1.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
