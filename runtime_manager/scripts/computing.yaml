@@ -30,6 +30,19 @@ subs :
             flags : [ nl ]
           sim_mode :
             flags : [ nl ]
+      - name : nmea2tfpose_RTK_1
+        desc : nmea2tfpose_RTK_1 desc sample
+        cmd  : roslaunch gnss_localizer nmea2tfpose_RTK1.launch
+        param: gnss2
+        gui  :
+          stat_topic : [ gnss ]
+      - name : nmea2tfpose_RTK_2
+        desc : nmea2tfpose_RTK_2 desc sample
+        cmd  : roslaunch gnss_localizer nmea2tfpose_RTK2.launch
+        param: gnss2
+        gui  :
+          stat_topic : [ gnss ]
+
     - name : lidar_localizer
       desc : lidar_localizer desc sample
       subs :
@@ -1427,6 +1440,35 @@ params :
       cmd_param:
         dash     : ''
         delim    : ':='
+
+  - name  : gnss2
+    vars  :
+    - name    : plane
+      label   : 'Plane number: '
+      kind    : menu
+      choices : [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19' ]
+      choices_type : str
+      v       : '7'
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name    : nmea_topic
+      desc    : nmea topic
+      label   : nmea_topic
+      v       : /nmea_sentence
+      kind    : topic
+      topic_type : nmea_msgs/Sentence
+      cmd_param :
+        dash      : ''
+        delim     : ':='
+    - name      : name_space
+      desc      : name_space
+      label     : name_space
+      kind      : checkbox
+      v         : False
+      cmd_param :
+        dash      : ''
+        delim     : ':='
 
   - name  : ndt
     topic : /config/ndt
