@@ -102,6 +102,21 @@ subs :
         probe:
         run  : roslaunch nmea_navsat nmea_navsat.launch
         param: serial
+      - name : novatel_oem7_1
+        desc : novatel_oem7_1 desc sample
+        probe:
+        run  : roslaunch novatel_oem7 novatel_oem7.launch nodename:=novatel_oem7_1
+        param: novatel
+      - name : novatel_oem7_tcp1
+        desc : novatel_oem7_tcp desc sample
+        probe:
+        run  : roslaunch novatel_oem7 novatel_oem7_tcp.launch __ns:=novatel_oem7_1
+        param: novatel_oem7_tcp
+      - name : novatel_oem7_tcp2
+        desc : novatel_oem7_tcp desc sample
+        probe:
+        run  : roslaunch novatel_oem7 novatel_oem7_tcp.launch __ns:=novatel_oem7_2
+        param: novatel_oem7_tcp
 
   - name : IMU
     desc : IMU desc sample
@@ -1719,6 +1734,38 @@ params :
       label : dltl
       desc  : DeviceLinkThroughputLimit (Default 1568000)
       v     : 1568000
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+
+  - name : novatel
+    vars :
+    - name      : port
+      desc      : port desc sample
+      label     : 'Device name:'
+      kind      : path
+      v         : /dev/ttyUSB0
+      cmd_param :
+        dash      : ''
+        delim     : ':='
+    - name      : baud
+      desc      : baud desc sample
+      label     : 'Baud:'
+      kind      : menu
+      choices   : [ '1200', '2400', '4800', '9600', '19200', '38400', '57600', '115200', '230400' ]
+      choices_type : str
+      v         : '115200'
+      cmd_param :
+        dash      : ''
+        delim     : ':='
+
+  - name  : novatel_oem7_tcp
+    vars  :
+    - name  : ip
+      label : ip
+      desc  : ip
+      kind  : str
+      v     : '192.168.1.150'
       cmd_param :
         dash        : ''
         delim       : ':='
