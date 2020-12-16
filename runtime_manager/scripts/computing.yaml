@@ -42,6 +42,10 @@ subs :
         param: gnss2
         gui  :
           stat_topic : [ gnss ]
+      - name : gnss(RTK)_localizer
+        desc : gnss(RTK)_localizer desc sample
+        cmd  : roslaunch gnss_localizer gnss_matching.launch
+        param: gnss_localizer_param
 
     - name : lidar_localizer
       desc : lidar_localizer desc sample
@@ -6659,3 +6663,42 @@ params :
       cmd_param :
         dash      : ''
         delim     : ':='
+
+  - name  : gnss_localizer_param
+    topic : /config/gnss_localizer
+    msg   : ConfigGnssLocalizer
+    vars  :
+    - name    : use_topic_num
+      label   : 'use_topic_num: '
+      kind    : menu
+      choices : [ '0', '1', '2' ]
+      choices_type : str
+      v       : '1'
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name      : yaw_correct
+      desc      : yaw_correct
+      label     : yaw_correct(deg)
+      min   : -10.0
+      max   : 10.0
+      v     : 0.0
+      cmd_param :
+        dash      : ''
+        delim     : ':='
+    - name    : namespace1
+      desc    : namespace1
+      label   : 'namespace1'
+      kind    : str
+      v       : /novatel_oem7_1
+      cmd_param :
+        dash  : ''
+        delim : ':='
+    - name    : namespace2
+      desc    : namespace2
+      label   : 'namespace2'
+      kind    : str
+      v       : /novatel_oem7_2
+      cmd_param :
+        dash  : ''
+        delim : ':='
