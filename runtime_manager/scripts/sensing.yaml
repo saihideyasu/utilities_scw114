@@ -102,17 +102,17 @@ subs :
         probe:
         run  : roslaunch nmea_navsat nmea_navsat.launch
         param: serial
-      - name : novatel_oem7_1
+      - name : novatel_oem7_1(scw)
         desc : novatel_oem7_1 desc sample
         probe:
         run  : roslaunch novatel_oem7 novatel_oem7.launch nodename:=novatel_oem7_1
         param: novatel
-      - name : novatel_oem7_tcp1
+      - name : novatel_oem7_tcp1(scw)
         desc : novatel_oem7_tcp desc sample
         probe:
         run  : roslaunch novatel_oem7 novatel_oem7_tcp.launch __ns:=novatel_oem7_1
         param: novatel_oem7_tcp
-      - name : novatel_oem7_tcp2
+      - name : novatel_oem7_tcp2(scw)
         desc : novatel_oem7_tcp desc sample
         probe:
         run  : roslaunch novatel_oem7 novatel_oem7_tcp.launch __ns:=novatel_oem7_2

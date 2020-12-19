@@ -30,19 +30,19 @@ subs :
             flags : [ nl ]
           sim_mode :
             flags : [ nl ]
-      - name : nmea2tfpose_RTK_1
+      - name : nmea2tfpose_RTK_1(scw)
         desc : nmea2tfpose_RTK_1 desc sample
         cmd  : roslaunch gnss_localizer nmea2tfpose_RTK1.launch
         param: gnss2
         gui  :
           stat_topic : [ gnss ]
-      - name : nmea2tfpose_RTK_2
+      - name : nmea2tfpose_RTK_2(scw)
         desc : nmea2tfpose_RTK_2 desc sample
         cmd  : roslaunch gnss_localizer nmea2tfpose_RTK2.launch
         param: gnss2
         gui  :
           stat_topic : [ gnss ]
-      - name : gnss(RTK)_localizer
+      - name : gnss(RTK)_localizer(scw)
         desc : gnss(RTK)_localizer desc sample
         cmd  : roslaunch gnss_localizer gnss_matching.launch
         param: gnss_localizer_param
@@ -172,8 +172,8 @@ subs :
       - name : can2odom
         desc : can2odom desc sample
         cmd  : roslaunch autoware_connector can2odom.launch
-      - name : can2odom_scw
-        desc : can2odom_scw desc sample
+      - name : can2odom(scw)
+        desc : can2odom(scw) desc sample
         cmd  : roslaunch autoware_connector can2odom_scw.launch
         param: can2odom_scw
       - name : vel_pose_connect
@@ -191,8 +191,8 @@ subs :
              depend_bool : 'lambda v : v == 0'
              flags : [ nl ]
              prop  : 1
-      - name : localizer_switch
-        desc : localizer_switch desc sample
+      - name : localizer_switch(scw)
+        desc : localizer_switch(scw) desc sample
         cmd  : roslaunch autoware_connector localizer_switch.launch
         param: localizer_switch
         gui  :
@@ -228,6 +228,10 @@ subs :
             depend : alignment_mechanism3
             depend_bool : 'lambda v : v == 1'
             flags : [ nl ]
+      - name : estimate_to_baselink(scw)
+        desc : estimate_to_baselink desc sample
+        cmd  : roslaunch autoware_connector estimate_to_baselink.launch
+        param: estimate_to_baselink
     - name : localizer_diagnosis
       desc : localizer_diagnosis
       subs :
@@ -649,6 +653,79 @@ subs :
              depend_bool : 'lambda v : v == 1'
              flags : [ nl ]
 
+       - name : waypoint_loader_show_id(scw)
+         desc : waypoint_loader_show_id desc sample
+         cmd  : roslaunch waypoint_maker waypoint_loader_show_id.launch
+         param: waypoint_loader
+         gui  :
+           dialog_width  : 600
+           dialog_height : 450
+           multi_lane_csv :
+             depend      : load_csv
+             depend_bool : 'lambda v : v == 1'
+             prop  : 1
+           realtime_tuning_mode:
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           resample_mode :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+           resample_interval :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           replan_curve_mode :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+           overwrite_vmax_mode :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+           replan_endpoint_mode :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           velocity_max :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           radius_thresh :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           radius_min :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           velocity_min :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           accel_limit :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           decel_limit :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           velocity_offset :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           end_point_offset :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+           braking_distance :
+             depend      : replanning_mode
+             depend_bool : 'lambda v : v == 1'
+             flags : [ nl ]
+
+       - name : waypoint_param_sender(scw)
+         desc : waypoint_param_sender desc sample
+         cmd  : roslaunch waypoint_maker waypoint_param_sender.launch
+
        - name : waypoint_saver
          desc : waypoint_saver desc sample
          cmd  : roslaunch waypoint_maker waypoint_saver.launch
@@ -709,7 +786,24 @@ subs :
           enable_multiple_crosswalk_detection : { border : 4, flags : [ all ] }
           dialog_width  : 800
           dialog_height : 450
-
+      - name : velocity_set111
+        desc : velocity_set111 desc sample
+        cmd  : roslaunch waypoint_planner111 velocity_set.launch
+        param: velocity_set111
+        gui  :
+          use_crosswalk_detection : { border : 4, flags : [ all ] }
+          enable_multiple_crosswalk_detection : { border : 4, flags : [ all ] }
+          dialog_width  : 800
+          dialog_height : 450
+      - name : velocity_set111scw
+        desc : velocity_set111scw desc sample
+        cmd  : roslaunch waypoint_planner111scw velocity_set_option.launch
+        param: velocity_set111scw
+        gui  :
+          use_crosswalk_detection : { border : 4, flags : [ all ] }
+          enable_multiple_crosswalk_detection : { border : 4, flags : [ all ] }
+          dialog_width  : 800
+          dialog_height : 450
     - name : waypoint_follower
       desc : waypoint_follower desc sample
       subs :
@@ -754,6 +848,10 @@ subs :
          desc : twist_filter desc sample
          cmd  : roslaunch twist_filter twist_filter.launch
          param: twist_filter
+       - name : lookahead_ratio_magn(scw)
+         desc : lookahead_ratio_magn desc sample
+         cmd  : roslaunch lookahead_ratio_magn lookahead_ratio_magn.launch
+         param: lookahead_ratio_magn
        - name : wf_simulator
          desc : waypoint follower simulator
          cmd  : roslaunch wf_simulator wf_simulator.launch
@@ -917,6 +1015,26 @@ subs :
       - name : lattice_twist_convert
         desc : lattice_twist_convert desc sample
         cmd  : rosrun lattice_planner lattice_twist_convert
+
+  - name : Other
+    desc : Other groups
+    subs : 
+    - name : signal creator(scw)
+      desc : signal creator desc sample
+      cmd  : roslaunch signal_creator signal_creator.launch
+    - name : microbus can(scw)
+      desc : microbus can desc sample
+      cmd  : roslaunch vehicle_socket kvaser_microbus_stroke.launch
+      param: microbus_can
+      gui  :
+          dialog_height : 600
+    - name : microbus_interface(scw)
+      desc : microbus_interface desc sample
+      cmd  : roslaunch microbus_interface microbus_interface.launch
+    - name : microbus_pseudo_can_publisher(scw)
+      desc : microbus_pseudo_can_publisher desc sample
+      cmd  : roslaunch vehicle_socket microbus_pseudo_can_publisher.launch
+      param: microbus_pseudo_can_publisher
 
   - name : Decision
     desc : decision groups
@@ -2265,7 +2383,205 @@ params :
       desc  : temporal_waypoints_size desc sample
       label : Temporal Waypoints Size
       min   : 0
+      max   : 300
+      v     : 100.0
+    - name      : use_ll2
+      desc      : Use Lanelet2 map format
+      label     : Lanelet2 (default VectorMap)
+      kind      : checkbox
+      v         : False
+      cmd_param :
+        dash      : ''
+        delim     : ':='
+
+  - name  : velocity_set111
+    topic : /config/velocity_set111
+    msg   : ConfigVelocitySet111
+    vars  :
+    - name  : use_crosswalk_detection
+      desc  : use_crosswalk_detection desc sample
+      label : Use Crosswalk Detection
+      kind  : checkbox
+      v     : False
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name  : enable_multiple_crosswalk_detection
+      desc  : enable_multiple_crosswalk_detection desc sample
+      label : Enable Multiple Crosswalk Detection
+      kind  : checkbox
+      v     : False
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name      : points_topic
+      desc      : pointcloud2 topic for obstacle detection
+      label     : Points Topic
+      kind      : str
+      v         : points_no_ground
+      cmd_param :
+        dash      : ''
+        delim     : ':='
+    - name  : stop_distance_obstacle
+      desc  : stop_distance_obstacle desc sample
+      label : Stop Distance for Obstacle (m)
+      min   : 0
+      max   : 50
+      v     : 15.0
+    - name  : stop_distance_stopline
+      desc  : stop_distance_stopline desc sample
+      label : Stop Distance for Stopline(m)
+      min   : 0
+      max   : 50
+      v     : 5.0
+    - name  : detection_range
+      desc  : detection_range desc sample
+      label : Detection Range (m)
+      min   : 0
+      max   : 10
+      v     : 1.3
+    - name  : deceleration_range
+      desc  : deceleration_range desc sample
+      label : Deceleration Range (m)
+      min   : 0
+      max   : 10
+      v     : 0
+    - name  : threshold_points
+      desc  : threshold_points desc sample
+      label : Points Threshold
+      min   : 0
+      max   : 30
+      v     : 5
+    - name  : detection_height_top
+      desc  : detection_height_top desc sample
+      label : Detection Height Top (m)
+      min   : 0
+      max   : 10
+      v     : 0.1
+    - name  : detection_height_bottom
+      desc  : detection_height_bottom desc sample
+      label : Detection Height Bottom (m)
+      min   : -10
+      max   : 0
+      v     : -1.5
+    - name  : deceleration_obstacle
+      desc  : deceleration_obstacle desc sample
+      label : Deceleration for Obstacle (m/s^2)
+      min   : 0
+      max   : 5
+      v     : 0.7
+    - name  : deceleration_stopline
+      desc  : deceleration_stopline desc sample
+      label : Deceleration for Stopline (m/s^2)
+      min   : 0
+      max   : 5
+      v     : 0.3
+    - name  : velocity_change_limit
+      desc  : velocity_change_limit desc sample
+      label : Velocity Change Limit (km/h)
+      min   : 5
+      max   : 40
+      v     : 7.0
+    - name  : temporal_waypoints_size
+      desc  : temporal_waypoints_size desc sample
+      label : Temporal Waypoints Size
+      min   : 0
       max   : 150
+      v     : 100.0
+
+  - name  : velocity_set111scw
+    topic : /config/velocity_set111scw
+    msg   : ConfigVelocitySet111SCW
+    vars  :
+    - name  : use_crosswalk_detection
+      desc  : use_crosswalk_detection desc sample
+      label : Use Crosswalk Detection
+      kind  : checkbox
+      v     : False
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name  : enable_multiple_crosswalk_detection
+      desc  : enable_multiple_crosswalk_detection desc sample
+      label : Enable Multiple Crosswalk Detection
+      kind  : checkbox
+      v     : False
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name      : points_topic
+      desc      : pointcloud2 topic for obstacle detection
+      label     : Points Topic
+      kind      : str
+      v         : points_no_ground
+      cmd_param :
+        dash      : ''
+        delim     : ':='
+    - name  : stop_distance_obstacle
+      desc  : stop_distance_obstacle desc sample
+      label : Stop Distance for Obstacle (m)
+      min   : 0
+      max   : 50
+      v     : 15.0
+    - name  : stop_distance_stopline
+      desc  : stop_distance_stopline desc sample
+      label : Stop Distance for Stopline(m)
+      min   : 0
+      max   : 50
+      v     : 5.0
+    - name  : detection_range
+      desc  : detection_range desc sample
+      label : Detection Range (m)
+      min   : 0
+      max   : 10
+      v     : 1.3
+    - name  : deceleration_range
+      desc  : deceleration_range desc sample
+      label : Deceleration Range (m)
+      min   : 0
+      max   : 10
+      v     : 0.0
+    - name  : threshold_points
+      desc  : threshold_points desc sample
+      label : Points Threshold
+      min   : 0
+      max   : 30
+      v     : 5
+    - name  : detection_height_top
+      desc  : detection_height_top desc sample
+      label : Detection Height Top (m)
+      min   : 0
+      max   : 10
+      v     : 0.1
+    - name  : detection_height_bottom
+      desc  : detection_height_bottom desc sample
+      label : Detection Height Bottom (m)
+      min   : -10
+      max   : 0
+      v     : -1.5
+    - name  : deceleration_obstacle
+      desc  : deceleration_obstacle desc sample
+      label : Deceleration for Obstacle (m/s^2)
+      min   : 0
+      max   : 5
+      v     : 0.7
+    - name  : deceleration_stopline
+      desc  : deceleration_stopline desc sample
+      label : Deceleration for Stopline (m/s^2)
+      min   : 0
+      max   : 5
+      v     : 0.3
+    - name  : velocity_change_limit
+      desc  : velocity_change_limit desc sample
+      label : Velocity Change Limit (km/h)
+      min   : 5
+      max   : 40
+      v     : 7.0
+    - name  : temporal_waypoints_size
+      desc  : temporal_waypoints_size desc sample
+      label : Temporal Waypoints Size
+      min   : 0
+      max   : 500
       v     : 100.0
     - name      : use_ll2
       desc      : Use Lanelet2 map format
@@ -6960,3 +7276,731 @@ params :
         dash      : ''
         delim     : ':='
 
+  - name  : estimate_to_baselink
+    topic : /config/estimate_to_baselink
+    msg   : ConfigEstimateToBaselink
+    vars  :
+    - name  : height
+      desc  : height
+      label : height
+      min   : 0.0
+      max   : 10000.0
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+
+  - name  : microbus_pseudo_can_publisher
+    topic : /config/microbus_pseudo_can_publisher
+    msg   : ConfigMicrobusPseudoCanPublisher
+    vars  :
+    - name  : use_velocity_flag
+      desc  : use_velocity_flag desc sample
+      label : use_velocity_flag
+      kind  : radio_box
+      choices:
+      - static
+      - waypoint
+      descs :
+      - static
+      - waypoint
+      v     : 0
+    - name  : velocity_mps
+      desc  : velocity_mps
+      label : velocity_mps
+      min   : 0.0
+      max   : 100.0
+      v     : 10.0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : time_step_ms
+      desc  : time_step_ms
+      label : time_step_ms
+      min   : 0.0
+      max   : 10.0
+      v     : 0.0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+
+  - name  : lookahead_ratio_magn
+    topic : /config/lookahead_ratio_magn
+    msg   : ConfigLookAheadRatioMagn
+    vars  :
+    - name : max_magn
+      desc : max_magn
+      label: max_magn
+      min  : 1.0
+      max  : 5.0
+      v    : 1.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : min_magn
+      desc : min_magn
+      label: min_magn
+      min  : 1.0
+      max  : 5.0
+      v    : 1.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+
+  - name  : microbus_can
+    topic : /config/microbus_can
+    msg   : ConfigMicroBusCan
+    vars  :
+    - name  : kvaser_serial
+      desc  : kvaser_serial desc sample
+      label : kvaser_serial
+      kind  : str
+      v     : '0'
+      cmd_param :
+         dash    : ''
+         delim   : ':='
+    - name  : use_position_checker
+      desc  : use_position_checker desc sample
+      label : use_position_checker
+      kind  : radio_box
+      choices:
+      - not use
+      - use
+      descs :
+      - not use position_checker
+      - use position_checker
+      v     : 1
+    - name : velocity_limit
+      desc : velocity_limit
+      label: velocity_limit
+      min  : 0.0
+      max  : 150.0
+      v    : 50
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : velocity_stop_th
+      desc : velocity_stop_th
+      label: velocity_stop_th
+      min  : 0.0
+      max  : 10
+      v    : 4
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_max_i
+      desc : accel_max_i
+      label: accel_max_i
+      min  : 0.0
+      max  : 10000
+      v    : 3000
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_max_i1
+      desc : brake_max_i1
+      label: brake_max_i1
+      min  : 0.0
+      max  : 2000
+      v    : 500
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_max_i2
+      desc : brake_max_i2
+      label: brake_max_i2
+      min  : 0.0
+      max  : 2000
+      v    : 500
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_p_velocity
+      desc : k_accel_p_velocity
+      label: k_accel_p_velocity
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_i_velocity
+      desc : k_accel_i_velocity
+      label: k_accel_i_velocity
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_d_velocity
+      desc : k_accel_d_velocity
+      label: k_accel_d_velocity
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_p_velocity
+      desc : k_brake_p_velocity
+      label: k_brake_p_velocity
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_i_velocity
+      desc : k_brake_i_velocity
+      label: k_brake_i_velocity
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_d_velocity
+      desc : k_brake_d_velocity
+      label: k_brake_d_velocity
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_p_acceleration
+      desc : k_accel_p_acceleration
+      label: k_accel_p_acceleration
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_i_acceleration
+      desc : k_accel_i_acceleration
+      label: k_accel_i_acceleration
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_d_acceleration
+      desc : k_accel_d_acceleration
+      label: k_accel_d_acceleration
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_p_acceleration
+      desc : k_brake_p_acceleration
+      label: k_brake_p_acceleration
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_i_acceleration
+      desc : k_brake_i_acceleration
+      label: k_brake_i_acceleration
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_d_acceleration
+      desc : k_brake_d_acceleration
+      label: k_brake_d_acceleration
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_p_distance
+      desc : k_accel_p_distance
+      label: k_accel_p_distance
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_i_distance
+      desc : k_accel_i_distance
+      label: k_accel_i_distance
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_d_distance
+      desc : k_accel_d_distance
+      label: k_accel_d_distance
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_p_distance
+      desc : k_brake_p_distance
+      label: k_brake_p_distance
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_i_distance
+      desc : k_brake_i_distance
+      label: k_brake_i_distance
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_d_distance
+      desc : k_brake_d_distance
+      label: k_brake_d_distance
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_max_i
+      desc : steer_max_i
+      label: steer_max_i
+      min  : 0.0
+      max  : 300
+      v    : 0.5
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_steer_p_distance
+      desc : k_steer_p_distance
+      label: k_steer_p_distance
+      min  : 0.0
+      max  : 300.0
+      v    : 50
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_steer_i_distance
+      desc : k_steer_i_distance
+      label: k_steer_i_distance
+      min  : 0.0
+      max  : 100
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_steer_d_distance
+      desc : k_steer_d_distance
+      label: k_steer_d_distance
+      min  : 0.0
+      max  : 100
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : pedal_stroke_center
+      desc : pedal_stroke_center
+      label: pedal_stroke_center
+      min  : -30
+      max  : 30
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : pedal_stroke_max
+      desc : pedal_stroke_max
+      label: pedal_stroke_max
+      min  : 0
+      max  : 1000
+      v    : 850
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : pedal_stroke_min
+      desc : pedal_stroke_min
+      label: pedal_stroke_min
+      min  : -600
+      max  : -300
+      v    : -500
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : stop_stroke_max
+      desc : stop_stroke_max
+      label: stop_stroke_max
+      min  : -400
+      max  : -300
+      v    : -340
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_stopping_med
+      desc : brake_stroke_stopping_med
+      label: brake_stroke_stopping_med
+      min  : -600
+      max  : -300
+      v    : -400
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_stroke_offset
+      desc : accel_stroke_offset
+      label: accel_stroke_offset
+      min  : 0
+      max  : 300
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_offset
+      desc : brake_stroke_offset
+      label: brake_stroke_offset
+      min  : -30
+      max  : 0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : acceptable_velocity_variation
+      desc : acceptable_velocity_variation
+      label: acceptable_velocity_variation
+      min  : 0
+      max  : 10
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : gnss_lat_limit
+      desc : gnss_lat_limit
+      label: gnss_lat_limit
+      min  : 0.0
+      max  : 1.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : gnss_lon_limit
+      desc : gnss_lon_limit
+      label: gnss_lon_limit
+      min  : 0.0
+      max  : 1.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : gnss_alt_limit
+      desc : gnss_alt_limit
+      label: gnss_alt_limit
+      min  : 0.0
+      max  : 1.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : gnss_yaw_limit
+      desc : gnss_yaw_limit
+      label: gnss_yaw_limit
+      min  : 0.0
+      max  : 3.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : ndt_gnss_min_distance_limit
+      desc : ndt_gnss_min_distance_limit
+      label: ndt_gnss_min_distance_limit
+      min  : 0.0
+      max  : 3.0
+      v    : 0.3
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : ndt_gnss_max_distance_limit
+      desc : ndt_gnss_max_distance_limit
+      label: ndt_gnss_max_distance_limit
+      min  : 0.0
+      max  : 10.0
+      v    : 2.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : ndt_gnss_angle_limit
+      desc : ndt_gnss_angle_limit
+      label: ndt_gnss_angle_limit
+      min  : 0.0
+      max  : 90.0
+      v    : 10.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_limit_function_select_th
+      desc : steer_limit_function_select_th
+      label: steer_limit_function_select_th
+      min  : 0.0
+      max  : 50
+      v    : 12
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_value_limit1
+      desc : steer_value_limit1
+      label: steer_value_limit1
+      min  : 0.0
+      max  : 200
+      v    : 100
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_value_limit2
+      desc : steer_value_limit2
+      label: steer_value_limit2
+      min  : 0.0
+      max  : 200
+      v    : 60
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_speed_limit1_left
+      desc : steer_speed_limit1_left
+      label: steer_speed_limit1_left
+      min  : -30000.0
+      max  : 0.0
+      v    : -20000
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_speed_limit1_right
+      desc : steer_speed_limit1_right
+      label: steer_speed_limit1_right
+      min  : 0.0
+      max  : 30000.0
+      v    : 20000.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_speed_limit2_left
+      desc : steer_speed_limit2_left
+      label: steer_speed_limit2_left
+      min  : -30000.0
+      max  : 0.0
+      v    : -10000
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_speed_limit2_right
+      desc : steer_speed_limit2_right
+      label: steer_speed_limit2_right
+      min  : 0.0
+      max  : 30000
+      v    : 10000
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_deg_th_left
+      desc : steer_deg_th_left
+      label: steer_deg_th_left
+      min  : -1000.0
+      max  : 0.0
+      v    : -200
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_deg_th_right
+      desc : steer_deg_th_right
+      label: steer_deg_th_right
+      min  : 0.0
+      max  : 1000.0
+      v    : 200
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_deg_acc_th_left
+      desc : steer_deg_acc_th_left
+      label: steer_deg_acc_th_left
+      min  : -1000.0
+      max  : 0.0
+      v    : -500.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_deg_acc_th_right
+      desc : steer_deg_acc_th_right
+      label: steer_deg_acc_th_right
+      min  : 0.0
+      max  : 1000.0
+      v    : 500
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name  : use_velocity_data
+      desc  : use_velocity_data desc sample
+      label : use_velocity_data
+      kind  : radio_box
+      choices:
+      - can
+      - twist
+      descs :
+      - can
+      - twist
+      v     : 1
+    - name  : use_acceleration_data
+      desc  : use_acceleration_data desc sample
+      label : use_acceleration_data
+      kind  : radio_box
+      choices:
+      - twist1
+      - twist2
+      - imu
+      descs :
+      - twist1
+      - twist2
+      - imu
+      v     : 2
+    - name : check_distance_th
+      desc : check_distance_th
+      label: check_distance_th
+      min  : 0.0
+      max  : 10.0
+      v    : 2
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : check_angular_th
+      desc : check_angular_th
+      label: check_angular_th
+      min  : 0.0
+      max  : 50.0
+      v    : 30
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : stopper_distance1
+      desc : stopper_distance1
+      label: stopper_distance1
+      min  : 0.0
+      max  : 50.0
+      v    : 30.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : stopper_distance2
+      desc : stopper_distance2
+      label: stopper_distance2
+      min  : 0.0
+      max  : 10.0
+      v    : 8.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : stopper_distance3
+      desc : stopper_distance3
+      label: stopper_distance3
+      min  : 0.0
+      max  : 5.0
+      v    : 2.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name    : use_lane_left
+      desc    : use_lane_left
+      label   : 'use_lane_left'
+      kind    : checkbox
+      v       : True
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name    : use_lane_right
+      desc    : use_lane_right
+      label   : 'use_lane_right'
+      kind    : checkbox
+      v       : True
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name : lane_th_left
+      desc : lane_th_left
+      label: lane_th_left
+      min  : -5.0
+      max  : 0.0
+      v    : -2
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : lane_th_right
+      desc : lane_th_right
+      label: lane_th_right
+      min  : 0.0
+      max  : 5.0
+      v    : 2.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_stroke_step_max
+      desc : accel_stroke_step_max
+      label: accel_stroke_step_max
+      min  : 0.0
+      max  : 5.0
+      v    : 2
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_stroke_step_min
+      desc : accel_stroke_step_min
+      label: accel_stroke_step_min
+      min  : 0.0
+      max  : 5.0
+      v    : 0.5
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_step_max
+      desc : brake_stroke_step_max
+      label: brake_stroke_step_max
+      min  : 0.0
+      max  : 5.0
+      v    : 2
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_step_min
+      desc : brake_stroke_step_min
+      label: brake_stroke_step_min
+      min  : 0.0
+      max  : 5.0
+      v    : 1.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_stroke_adjust_th
+      desc : accel_stroke_adjust_th
+      label: accel_stroke_adjust_th
+      min  : 0.0
+      max  : 20.0
+      v    : 5
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_adjust_th
+      desc : brake_stroke_adjust_th
+      label: brake_stroke_adjust_th
+      min  : 0.0
+      max  : 20.0
+      v    : 5
+      cmd_param:
+        dash     : ''
+        delim    : ':='

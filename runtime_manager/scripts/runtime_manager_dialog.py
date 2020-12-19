@@ -59,6 +59,8 @@ from autoware_config_msgs.msg import ConfigWaypointReplanner
 from autoware_config_msgs.msg import ConfigWaypointFollower
 from autoware_config_msgs.msg import ConfigTwistFilter
 from autoware_config_msgs.msg import ConfigVelocitySet
+from autoware_config_msgs.msg import ConfigVelocitySet111
+from autoware_config_msgs.msg import ConfigVelocitySet111SCW
 from autoware_config_msgs.msg import ConfigLatticeVelocitySet
 from autoware_config_msgs.msg import ConfigCarKF
 from autoware_config_msgs.msg import ConfigPedestrianKF
@@ -73,6 +75,10 @@ from autoware_config_msgs.msg import ConfigCompareMapFilter
 from autoware_config_msgs.msg import ConfigGnssLocalizer
 from autoware_config_msgs.msg import ConfigCanOdometry
 from autoware_config_msgs.msg import ConfigLocalizerSwitch
+from autoware_config_msgs.msg import ConfigEstimateToBaselink
+from autoware_config_msgs.msg import ConfigMicrobusPseudoCanPublisher
+from autoware_config_msgs.msg import ConfigMicroBusCan
+from autoware_config_msgs.msg import ConfigLookAheadRatioMagn
 from tablet_socket_msgs.msg import mode_cmd
 from tablet_socket_msgs.msg import gear_cmd
 from tablet_socket_msgs.msg import Waypoint

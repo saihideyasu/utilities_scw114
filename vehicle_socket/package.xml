@@ -14,4 +14,10 @@
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
   <depend>tablet_socket_msgs</depend>
+  <depend>autoware_config_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nmea_msgs</depend>
+  <depend>autoware_system_msgs</depend>
+  <depend>roslib</depend>
+  <depend>tf</depend>
 </package>
