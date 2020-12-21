@@ -51,6 +51,24 @@ add_dependencies(kvaser_microbus_can_sender
   ${catkin_EXPORTED_TARGETS}
   )
 
+add_executable(kvaser_microbus_can_receiver111scw
+	nodes/kvaser_microbus_can_receiver111scw/kvaser_microbus_can_receiver.cpp)
+target_link_libraries(kvaser_microbus_can_receiver111scw
+  ${catkin_LIBRARIES}
+  canlib)
+add_dependencies(kvaser_microbus_can_receiver111scw
+  ${catkin_EXPORTED_TARGETS}
+  )
+
+add_executable(kvaser_microbus_can_sender111scw
+	nodes/kvaser_microbus_can_sender111scw/kvaser_microbus_can_sender_stroke.cpp)
+target_link_libraries(kvaser_microbus_can_sender111scw
+  ${catkin_LIBRARIES}
+  canlib)
+add_dependencies(kvaser_microbus_can_sender111scw
+  ${catkin_EXPORTED_TARGETS}
+  )
+
 add_executable(microbus_pseudo_can_publisher
 	nodes/microbus_pseudo_can_publisher/microbus_pseudo_can_publisher.cpp)
 target_link_libraries(microbus_pseudo_can_publisher
@@ -70,6 +88,7 @@ add_dependencies(microbus_pseudo_can_sender
   )
 
 install(TARGETS vehicle_sender vehicle_receiver kvaser_microbus_can_sender kvaser_microbus_can_receiver
+                kvaser_microbus_can_sender111scw kvaser_microbus_can_receiver111scw
                 microbus_pseudo_can_publisher microbus_pseudo_can_sender
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

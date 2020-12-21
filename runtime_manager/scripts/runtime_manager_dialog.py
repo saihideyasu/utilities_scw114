@@ -79,6 +79,7 @@ from autoware_config_msgs.msg import ConfigEstimateToBaselink
 from autoware_config_msgs.msg import ConfigMicrobusPseudoCanPublisher
 from autoware_config_msgs.msg import ConfigMicroBusCan
 from autoware_config_msgs.msg import ConfigLookAheadRatioMagn
+from autoware_config_msgs.msg import ConfigMicroBusCan111SCW
 from tablet_socket_msgs.msg import mode_cmd
 from tablet_socket_msgs.msg import gear_cmd
 from tablet_socket_msgs.msg import Waypoint

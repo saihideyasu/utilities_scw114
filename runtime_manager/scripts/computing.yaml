@@ -1028,6 +1028,12 @@ subs :
       param: microbus_can
       gui  :
           dialog_height : 600
+    - name : microbus can(111scw)
+      desc : microbus can desc sample
+      cmd  : roslaunch vehicle_socket kvaser_microbus_stroke111scw.launch
+      param: microbus_can111scw
+      gui  :
+          dialog_height : 600
     - name : microbus_interface(scw)
       desc : microbus_interface desc sample
       cmd  : roslaunch microbus_interface microbus_interface.launch
@@ -7343,6 +7349,567 @@ params :
       min  : 1.0
       max  : 5.0
       v    : 1.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+
+  - name  : microbus_can111scw
+    topic : /config/microbus_can111scw
+    msg   : ConfigMicroBusCan111SCW
+    vars  :
+    - name  : kvaser_channel
+      desc  : kvaser_channel desc sample
+      label : kvaser_channel
+      kind    : menu
+      choices : [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10' ]
+      choices_type : str
+      v       : '0'
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : use_position_checker
+      desc  : use_position_checker desc sample
+      label : use_position_checker
+      kind  : radio_box
+      choices:
+      - not use
+      - use
+      descs :
+      - not use position_checker
+      - use position_checker
+      v     : 1
+    - name : speed_limit
+      desc : speed_limit
+      label: speed_limit
+      min  : 0.0
+      max  : 150.0
+      v    : 50
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : velocity_limit
+      desc : velocity_limit
+      label: velocity_limit
+      min  : 0.0
+      max  : 150.0
+      v    : 50
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : velocity_stop_th
+      desc : velocity_stop_th
+      label: velocity_stop_th
+      min  : 0.0
+      max  : 10
+      v    : 4
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_max_i
+      desc : accel_max_i
+      label: accel_max_i
+      min  : 0.0
+      max  : 10000
+      v    : 3000
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_max_i
+      desc : brake_max_i
+      label: brake_max_i
+      min  : 0.0
+      max  : 2000
+      v    : 500
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_p_velocity
+      desc : k_accel_p_velocity
+      label: k_accel_p_velocity
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_i_velocity
+      desc : k_accel_i_velocity
+      label: k_accel_i_velocity
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_d_velocity
+      desc : k_accel_d_velocity
+      label: k_accel_d_velocity
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_p_velocity
+      desc : k_brake_p_velocity
+      label: k_brake_p_velocity
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_i_velocity
+      desc : k_brake_i_velocity
+      label: k_brake_i_velocity
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_d_velocity
+      desc : k_brake_d_velocity
+      label: k_brake_d_velocity
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_p_acceleration
+      desc : k_accel_p_acceleration
+      label: k_accel_p_acceleration
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_i_acceleration
+      desc : k_accel_i_acceleration
+      label: k_accel_i_acceleration
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_d_acceleration
+      desc : k_accel_d_acceleration
+      label: k_accel_d_acceleration
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_p_acceleration
+      desc : k_brake_p_acceleration
+      label: k_brake_p_acceleration
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_i_acceleration
+      desc : k_brake_i_acceleration
+      label: k_brake_i_acceleration
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_d_acceleration
+      desc : k_brake_d_acceleration
+      label: k_brake_d_acceleration
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_p_distance
+      desc : k_accel_p_distance
+      label: k_accel_p_distance
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_i_distance
+      desc : k_accel_i_distance
+      label: k_accel_i_distance
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_accel_d_distance
+      desc : k_accel_d_distance
+      label: k_accel_d_distance
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_p_distance
+      desc : k_brake_p_distance
+      label: k_brake_p_distance
+      min  : 0.0
+      max  : 2.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_i_distance
+      desc : k_brake_i_distance
+      label: k_brake_i_distance
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_brake_d_distance
+      desc : k_brake_d_distance
+      label: k_brake_d_distance
+      min  : 0.0
+      max  : 2
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_max_i
+      desc : steer_max_i
+      label: steer_max_i
+      min  : 0.0
+      max  : 300
+      v    : 0.5
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_steer_p_distance
+      desc : k_steer_p_distance
+      label: k_steer_p_distance
+      min  : 0.0
+      max  : 300.0
+      v    : 50
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_steer_i_distance
+      desc : k_steer_i_distance
+      label: k_steer_i_distance
+      min  : 0.0
+      max  : 100
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : k_steer_d_distance
+      desc : k_steer_d_distance
+      label: k_steer_d_distance
+      min  : 0.0
+      max  : 100
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : pedal_stroke_center
+      desc : pedal_stroke_center
+      label: pedal_stroke_center
+      min  : -30
+      max  : 30
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : pedal_stroke_max
+      desc : pedal_stroke_max
+      label: pedal_stroke_max
+      min  : 0
+      max  : 1000
+      v    : 850
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : pedal_stroke_min
+      desc : pedal_stroke_min
+      label: pedal_stroke_min
+      min  : -600
+      max  : -300
+      v    : -500
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_stopping_med
+      desc : brake_stroke_stopping_med
+      label: brake_stroke_stopping_med
+      min  : -600
+      max  : -300
+      v    : -400
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_stroke_offset
+      desc : accel_stroke_offset
+      label: accel_stroke_offset
+      min  : 0
+      max  : 300
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_offset
+      desc : brake_stroke_offset
+      label: brake_stroke_offset
+      min  : -30
+      max  : 0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : acceptable_velocity_variation
+      desc : acceptable_velocity_variation
+      label: acceptable_velocity_variation
+      min  : 0
+      max  : 10
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : gnss_lat_limit
+      desc : gnss_lat_limit
+      label: gnss_lat_limit
+      min  : 0.0
+      max  : 1.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : gnss_lon_limit
+      desc : gnss_lon_limit
+      label: gnss_lon_limit
+      min  : 0.0
+      max  : 1.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : gnss_alt_limit
+      desc : gnss_alt_limit
+      label: gnss_alt_limit
+      min  : 0.0
+      max  : 1.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : ndt_gnss_min_distance_limit
+      desc : ndt_gnss_min_distance_limit
+      label: ndt_gnss_min_distance_limit
+      min  : 0.0
+      max  : 3.0
+      v    : 0.3
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : ndt_gnss_max_distance_limit
+      desc : ndt_gnss_max_distance_limit
+      label: ndt_gnss_max_distance_limit
+      min  : 0.0
+      max  : 10.0
+      v    : 2.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : ndt_gnss_angle_limit
+      desc : ndt_gnss_angle_limit
+      label: ndt_gnss_angle_limit
+      min  : 0.0
+      max  : 90.0
+      v    : 10.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_speed_limit1
+      desc : steer_speed_limit1
+      label: steer_speed_limit1
+      min  : 0.0
+      max  : 120
+      v    : 100
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : steer_speed_limit2
+      desc : steer_speed_limit2
+      label: steer_speed_limit2
+      min  : 0.0
+      max  : 80
+      v    : 60
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name  : use_velocity_data
+      desc  : use_velocity_data desc sample
+      label : use_velocity_data
+      kind  : radio_box
+      choices:
+      - can
+      - twist
+      descs :
+      - can
+      - twist
+      v     : 1
+    - name  : use_acceleration_data
+      desc  : use_acceleration_data desc sample
+      label : use_acceleration_data
+      kind  : radio_box
+      choices:
+      - twist1
+      - twist2
+      - imu
+      descs :
+      - twist1
+      - twist2
+      - imu
+      v     : 2
+    - name : check_distance_th
+      desc : check_distance_th
+      label: check_distance_th
+      min  : 0.0
+      max  : 10.0
+      v    : 2
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : check_angular_th
+      desc : check_angular_th
+      label: check_angular_th
+      min  : 0.0
+      max  : 50.0
+      v    : 30
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : stopper_distance1
+      desc : stopper_distance1
+      label: stopper_distance1
+      min  : 0.0
+      max  : 50.0
+      v    : 20.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : stopper_distance2
+      desc : stopper_distance2
+      label: stopper_distance2
+      min  : 0.0
+      max  : 10.0
+      v    : 8.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : stopper_distance3
+      desc : stopper_distance3
+      label: stopper_distance3
+      min  : 0.0
+      max  : 5.0
+      v    : 2.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name    : use_lane_left
+      desc    : use_lane_left
+      label   : 'use_lane_left'
+      kind    : checkbox
+      v       : True
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name    : use_lane_right
+      desc    : use_lane_right
+      label   : 'use_lane_right'
+      kind    : checkbox
+      v       : True
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name : lane_th_left
+      desc : lane_th_left
+      label: lane_th_left
+      min  : -5.0
+      max  : 0.0
+      v    : -2
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : lane_th_right
+      desc : lane_th_right
+      label: lane_th_right
+      min  : 0.0
+      max  : 5.0
+      v    : 2.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_stroke_step_max
+      desc : accel_stroke_step_max
+      label: accel_stroke_step_max
+      min  : 0.0
+      max  : 5.0
+      v    : 2
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_stroke_step_min
+      desc : accel_stroke_step_min
+      label: accel_stroke_step_min
+      min  : 0.0
+      max  : 5.0
+      v    : 0.5
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_step_max
+      desc : brake_stroke_step_max
+      label: brake_stroke_step_max
+      min  : 0.0
+      max  : 5.0
+      v    : 2
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_step_min
+      desc : brake_stroke_step_min
+      label: brake_stroke_step_min
+      min  : 0.0
+      max  : 5.0
+      v    : 1.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : accel_stroke_adjust_th
+      desc : accel_stroke_adjust_th
+      label: accel_stroke_adjust_th
+      min  : 0.0
+      max  : 20.0
+      v    : 5
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : brake_stroke_adjust_th
+      desc : brake_stroke_adjust_th
+      label: brake_stroke_adjust_th
+      min  : 0.0
+      max  : 20.0
+      v    : 5
       cmd_param:
         dash     : ''
         delim    : ':='
