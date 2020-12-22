@@ -399,10 +399,10 @@ private:
 	std::string log_path_;
 	std::ofstream ofs_log_writer_;
 	long long int log_write_size_;
+	std::string waypoints_file_name_;
 	double cmd_steer_diff_, cmd_steer_diff_acc_; //vehicle_cmdのsteering_angleの前回との差分と、それの加速度版
 	double vehicle_cmd_time_diff_; //vehicle_cmdトピック更新時と前回との時間差分
 	double stop_distance_over_add_, stop_distance_over_sum_;//停止線に到達した場合の踏み増し処理用変数
-	std::string waypoints_file_name_;
 	double automode_mileage_; //自動走行時の走行距離
 	geometry_msgs::Point prev_waypoint_;//前回のwaypoint idの座標
 	bool automode_mileage_flag_;//走行距離計測している場合はtrue

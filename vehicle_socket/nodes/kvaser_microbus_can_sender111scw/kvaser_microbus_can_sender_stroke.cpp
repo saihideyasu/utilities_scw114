@@ -47,6 +47,7 @@
 #include <tf/tf.h>
 #include "kvaser_can111scw.h"
 #include <time.h>
+#include <fstream>
 
 static const int SYNC_FRAMES = 50;
 typedef message_filters::sync_policies::ApproximateTime<geometry_msgs::TwistStamped, geometry_msgs::PoseStamped>
@@ -310,7 +311,7 @@ private:
 	ros::Subscriber sub_ekf_covariance_, sub_use_safety_localizer_, sub_config_current_velocity_conversion_;
 	ros::Subscriber sub_cruse_velocity_, sub_mobileye_frame_, sub_mobileye_obstacle_data_, sub_temporary_fixed_velocity_;
 	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_nmea_sentence_, sub_log_write_, sub_cruse_error_;
-	ros::Subscriber sub_log_folder_;
+	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
 	message_filters::Subscriber<geometry_msgs::PoseStamped> *sub_current_pose_;
@@ -359,6 +360,7 @@ private:
 	ros::Time automatic_door_time_;
 	ros::Time blinker_right_time_, blinker_left_time_, blinker_stop_time_;
 	ros::Time drive_clutch_timer_, steer_clutch_timer_;
+	ros::Time can_send_time_;
 	double waypoint_id_ = -1;
 	tf::Quaternion waypoint_orientation_;
 	double ndt_gnss_angle_, waypoint_angle_;
@@ -381,6 +383,10 @@ private:
 	unsigned int log_subscribe_count_;
 	autoware_system_msgs::Date gnss_time_;
 	std::string log_folder_;
+	std::string log_path_;
+	std::ofstream ofs_log_writer_;
+	long long int log_write_size_;
+	std::string waypoints_file_name_;
 	double stop_distance_over_sum_, stop_distance_over_add_;
 	bool  use_slow_accel_release_;
 
@@ -405,6 +411,11 @@ private:
 			can_send();
 	}
 
+	void callbackWaypointFileName(const std_msgs::String::ConstPtr &msg)
+	{
+		waypoints_file_name_ = msg->data;
+	}
+
 	void callbackLogFolder(const std_msgs::String::ConstPtr &msg)
 	{
 		log_folder_ = msg->data;
@@ -414,17 +425,39 @@ private:
 	{
 		if(msg->data == true)
 		{
-			std::stringstream str;
+			/*std::stringstream str;
 			//str << "konsole -e /home/autoware/Autoware_1.11.0_sai_edit/ros/src/util/packages/runtime_manager/scripts/can_log.sh /home/autoware/Autoware_1.11.0_sai_edit/ros/";
-			str << "konsole -e /home/autoware/Autoware_1.11.0_sai_edit/ros/src/util/packages/runtime_manager/scripts/can_log.sh " << log_folder_ << "/";
+			str << "konsole -e /home/autoware/saiko_car_ware/src/autoware/utilities/runtime_manager/scripts/can_log.sh " << log_folder_ << "/";
 			str << gnss_time_.year << "_" << +gnss_time_.month << "_" << +gnss_time_.hour << "_" << +gnss_time_.min << "_" << gnss_time_.sec << ".csv";
 			std::cout << "log write : " << str.str() << std::endl;
 			system(str.str().c_str());
-			//system("/home/autoware/test.sh /home/autoware/aaa.csv");
+			//system("/home/autoware/test.sh /home/autoware/aaa.csv");*/
+
+			if(!ofs_log_writer_.is_open())
+			{
+				std::vector<std::string> sv = split(waypoints_file_name_, '/');
+
+				std::stringstream str;
+				str << log_folder_ << "/" << sv[sv.size()-1] << "_" << gnss_time_.year <<  "_" << +gnss_time_.month << "_" << +gnss_time_.day << "_" << +gnss_time_.hour << "_" << +gnss_time_.min << "_" << gnss_time_.sec << ".csv";
+				ofs_log_writer_.open(str.str(), std::ios::out);
+				if(ofs_log_writer_.is_open())
+				{
+					std::cout << "log write start : " << str.str() << std::endl;
+					ofs_log_writer_ << waypoints_file_name_ << "\n";
+					log_path_ = str.str();
+				}
+			}
 		}
 		else
 		{
-			system("/home/autoware/Autoware_1.11.0_sai_edit/ros/src/util/packages/runtime_manager/scripts/log_stop.sh");
+			if(ofs_log_writer_.is_open())
+			{
+				ofs_log_writer_.close();
+				std::cout << "log write stop : " << std::endl;
+				log_path_ = "";
+				log_write_size_ = 0;
+			}
+			//system("/home/autoware/saiko_car_ware/src/autoware/utilities/runtime_manager/scripts/log_stop.sh");
 		}
 	}
 
@@ -1456,11 +1489,11 @@ private:
 		str << "|" << mobileye_obstacle_data_.obstacle_angle;
 		name << "|" << "mbe_obstacle_angle";
 
-		for(int i=0; i<nmae_name_list_.size(); i++)
+		/*for(int i=0; i<nmae_name_list_.size(); i++)
 		{
 			str << "|" << nmea_text_list_[i].str();
 			name << "|" << nmae_name_list_[i];
-		}
+		}*/
 
 		nmea_text_list_.clear();
 		for(int i=0; i<nmae_name_list_.size(); i++) nmea_text_list_.push_back(std::stringstream());
@@ -1472,6 +1505,16 @@ private:
 		else
 			aw_msg.data = str.str();
 		pub_log_write_.publish(aw_msg);
+		if(log_path_ != "")
+		{
+			if(log_write_size_ == 0)
+			{
+				ofs_log_writer_ << name.str() << "\n";
+				log_write_size_ += name.str().size()+1;
+			}
+			ofs_log_writer_ << str.str() << "\n";
+			log_write_size_ += str.str().size()+1;
+		}
 		log_subscribe_count_ = sub_count;
 
 		current_velocity_ = *twist_msg;
@@ -2268,9 +2311,6 @@ private:
 
 		//const double stop_stroke = 340.0;
 		//if(use_stopper_distance_ == true && temporary_fixed_velocity_ <= 0)
-		std_msgs::String tmp;
-				tmp.data = "D1";
-				pub_tmp_.publish(tmp);
 
 		double stop_max = 340;
 		if(use_stopper_distance_ == true && (stopper_distance_.fixed_velocity <= 0 ||
@@ -2282,9 +2322,6 @@ private:
 			if(stopper_distance_.distance >= setting_.stopper_distance2 && stopper_distance_.distance <= setting_.stopper_distance1)
 			{std::cout << loop_counter_ << " : stopD1" << std::endl;
 				stop_distance_over_sum_ = 0;
-				std_msgs::String tmp;
-				tmp.data = "D1";
-				pub_tmp_.publish(tmp);
 				/*std::cout << "tbs," << target_brake_stroke;
 				double d = stop_stroke - target_brake_stroke;
 				if(d < 0) d = 0;
@@ -2294,9 +2331,6 @@ private:
 			else if(stopper_distance_.distance >= setting_.stopper_distance3 && stopper_distance_.distance <= setting_.stopper_distance2)
 			{std::cout << loop_counter_ << "stopD2" << std::endl;
 				stop_distance_over_sum_ = 0;
-				std_msgs::String tmp;
-				tmp.data = "D2";
-				pub_tmp_.publish(tmp);
 				/*if(current_velocity > 5.0)
 				{
 					std::cout << "tbs," << target_brake_stroke;
@@ -2331,9 +2365,6 @@ private:
 				//if(temporary_fixed_velocity_ == 0)
 				if(stopper_distance_.fixed_velocity == 0 || stopper_distance_.send_process == autoware_msgs::StopperDistance::SIGNAL)
 				{
-					std_msgs::String tmp;
-					tmp.data = "D3_1";
-					pub_tmp_.publish(tmp);
 					//target_brake_stroke = 0.0 + 500.0 * pow((2.0-distance)/2.0,0.5);
 					brake_stroke_step = 0.5;
 					target_brake_stroke = 0.0 + stop_stroke_max_ * (setting_.stopper_distance3 - stopper_distance_.distance)/2.0;
@@ -2348,9 +2379,6 @@ private:
 				}
 				else
 				{
-					std_msgs::String tmp;
-					tmp.data = "D3_2";
-					pub_tmp_.publish(tmp);
 					stop_distance_over_sum_ = 0;
 				}
 			}
@@ -3023,7 +3051,7 @@ public:
 		sub_velocity_mode_ = nh_.subscribe("/microbus/set_velocity_mode", 10, &kvaser_can_sender::callbackVelocityMode, this);
 		sub_drive_control_ = nh_.subscribe("/microbus/drive_control_", 10, &kvaser_can_sender::callbackDriveControl, this);
 		sub_waypoint_param_ = nh_.subscribe("/waypoint_param", 10, &kvaser_can_sender::callbackWaypointParam, this);
-		//sub_waypoints_ = nh_.subscribe("/waypoint_param", 10, &kvaser_can_sender::callbackWaypointParam, this);
+		sub_waypoints_ = nh_.subscribe("/final_waypoints", 10, &kvaser_can_sender::callbackWaypoints, this);
 		//sub_position_checker_ = nh_.subscribe("/final_waypoints", 10, &kvaser_can_sender::callbackWaypoints, this);
 		sub_config_microbus_can_ = nh_.subscribe("/config/microbus_can111scw", 10, &kvaser_can_sender::callbackConfigMicroBusCan, this);
 		sub_config_localizer_switch_ = nh_.subscribe("/config/localizer_switch", 10, &kvaser_can_sender::callbackConfigLocalizerSwitch, this);
@@ -3072,6 +3100,7 @@ public:
 		sub_nmea_sentence_ = nh.subscribe("/novatel_oem7_2/nmea_sentence", 10 , &kvaser_can_sender::callbackNmeaSentence, this);
 		sub_log_write_ = nh.subscribe("/microbus/log_on", 10 , &kvaser_can_sender::callbackLogWrite, this);
 		sub_log_folder_ = nh.subscribe("/microbus/log_folder", 10 , &kvaser_can_sender::callbackLogFolder, this);
+		sub_waypoints_file_name_ = nh.subscribe("/waypoints_file_name", 10 , &kvaser_can_sender::callbackWaypointFileName, this);
 		sub_cruse_error_ = nh.subscribe("/cruse_error", 10 , &kvaser_can_sender::callbackCruseError, this);
 		//sub_interface_config_ = nh_.subscribe("/config/microbus_interface", 10, &kvaser_can_sender::callbackConfigInterface, this);
 
@@ -3085,7 +3114,7 @@ public:
 
 		waypoint_param_.blinker = 0;
 		automatic_door_time_ = blinker_right_time_ = blinker_left_time_ =
-		        blinker_stop_time_ = ros::Time::now();
+		        blinker_stop_time_ = can_send_time_ = ros::Time::now();
 
 		pid_params.init(0.0);
 		mobileye_obstacle_data_.header.stamp = ros::Time(0);
@@ -3104,6 +3133,14 @@ public:
 
 	void can_send()
 	{
+		ros::Time nowtime = ros::Time::now();
+		ros::Duration time_diff = nowtime - can_send_time_;
+		double t_diff = time_diff.sec + time_diff.nsec * 1E-9;
+		std::stringstream str_pub;
+		str_pub << t_diff;
+		pub_tmp_.publish(str_pub.str());
+		can_send_time_ = nowtime;
+
 		//if(can_receive_501_.emergency == false)
 		{
 			NdtGnssCheck();

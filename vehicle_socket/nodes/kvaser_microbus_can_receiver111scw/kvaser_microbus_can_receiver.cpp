@@ -2,13 +2,14 @@
 #include <autoware_can_msgs/MicroBusCan501.h>
 #include <autoware_can_msgs/MicroBusCan502.h>
 #include <autoware_can_msgs/MicroBusCan503.h>
+#include <std_msgs/String.h>
 #include "kvaser_can111scw.h"
 
 class kvaser_can_receiver
 {
 private:
 	ros::NodeHandle nh_, private_nh_;
-	ros::Publisher pub_microbus_can_501_, pub_microbus_can_502_, pub_microbus_can_503_;
+	ros::Publisher pub_microbus_can_501_, pub_microbus_can_502_, pub_microbus_can_503_, pub_tmp_;
 
 	//stroke params
 	const short PEDAL_VOLTAGE_CENTER_ = 1024;//1052;//計測値は1025;
@@ -38,7 +39,7 @@ private:
 	std::vector<short> velocity_list_;
 	std::vector<short> acceleration_list_;
 	std::vector<short> angle_list_;
-	ros::Time prev_time_502_;
+	ros::Time prev_time_501_, prev_time_502_, prev_time_503_;
 	const int list_pushback_size = 5;
 public:
 	kvaser_can_receiver(ros::NodeHandle nh, ros::NodeHandle p_nh, int kvaser_channel)
@@ -52,12 +53,14 @@ public:
 		pub_microbus_can_501_ = nh_.advertise<autoware_can_msgs::MicroBusCan501>("/microbus/can_receive501", 10);
 		pub_microbus_can_502_ = nh_.advertise<autoware_can_msgs::MicroBusCan502>("/microbus/can_receive502", 10);
 		pub_microbus_can_503_ = nh_.advertise<autoware_can_msgs::MicroBusCan503>("/microbus/can_receive503", 10);
+		pub_tmp_ = nh_.advertise<std_msgs::String>("/microbus/receiver_tmp", 10);
 	}
 
 	bool isOpen() {return kc.isOpen();}
 
 	void read_wait()
 	{
+		ros::Time nowtime = ros::Time::now();
 		canStatus res = kc.read_wait(100);
 		//if(kc.get_id() == 0x501 || kc.get_id() == 0x502 || kc.get_id() == 0x503) kc.printReader();
 		//if(kc.get_id() == 0x100) kc.printReader();
@@ -146,12 +149,15 @@ public:
 
 					pub_microbus_can_501_.publish(can);
 					read_id_flag_.read501 = true;
+					ros::Duration time_diff = nowtime - prev_time_501_;
+					std::stringstream str_pub;
+					str_pub << "501," << time_diff.sec + time_diff.nsec * 1E-9;
+					pub_tmp_.publish(str_pub.str());
+					prev_time_501_ = nowtime;
 					break;
 			    }
 			case 0x502:
 			    {
-				    ros::Time nowtime = ros::Time::now();
-
 				    unsigned char data[KVASER_CAN::READ_DATA_SIZE];
 					kc.get_read_data(data);
 					autoware_can_msgs::MicroBusCan502 can;
@@ -206,6 +212,10 @@ public:
 
 					pub_microbus_can_502_.publish(can);
 				    read_id_flag_.read502 = true;
+					ros::Duration time_diff = nowtime - prev_time_502_;
+					std::stringstream str_pub;
+					str_pub << "502," << time_diff.sec + time_diff.nsec * 1E-9;
+					pub_tmp_.publish(str_pub.str());
 					prev_time_502_ = nowtime;
 					break;
 			    }
@@ -236,6 +246,11 @@ public:
 					std::cout << "pedal_displacement : " << can.pedal_displacement << std::endl;
 					std::cout << "engine_rotation : " << can.engine_rotation << std::endl;
 				    read_id_flag_.read501 = read_id_flag_.read502 = false;
+					ros::Duration time_diff = nowtime - prev_time_503_;
+					std::stringstream str_pub;
+					str_pub << "503," << time_diff.sec + time_diff.nsec * 1E-9;
+					pub_tmp_.publish(str_pub.str());
+					prev_time_503_ = nowtime;
 					break;
 			    }
 			}
