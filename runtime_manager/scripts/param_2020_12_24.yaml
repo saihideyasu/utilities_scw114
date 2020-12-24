@@ -19,19 +19,19 @@ booted_cmds:
   - gnss(RTK)_localizer(scw)
   - can2odom(scw)
   - localizer_switch(scw)
-  - rviz_qs
   - lane_rule
   - lane_stop
   - lane_select
   - waypoint_param_sender(scw)
   - astar_avoid
   - velocity_set111scw
-  - mpc_follower
   - twist_filter
   - lookahead_ratio_magn(scw)
+  - mpc_follower
+  - rviz_qs
+  - microbus can(111scw)
   - microbus_interface(scw)
   - waypoint_loader_show_id(scw)
-  - microbus can(111scw)
 calibration_publisher:
   camera_frame: camera
   camera_id: ''
@@ -158,7 +158,7 @@ localizer_switch(scw):
   ndt_status_topic2: !!python/unicode '/ndt_stat'
   ndt_status_topic3: !!python/unicode '/ndt_stat'
   yaw_correction1: 0.0
-  yaw_correction2: -0.3
+  yaw_correction2: -0.1
 lookahead_ratio_magn:
   max_magn: 1.0
   min_magn: 1.0
@@ -412,7 +412,7 @@ mpc_follower:
   show_debug_info: false
   steer_lim_deg: 35.0
   steering_lpf_cutoff_hz: 3.0
-  vehicle_model_steer_tau: 0.3
+  vehicle_model_steer_tau: 0.6
   vehicle_model_type: !!python/unicode 'kinematics'
   vehicle_model_wheelbase: 3.935
 ndt_matching:
@@ -659,7 +659,7 @@ waypoint_loader_show_id(scw):
   decel_limit: 0.3
   end_point_offset: 1
   load_csv: true
-  multi_lane_csv: /home/autoware/load_data/okabe/tyokusen_kensyo/go.csv
+  multi_lane_csv: /home/autoware/load_data/okabe/tyokusen_kensyo/return.csv
   overwrite_vmax_mode: false
   radius_min: 6.0
   radius_thresh: 20.0

@@ -2051,6 +2051,9 @@ params :
       min   : 0.001
       max   : 0.1
       v     : 0.03
+      cmd_param :
+        dash        : ''
+        delim       : ':='
     - name  : admisible_position_error
       desc  : stop vehicle if tracking error exceeds this limit
       label : admisible position error [m]

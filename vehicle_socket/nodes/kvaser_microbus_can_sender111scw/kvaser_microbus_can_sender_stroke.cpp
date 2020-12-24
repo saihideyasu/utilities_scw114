@@ -48,6 +48,7 @@
 #include "kvaser_can111scw.h"
 #include <time.h>
 #include <fstream>
+#include <pthread.h>
 
 static const int SYNC_FRAMES = 50;
 typedef message_filters::sync_policies::ApproximateTime<geometry_msgs::TwistStamped, geometry_msgs::PoseStamped>
@@ -389,6 +390,9 @@ private:
 	std::string waypoints_file_name_;
 	double stop_distance_over_sum_, stop_distance_over_add_;
 	bool  use_slow_accel_release_;
+	pthread_t thread_can_send_;//通信ボードに速度、操舵情報を送るスレッド
+	bool thread_can_send_run_flag_;//thread_can_send_スレッドが実行されているか
+	bool emergency_reset_flag_;//emergency_resetを実行
 
 	const int nmea_list_count_ = 5;
 	std::vector<std::string> nmae_name_list_ = {"#BESTPOSA","#BESTGNSSPOSA","#TIMEA","#INSSTDEVA","#RAWIMUA"};
@@ -408,7 +412,7 @@ private:
 			safety_error_message << msg->data;
 			//publishStatus(safety_error_message.str());
 			//system("aplay -D plughw:PCH /home/autoware/one33.wav");
-			can_send();
+			//can_send();
 	}
 
 	void callbackWaypointFileName(const std_msgs::String::ConstPtr &msg)
@@ -675,7 +679,7 @@ private:
 			safety_error_message << "localizer change error";
 			publishStatus(safety_error_message.str());
 			//system("aplay -D plughw:PCH /home/autoware/one33.wav");
-			can_send();
+			//can_send();
 		}
 	}
 
@@ -697,7 +701,7 @@ private:
 			safety_error_message << pose_name << "\ndistance," << msg->baselink_distance << "\nangular," << msg->baselink_angular;
 			publishStatus(safety_error_message.str());
 			//system("aplay -D plughw:PCH /home/autoware/one33.wav");
-			can_send();
+			//can_send();
 		}
 	}
 
@@ -1019,7 +1023,7 @@ private:
 				safety_error_message << "Gnss deviation error : ";// << msg->lat_std << "," << msg->lon_std << "," << msg->alt_std;
 				publishStatus(safety_error_message.str());
 				//system("aplay -D plughw:PCH /home/autoware/one33.wav");
-				can_send();
+				//can_send();
 			}
 		}
 		gnss_deviation_ = *msg;
@@ -1090,7 +1094,7 @@ private:
 
 	void callbackEmergencyReset(const std_msgs::Empty::ConstPtr &msg)
 	{
-		std::cout << "sub Emergency" << std::endl;
+		/*std::cout << "sub Emergency" << std::endl;
 		char buf[SEND_DATA_SIZE] = {0,0,0,0,0,0,0,0};
 		buf[0] = 0x55;
 		kc.write(0x100, buf, SEND_DATA_SIZE);
@@ -1098,6 +1102,8 @@ private:
 		rate.sleep();
 		buf[0] = 0x00;
 		kc.write(0x100, buf, SEND_DATA_SIZE);
+		rate.sleep();*/
+		emergency_reset_flag_ = true;
 	}
 
 	void callbackDModeSend(const std_msgs::Bool::ConstPtr &msg)
@@ -1428,9 +1434,13 @@ private:
 		str << "|" << (int)can_receive_502_.clutch;
 		name << "|" << "can_receive_502_.clutch";
 		str << "|" << can_receive_501_.steering_angle_reply;
-		name << "|" << "can_receive_501_.steering_angle";
+		name << "|" << "can_receive_501_.steering_angle_reply";
 		str << "|" << can_receive_502_.angle_actual;
 		name << "|" << "can_receive_502_.angle_actual";
+		str << "|" << twist_.ctrl_cmd.steering_angle*180/M_PI;
+		name << "|" << "twist_.ctrl_cmd.steering_angle(deg)";
+		str << "|" << twist_.ctrl_cmd.linear_velocity;
+		name << "|" << "twist_.ctrl_cmd.linear_velocity";
 		str << "|" << routine_.data;
 		name << "|" << "routine_.data";
 		str << "|" << pid_params.get_stroke_prev();
@@ -1578,7 +1588,7 @@ private:
 			safety_error_message << "target angle over , " << deg;
 			//std::cout << safety_error_message.str() << std::endl;
 			//system("aplay -D plughw:PCH /home/autoware/one33.wav");
-			can_send();
+			//can_send();
 		}
 
 		publishStatus(safety_error_message.str());
@@ -2937,6 +2947,13 @@ pub_tmp_.publish(str_ret);*/
 			}
 		}*/
 	}
+
+	//クラスのメンバ関数をスレッド化するために必要
+	static void* launchCanSendThread(void *pParam)
+	{
+       	reinterpret_cast<kvaser_can_sender*>(pParam)->can_send();
+		pthread_exit(NULL);
+    }
 public:
 	kvaser_can_sender(ros::NodeHandle nh, ros::NodeHandle p_nh)
 	    : nh_(nh)
@@ -2988,6 +3005,8 @@ public:
 		, stop_distance_over_sum_(0)
 		, stop_distance_over_add_(10.0/100.0)
 		, use_slow_accel_release_(true)
+		, thread_can_send_run_flag_(false)
+		, emergency_reset_flag_(false)
 	{
 		/*setting_.use_position_checker = true;
 		setting_.velocity_limit = 50;
@@ -3120,10 +3139,29 @@ public:
 		mobileye_obstacle_data_.header.stamp = ros::Time(0);
 		for(int i=0; i<nmae_name_list_.size(); i++) nmea_text_list_.push_back(std::stringstream());
 		waypoint_param_.id = -1;
+
+		//ボード送信をスレッド化
+		if(pthread_create(&thread_can_send_, nullptr, kvaser_can_sender::launchCanSendThread, this) == 0)
+		{
+			if(pthread_detach(thread_can_send_) == 0) thread_can_send_run_flag_ = true;
+		}
+	}
+
+	bool is_can_send_thread()
+	{
+		return thread_can_send_run_flag_;
+	}
+
+	void end_can_send()
+	{
+		thread_can_send_run_flag_ = false;
 	}
 
 	~kvaser_can_sender()
 	{
+		pthread_cancel(thread_can_send_);
+	    pthread_join(thread_can_send_, NULL);
+
 		delete sync_twist_pose_;
 		delete sub_current_pose_;
 		delete sub_current_velocity_;
@@ -3133,74 +3171,91 @@ public:
 
 	void can_send()
 	{
-		ros::Time nowtime = ros::Time::now();
-		ros::Duration time_diff = nowtime - can_send_time_;
-		double t_diff = time_diff.sec + time_diff.nsec * 1E-9;
-		std::stringstream str_pub;
-		str_pub << t_diff;
-		pub_tmp_.publish(str_pub.str());
-		can_send_time_ = nowtime;
-
-		//if(can_receive_501_.emergency == false)
+		ros::Rate rate(100);
+		while(thread_can_send_run_flag_ == true)
 		{
-			NdtGnssCheck();
-
-			double current_velocity = 0;// = can_receive_502_.velocity_average / 100.0;
-
-			switch(use_velocity_data_)
+			if(emergency_reset_flag_ == true)
 			{
-			case USE_VELOCITY_CAN:
-				current_velocity = can_receive_502_.velocity_average / 100.0;
-				break;
-			case USE_VELOCITY_TWIST:
-				current_velocity = current_velocity_.twist.linear.x * 3.6;
-				break;
-			default:
-				current_velocity = current_velocity_.twist.linear.x * 3.6;
-				break;
+				ros::Rate eme_rate(10);
+				std::cout << "sub Emergency" << std::endl;
+				char buf[SEND_DATA_SIZE] = {0,0,0,0,0,0,0,0};
+				buf[0] = 0x55;
+				kc.write(0x100, buf, SEND_DATA_SIZE);
+				eme_rate.sleep();
+				buf[0] = 0x00;
+				kc.write(0x100, buf, SEND_DATA_SIZE);
+				emergency_reset_flag_ = false;
 			}
-
-			double acceleration = 0;
-			use_acceleration_data_ = USE_ACCELERATION_TWIST2;
-			switch(use_acceleration_data_)
+			else
 			{
-			case USE_ACCELERATION_TWIST1:
-				acceleration = acceleration1_twist_;
-				break;
-			case USE_ACCELERATION_TWIST2:
-				acceleration = acceleration2_twist_;
-				break;
-			case USE_ACCELERATION_IMU:
-				/*double ax = imu_.linear_acceleration.x;
-				double ay = imu_.linear_acceleration.y;
-				double az = imu_.linear_acceleration.z;
-				acceleration = sqrt(ax*ax + ay*ay + az*az);*/
-				acceleration = imu_.linear_acceleration.x;
-				break;
-			default:
-				break;
+				ros::Time nowtime = ros::Time::now();
+				ros::Duration time_diff = nowtime - can_send_time_;
+				double t_diff = time_diff.sec + time_diff.nsec * 1E-9;
+				std::stringstream str_pub;
+				str_pub << t_diff;
+				pub_tmp_.publish(str_pub.str());
+				can_send_time_ = nowtime;
+
+				NdtGnssCheck();
+
+				double current_velocity = 0;// = can_receive_502_.velocity_average / 100.0;
+
+				switch(use_velocity_data_)
+				{
+				case USE_VELOCITY_CAN:
+					current_velocity = can_receive_502_.velocity_average / 100.0;
+					break;
+				case USE_VELOCITY_TWIST:
+					current_velocity = current_velocity_.twist.linear.x * 3.6;
+					break;
+				default:
+					current_velocity = current_velocity_.twist.linear.x * 3.6;
+					break;
+				}
+
+				double acceleration = 0;
+				use_acceleration_data_ = USE_ACCELERATION_TWIST2;
+				switch(use_acceleration_data_)
+				{
+				case USE_ACCELERATION_TWIST1:
+					acceleration = acceleration1_twist_;
+					break;
+				case USE_ACCELERATION_TWIST2:
+					acceleration = acceleration2_twist_;
+					break;
+				case USE_ACCELERATION_IMU:
+					/*double ax = imu_.linear_acceleration.x;
+					double ay = imu_.linear_acceleration.y;
+					double az = imu_.linear_acceleration.z;
+					acceleration = sqrt(ax*ax + ay*ay + az*az);*/
+					acceleration = imu_.linear_acceleration.x;
+					break;
+				default:
+					break;
+				}
+
+				unsigned char buf[SEND_DATA_SIZE] = {0,0,0,0,0,0,0,0};
+				bufset_mode(buf);
+				bufset_steer(buf);
+				bufset_drive(buf, current_velocity, acceleration, 2.0);
+				bufset_car_control(buf, current_velocity);
+
+				autoware_msgs::VehicleStatus status;
+				status.header.stamp = ros::Time::now();
+				status.drivemode = (buf[0] & 0x0B != 0x0B) ? autoware_msgs::VehicleStatus::MODE_AUTO : autoware_msgs::VehicleStatus::MODE_MANUAL;
+				status.steeringmode = (buf[0] & 0xA0 != 0xA0) ? autoware_msgs::VehicleStatus::MODE_AUTO : autoware_msgs::VehicleStatus::MODE_MANUAL;
+				status.current_gear.gear = autoware_msgs::Gear::NONE;
+				status.lamp = 0;
+				status.light = 0;
+				status.speed = current_velocity_.twist.linear.x * 3.6;
+				if(can_receive_502_.angle_actual > 0) status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_left;
+				else status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_right;
+				pub_vehicle_status_.publish(status);
+				
+				kc.write(0x100, (char*)buf, SEND_DATA_SIZE);
+				loop_counter_++;
+				rate.sleep();
 			}
-
-			unsigned char buf[SEND_DATA_SIZE] = {0,0,0,0,0,0,0,0};
-			bufset_mode(buf);
-			bufset_steer(buf);
-			bufset_drive(buf, current_velocity, acceleration, 2.0);
-			bufset_car_control(buf, current_velocity);
-
-			autoware_msgs::VehicleStatus status;
-			status.header.stamp = ros::Time::now();
-			status.drivemode = (buf[0] & 0x0B != 0x0B) ? autoware_msgs::VehicleStatus::MODE_AUTO : autoware_msgs::VehicleStatus::MODE_MANUAL;
-			status.steeringmode = (buf[0] & 0xA0 != 0xA0) ? autoware_msgs::VehicleStatus::MODE_AUTO : autoware_msgs::VehicleStatus::MODE_MANUAL;
-			status.current_gear.gear = autoware_msgs::Gear::NONE;
-			status.lamp = 0;
-			status.light = 0;
-			status.speed = current_velocity_.twist.linear.x * 3.6;
-			if(can_receive_502_.angle_actual > 0) status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_left;
-			else status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_right;
-			pub_vehicle_status_.publish(status);
-			
-			kc.write(0x100, (char*)buf, SEND_DATA_SIZE);
-			loop_counter_++;
 		}
 	}
 };
@@ -3212,18 +3267,20 @@ int main(int argc, char** argv)
 	ros::NodeHandle private_nh("~");
 
 	kvaser_can_sender kcs(nh, private_nh);
-	if(kcs.isOpen() == false)
+	if(kcs.isOpen() == false || kcs.is_can_send_thread() == false)
 	{
 		std::cerr << "error : open" << std::endl;
+		return 0;
 	}
 
-	//kcs.emergency_reset();
-	ros::Rate loop_rate(100);
+	/*ros::Rate loop_rate(100);
 	while(ros::ok())
 	{
 		kcs.can_send();
 		ros::spinOnce();
 		loop_rate.sleep();
-	}
+	}*/
+	ros::spin();
+	kcs.end_can_send();
 	return 0;
 }
