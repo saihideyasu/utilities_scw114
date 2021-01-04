@@ -44,6 +44,7 @@
 #include <autoware_msgs/LocalizerMatchStat.h>
 #include <autoware_msgs/VehicleStatus.h>
 #include <autoware_msgs/StopperDistance.h>
+#include <autoware_msgs/SteerOverwrite.h>
 #include <tf/tf.h>
 #include "kvaser_can111scw.h"
 #include <time.h>
@@ -312,7 +313,7 @@ private:
 	ros::Subscriber sub_ekf_covariance_, sub_use_safety_localizer_, sub_config_current_velocity_conversion_;
 	ros::Subscriber sub_cruse_velocity_, sub_mobileye_frame_, sub_mobileye_obstacle_data_, sub_temporary_fixed_velocity_;
 	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_nmea_sentence_, sub_log_write_, sub_cruse_error_;
-	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_;
+	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_overwrite_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
 	message_filters::Subscriber<geometry_msgs::PoseStamped> *sub_current_pose_;
@@ -1800,6 +1801,8 @@ private:
 		if(msg->stopper_distance2 > 0) setting_.stopper_distance2 = msg->stopper_distance2;
 		if(msg->stopper_distance3 > 0) setting_.stopper_distance3 = msg->stopper_distance3;
 
+		steer_overwrite_value_ = msg->steer_overwrite;
+
 		//if(msg->use_slow_accel_release == 1) use_slow_accel_release_ = true;
 		//else use_slow_accel_release_ = false;
 		waypoint_param_ = *msg;
@@ -1979,6 +1982,16 @@ private:
 		blinker_param_sender_ = false;
 	}
 
+	double steer_overwrite_value_;
+	double steer_overwrite_diff_;
+	ros::Time steer_overwrite_time_;
+	void callbackSteerOverwrite(const autoware_msgs::SteerOverwrite::ConstPtr &msg)
+	{
+		steer_overwrite_value_ = msg->steer_value;
+		double steer_overwrite_diff_ = msg->overwrite_time;
+		steer_overwrite_time_ = ros::Time::now();
+	}
+
 	void bufset_mode(unsigned char *buf)
 	{
 		unsigned char mode = 0;
@@ -1990,22 +2003,32 @@ private:
 	double handle_control_max_speed = 50; //
 	double handle_control_min_speed = 10; //
 	double handle_control_ratio = 1.0/32.0;
-	void bufset_steer(unsigned char *buf)
+	void bufset_steer(unsigned char *buf, ros::Time nowtime)
 	{
 		short steer_val;
 		if(input_steer_mode_ == false)
 		{
-			double wheel_ang = twist_.ctrl_cmd.steering_angle;
-			double zisoku = twist_.ctrl_cmd.linear_velocity * 3.6;
-			double ratio = ((handle_control_ratio - 1.0) * (zisoku - handle_control_min_speed))
-			        / (handle_control_max_speed - handle_control_min_speed) + 1;
-			if(wheel_ang > 0)
+			ros::Duration ros_time_diff = nowtime - steer_overwrite_time_;
+			double time_diff = ros_time_diff.sec + ros_time_diff.nsec * 1E-9;
+			if(steer_overwrite_value_ > -100000)//steerのオーバーライドがON
 			{
-				steer_val = wheel_ang * wheelrad_to_steering_can_value_left * steer_correction_;
+				steer_val = steer_overwrite_value_;
+				std::cout << "steer_overwrite" << std::endl;
 			}
 			else
 			{
-				steer_val = wheel_ang * wheelrad_to_steering_can_value_right * steer_correction_;
+				double wheel_ang = twist_.ctrl_cmd.steering_angle;
+				double zisoku = twist_.ctrl_cmd.linear_velocity * 3.6;
+				double ratio = ((handle_control_ratio - 1.0) * (zisoku - handle_control_min_speed))
+						/ (handle_control_max_speed - handle_control_min_speed) + 1;
+				if(wheel_ang > 0)
+				{
+					steer_val = wheel_ang * wheelrad_to_steering_can_value_left * steer_correction_;
+				}
+				else
+				{
+					steer_val = wheel_ang * wheelrad_to_steering_can_value_right * steer_correction_;
+				}
 			}
 			std::cout << "steer_correction : " << steer_correction_ << std::endl;
 		}
@@ -3007,6 +3030,7 @@ public:
 		, use_slow_accel_release_(true)
 		, thread_can_send_run_flag_(false)
 		, emergency_reset_flag_(false)
+		, steer_overwrite_value_(-100000)
 	{
 		/*setting_.use_position_checker = true;
 		setting_.velocity_limit = 50;
@@ -3121,6 +3145,7 @@ public:
 		sub_log_folder_ = nh.subscribe("/microbus/log_folder", 10 , &kvaser_can_sender::callbackLogFolder, this);
 		sub_waypoints_file_name_ = nh.subscribe("/waypoints_file_name", 10 , &kvaser_can_sender::callbackWaypointFileName, this);
 		sub_cruse_error_ = nh.subscribe("/cruse_error", 10 , &kvaser_can_sender::callbackCruseError, this);
+		sub_steer_overwrite_ = nh.subscribe("/microbus/steer_overwrite", 10 , &kvaser_can_sender::callbackSteerOverwrite, this);
 		//sub_interface_config_ = nh_.subscribe("/config/microbus_interface", 10, &kvaser_can_sender::callbackConfigInterface, this);
 
 		sub_current_pose_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(nh_, "/current_pose", 10);
@@ -3236,7 +3261,7 @@ public:
 
 				unsigned char buf[SEND_DATA_SIZE] = {0,0,0,0,0,0,0,0};
 				bufset_mode(buf);
-				bufset_steer(buf);
+				bufset_steer(buf, nowtime);
 				bufset_drive(buf, current_velocity, acceleration, 2.0);
 				bufset_car_control(buf, current_velocity);
 
