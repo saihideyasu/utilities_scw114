@@ -44,7 +44,7 @@
 #include <autoware_msgs/LocalizerMatchStat.h>
 #include <autoware_msgs/VehicleStatus.h>
 #include <autoware_msgs/StopperDistance.h>
-#include <autoware_msgs/SteerOverwrite.h>
+#include <autoware_msgs/SteerOverride.h>
 #include <tf/tf.h>
 #include "kvaser_can111scw.h"
 #include <time.h>
@@ -285,7 +285,7 @@ private:
 	const static int USE_ACCELERATION_IMU = 2;
 
 	//steer_overwirte
-	const static double STEER_OVERWRITE_TH = -100000;//sterrのactualを上書きする判定のしきい値
+	const static double STEER_OVERWRIDE_TH = -100000;//sterrのactualを上書きする判定のしきい値
 
 	//safety
 	const LIMIT_ANGLE_FROM_VELOCITY_STRUCT limit10 = {10,680,-680}, limit15 = {15,360,-360}, limit20 = {20,180,-180}, limit30={30,90,-90}, limit40={40,45,-45};
@@ -316,7 +316,7 @@ private:
 	ros::Subscriber sub_ekf_covariance_, sub_use_safety_localizer_, sub_config_current_velocity_conversion_;
 	ros::Subscriber sub_cruse_velocity_, sub_mobileye_frame_, sub_mobileye_obstacle_data_, sub_temporary_fixed_velocity_;
 	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_nmea_sentence_, sub_log_write_, sub_cruse_error_;
-	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_overwrite_;
+	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_override_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
 	message_filters::Subscriber<geometry_msgs::PoseStamped> *sub_current_pose_;
@@ -397,9 +397,7 @@ private:
 	pthread_t thread_can_send_;//通信ボードに速度、操舵情報を送るスレッド
 	bool thread_can_send_run_flag_;//thread_can_send_スレッドが実行されているか
 	bool emergency_reset_flag_;//emergency_resetを実行
-	double steer_overwrite_value_;//-100000以上の場合、steerのtargetをこの値に上書きする
-	double steer_overwrite_diff_;
-	ros::Time steer_overwrite_time_;
+	double steer_override_value_;//-100000以上の場合、steerのtargetをこの値に上書きする
 	double target_steer_;//現在canに送信したsteer_targetの値
 
 	const int nmea_list_count_ = 5;
@@ -1808,7 +1806,7 @@ private:
 		if(msg->stopper_distance2 > 0) setting_.stopper_distance2 = msg->stopper_distance2;
 		if(msg->stopper_distance3 > 0) setting_.stopper_distance3 = msg->stopper_distance3;
 
-		steer_overwrite_value_ = msg->steer_overwrite;
+		steer_override_value_ = msg->steer_override;
 
 		//if(msg->use_slow_accel_release == 1) use_slow_accel_release_ = true;
 		//else use_slow_accel_release_ = false;
@@ -1989,11 +1987,10 @@ private:
 		blinker_param_sender_ = false;
 	}
 
-	void callbackSteerOverwrite(const autoware_msgs::SteerOverwrite::ConstPtr &msg)
+	void callbackSteerOverride(const autoware_msgs::SteerOverride::ConstPtr &msg)
 	{
-		steer_overwrite_value_ = msg->steer_value;
-		double steer_overwrite_diff_ = msg->overwrite_time;
-		steer_overwrite_time_ = ros::Time::now();
+		steer_override_value_ = msg->steer_value;
+		double steer_override_diff_ = msg->overwrite_time;
 	}
 
 	void bufset_mode(unsigned char *buf)
@@ -2012,12 +2009,10 @@ private:
 		short steer_val;
 		if(input_steer_mode_ == false)
 		{
-			ros::Duration ros_time_diff = nowtime - steer_overwrite_time_;
-			double time_diff = ros_time_diff.sec + ros_time_diff.nsec * 1E-9;
-			if(steer_overwrite_value_ > STEER_OVERWRITE_TH)//steerのオーバーライドがON
+			if(steer_override_value_ > STEER_OVERWRIDE_TH)//steerのオーバーライドがON
 			{
-				steer_val = steer_overwrite_value_;
-				std::cout << "steer_overwrite" << std::endl;
+				steer_val = steer_override_value_;
+				std::cout << "steer_override" << std::endl;
 			}
 			else
 			{
@@ -3035,7 +3030,7 @@ public:
 		, use_slow_accel_release_(true)
 		, thread_can_send_run_flag_(false)
 		, emergency_reset_flag_(false)
-		, steer_overwrite_value_(STEER_OVERWRITE_TH)
+		, steer_override_value_(STEER_OVERWRIDE_TH)
 	{
 		/*setting_.use_position_checker = true;
 		setting_.velocity_limit = 50;
@@ -3150,7 +3145,7 @@ public:
 		sub_log_folder_ = nh.subscribe("/microbus/log_folder", 10 , &kvaser_can_sender::callbackLogFolder, this);
 		sub_waypoints_file_name_ = nh.subscribe("/waypoints_file_name", 10 , &kvaser_can_sender::callbackWaypointFileName, this);
 		sub_cruse_error_ = nh.subscribe("/cruse_error", 10 , &kvaser_can_sender::callbackCruseError, this);
-		sub_steer_overwrite_ = nh.subscribe("/microbus/steer_overwrite", 10 , &kvaser_can_sender::callbackSteerOverwrite, this);
+		sub_steer_override_ = nh.subscribe("/microbus/steer_override", 10 , &kvaser_can_sender::callbackSteerOverride, this);
 		//sub_interface_config_ = nh_.subscribe("/config/microbus_interface", 10, &kvaser_can_sender::callbackConfigInterface, this);
 
 		sub_current_pose_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(nh_, "/current_pose", 10);
@@ -3221,6 +3216,7 @@ public:
 				ros::Time nowtime = ros::Time::now();
 				ros::Duration time_diff = nowtime - can_send_time_;
 				double t_diff = time_diff.sec + time_diff.nsec * 1E-9;
+				can_send_time_ = nowtime;
 
 				NdtGnssCheck();
 
@@ -3282,7 +3278,6 @@ public:
 				std::stringstream str_pub;
 				str_pub << +waypoint_param_.mpc_target_input << "," << angle_val;
 				pub_tmp_.publish(str_pub.str());
-				can_send_time_ = nowtime;
 
 				kc.write(0x100, (char*)buf, SEND_DATA_SIZE);
 				loop_counter_++;
