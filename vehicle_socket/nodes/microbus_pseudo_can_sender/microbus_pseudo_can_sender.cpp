@@ -24,6 +24,7 @@
 #include <autoware_can_msgs/MicroBusCanSenderStatus.h>
 #include <autoware_can_msgs/MicroBusCanVelocityParam.h>
 #include <autoware_can_msgs/MicroBusPseudoParams.h>
+#include <autoware_msgs/SteerOverride.h>
 #include "microbus_params.h"
 
 static const int SYNC_FRAMES = 50;
@@ -143,6 +144,9 @@ private:
 	//other params
 	const unsigned int SEND_DATA_SIZE = 8;//CAN通信のバッファサイズ
 
+	//steer_overwirte
+	const static double STEER_OVERWRIDE_TH = -100000;//sterrのactualを上書きする判定のしきい値
+
 	ros::NodeHandle nh_, p_nh_;
 
 	ros::Publisher pub_microbus_can_sender_status_, pub_stroke_process_, pub_stroke_routine_, pub_vehicle_status_;
@@ -153,7 +157,7 @@ private:
 	ros::Subscriber sub_config_, sub_config_velocity_set_, sub_config_temporary_stopper_, sub_config_lane_rule_;
 	ros::Subscriber sub_emergency_stop_, sub_drive_clutch_, sub_steer_clutch_, sub_interface_lock_;
 	ros::Subscriber sub_automatic_door_, sub_blinker_right_, sub_blinker_left_, sub_blinker_stop_;
-	ros::Subscriber sub_waypoint_param_;
+	ros::Subscriber sub_waypoint_param_, sub_steer_override_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
 	message_filters::Subscriber<geometry_msgs::PoseStamped> *sub_current_pose_;
@@ -198,6 +202,8 @@ private:
 	autoware_msgs::WaypointParam waypoint_param_;
 	autoware_can_msgs::MicroBusPseudoParams pseudo_params_;//疑似receiverノードに擬似データを送るためのメッセージ変数
 	double brake_stroke_cap_;//brake_strokeの特殊キャップ値
+	double steer_override_value_;//-100000以上の場合、steerのtargetをこの値に上書きする
+	double target_steer_;//現在canに送信したsteer_targetの値
 
 	ros::Time drive_clutch_timer_, steer_clutch_timer_, automatic_door_time_;
 	ros::Time blinker_right_time_, blinker_left_time_, blinker_stop_time_;
@@ -581,7 +587,14 @@ private:
 		if(msg->stopper_distance3 > 0) setting_.stopper_distance3 = msg->stopper_distance3;
 		
 		if(msg->obstacle_deceleration >= 0) config_velocity_set_.deceleration_obstacle = msg->obstacle_deceleration;
+		steer_override_value_ = msg->steer_override;
+
 		waypoint_param_ = *msg;
+	}
+
+	void callbackSteerOverride(const autoware_msgs::SteerOverride::ConstPtr &msg)
+	{
+		steer_override_value_ = msg->steer_value;
 	}
 
 	void bufset_mode(unsigned char *buf)
@@ -598,17 +611,25 @@ private:
 
 		if(input_steer_mode_ == false)
 		{
-			double wheel_ang = vehicle_cmd_.ctrl_cmd.steering_angle;
-			double zisoku = vehicle_cmd_.ctrl_cmd.linear_velocity * 3.6;
-			if(wheel_ang > 0)
+			if(steer_override_value_ > STEER_OVERWRIDE_TH)//steerのオーバーライドがON
 			{
-				steer_val = (wheel_ang * wheelrad_to_steering_can_value_left
-								+ wheelrad_to_steering_can_value_left_intercept);// * steer_correction_;
+				steer_val = steer_override_value_;
+				std::cout << "steer_override" << std::endl;
 			}
 			else
 			{
-				steer_val = (wheel_ang * wheelrad_to_steering_can_value_right
-								+ wheelrad_to_steering_can_value_right_intercept);// * steer_correction_;
+				double wheel_ang = vehicle_cmd_.ctrl_cmd.steering_angle;
+				double zisoku = vehicle_cmd_.ctrl_cmd.linear_velocity * 3.6;
+				if(wheel_ang > 0)
+				{
+					steer_val = (wheel_ang * wheelrad_to_steering_can_value_left
+									+ wheelrad_to_steering_can_value_left_intercept);// * steer_correction_;
+				}
+				else
+				{
+					steer_val = (wheel_ang * wheelrad_to_steering_can_value_right
+									+ wheelrad_to_steering_can_value_right_intercept);// * steer_correction_;
+				}
 			}
 			//std::cout << "steer_correction : " << steer_correction_ << std::endl;
 		}
@@ -620,6 +641,7 @@ private:
 		buf[2] = steer_pointer[1];  buf[3] = steer_pointer[0];
 
 		pseudo_params_.angle_actual = steer_val;
+		target_steer_ = steer_val;
 	}
 
 	bool checkMobileyeObstacleStop(ros::Time nowtime)
@@ -1316,6 +1338,7 @@ public:
 		, light_high_(false)
 		, shift_auto_(false)
 		, shift_position_(0)
+		, steer_override_value_(STEER_OVERWRIDE_TH)
 	{
 		pub_microbus_can_sender_status_ = nh_.advertise<autoware_can_msgs::MicroBusCanSenderStatus>("/microbus/can_sender_status", 1, true);
 		pub_stroke_process_ = nh_.advertise<std_msgs::String>("/microbus/stroke_process", 1);
@@ -1341,6 +1364,7 @@ public:
 		sub_interface_lock_ = nh_.subscribe("/microbus/interface_lock", 10, &MicrobusPseudoCanSender::callbackInterfaceLock, this);
 		sub_automatic_door_ = nh_.subscribe("/microbus/automatic_door", 10, &MicrobusPseudoCanSender::callbackAutomaticDoor, this);
 		sub_waypoint_param_ = nh_.subscribe("/waypoint_param", 10, &MicrobusPseudoCanSender::callbackWaypointParam, this);
+		sub_steer_override_ = nh.subscribe("/microbus/steer_override", 10 , &MicrobusPseudoCanSender::callbackSteerOverride, this);
 
 		sub_current_pose_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(nh_, "/current_pose", 10);
 		sub_current_velocity_ = new message_filters::Subscriber<geometry_msgs::TwistStamped>(nh_, "/current_velocity", 10);
@@ -1384,8 +1408,11 @@ public:
 		status.lamp = 0;
 		status.light = 0;
 		status.speed = current_velocity_.twist.linear.x;
-		if(can_receive_502_.angle_actual > 0) status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_left;
-		else status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_right;
+		//if(can_receive_502_.angle_actual > 0) status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_left;
+		//else status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_right;
+		int16_t angle_val = (waypoint_param_.mpc_target_input == 0) ? can_receive_502_.angle_actual : target_steer_;
+		if(can_receive_502_.angle_actual > 0) status.angle = angle_val / wheelrad_to_steering_can_value_left;
+		else status.angle = angle_val / wheelrad_to_steering_can_value_right;
 		pub_vehicle_status_.publish(status);
 
 		autoware_can_msgs::MicroBusCanVelocityParam vparam;
@@ -1400,12 +1427,11 @@ public:
 		pseudo_params_.header.stamp = nowtime;
 		pub_pseudo_params_.publish(pseudo_params_);
 
+		std::stringstream str_pub;
+		str_pub << +waypoint_param_.mpc_target_input << "," << angle_val;
+		pub_tmp_.publish(str_pub.str());
+
 		loop_counter_++;
-		std::stringstream str_tmp;
-		str_tmp << loop_counter_;
-		std_msgs::String tmp_p;
-		tmp_p.data = str_tmp.str();
-		pub_tmp_.publish(tmp_p);
 	}
 };
 

@@ -923,6 +923,10 @@ subs :
              flags : [ nl ]
              depend : vehicle_model_type
              depend_bool : 'lambda v : v == "DELAY_STEER"'
+       - name : mileage_publisher
+         desc : mileage_publisher desc sample
+         cmd  : roslaunch mileage_publisher mileage_publisher.launch
+         param: mileage_publisher
     - name : OpenPlanner - Local planning
       desc : Local Planner for OpenPlanner
       subs :
@@ -7332,6 +7336,24 @@ params :
       cmd_param :
         dash        : ''
         delim       : ':='
+
+  - name  : mileage_publisher
+    topic : /config/mileage_publisher
+    msg   : ConfigMileagePublisher
+    vars  :
+    - name  : use_velocity
+      desc  : use_velocity desc sample
+      label : use_velocity
+      kind  : radio_box
+      choices:
+      - odometry
+      - gnss_speed
+      - imu
+      descs :
+      - odometry
+      - gnss_speed
+      - imu
+      v     : 0
 
   - name  : lookahead_ratio_magn
     topic : /config/lookahead_ratio_magn

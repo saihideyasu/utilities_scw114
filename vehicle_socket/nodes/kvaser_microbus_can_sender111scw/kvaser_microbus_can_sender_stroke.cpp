@@ -1990,7 +1990,6 @@ private:
 	void callbackSteerOverride(const autoware_msgs::SteerOverride::ConstPtr &msg)
 	{
 		steer_override_value_ = msg->steer_value;
-		double steer_override_diff_ = msg->overwrite_time;
 	}
 
 	void bufset_mode(unsigned char *buf)
