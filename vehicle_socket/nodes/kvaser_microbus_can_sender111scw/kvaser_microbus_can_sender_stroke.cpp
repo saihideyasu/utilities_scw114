@@ -284,6 +284,9 @@ private:
 	const static int USE_ACCELERATION_TWIST2 = 1;
 	const static int USE_ACCELERATION_IMU = 2;
 
+	//steer_overwirte
+	const static double STEER_OVERWRITE_TH = -100000;//sterrのactualを上書きする判定のしきい値
+
 	//safety
 	const LIMIT_ANGLE_FROM_VELOCITY_STRUCT limit10 = {10,680,-680}, limit15 = {15,360,-360}, limit20 = {20,180,-180}, limit30={30,90,-90}, limit40={40,45,-45};
 	LIMIT_ANGLE_FROM_VELOCITY_CLASS lafvc_;
@@ -394,6 +397,10 @@ private:
 	pthread_t thread_can_send_;//通信ボードに速度、操舵情報を送るスレッド
 	bool thread_can_send_run_flag_;//thread_can_send_スレッドが実行されているか
 	bool emergency_reset_flag_;//emergency_resetを実行
+	double steer_overwrite_value_;//-100000以上の場合、steerのtargetをこの値に上書きする
+	double steer_overwrite_diff_;
+	ros::Time steer_overwrite_time_;
+	double target_steer_;//現在canに送信したsteer_targetの値
 
 	const int nmea_list_count_ = 5;
 	std::vector<std::string> nmae_name_list_ = {"#BESTPOSA","#BESTGNSSPOSA","#TIMEA","#INSSTDEVA","#RAWIMUA"};
@@ -1569,7 +1576,7 @@ private:
 			{
 				flag = true;
 				angle_limit_over_ = true;
-				std::cout << "Denger! target angle over : " << deg << std::endl;
+				std::cout << "Denger! angular velocity over : " << deg << " th : " << deg_th << std::endl;
 			}
 			else angle_limit_over_ = false;
 		}
@@ -1586,7 +1593,7 @@ private:
 			//flag_drive_mode_ = false;
 			//flag_steer_mode_ = false;
 			shift_auto_ = false;
-			safety_error_message << "target angle over , " << deg;
+			safety_error_message << "angular velocity over , " << deg << "th : " << deg_th;
 			//std::cout << safety_error_message.str() << std::endl;
 			//system("aplay -D plughw:PCH /home/autoware/one33.wav");
 			//can_send();
@@ -1982,9 +1989,6 @@ private:
 		blinker_param_sender_ = false;
 	}
 
-	double steer_overwrite_value_;
-	double steer_overwrite_diff_;
-	ros::Time steer_overwrite_time_;
 	void callbackSteerOverwrite(const autoware_msgs::SteerOverwrite::ConstPtr &msg)
 	{
 		steer_overwrite_value_ = msg->steer_value;
@@ -2010,7 +2014,7 @@ private:
 		{
 			ros::Duration ros_time_diff = nowtime - steer_overwrite_time_;
 			double time_diff = ros_time_diff.sec + ros_time_diff.nsec * 1E-9;
-			if(steer_overwrite_value_ > -100000)//steerのオーバーライドがON
+			if(steer_overwrite_value_ > STEER_OVERWRITE_TH)//steerのオーバーライドがON
 			{
 				steer_val = steer_overwrite_value_;
 				std::cout << "steer_overwrite" << std::endl;
@@ -2044,6 +2048,7 @@ private:
 
 		unsigned char *steer_pointer = (unsigned char*)&steer_val;
 		buf[2] = steer_pointer[1];  buf[3] = steer_pointer[0];
+		target_steer_ = steer_val;
 	}
 
 
@@ -3030,7 +3035,7 @@ public:
 		, use_slow_accel_release_(true)
 		, thread_can_send_run_flag_(false)
 		, emergency_reset_flag_(false)
-		, steer_overwrite_value_(-100000)
+		, steer_overwrite_value_(STEER_OVERWRITE_TH)
 	{
 		/*setting_.use_position_checker = true;
 		setting_.velocity_limit = 50;
@@ -3216,10 +3221,6 @@ public:
 				ros::Time nowtime = ros::Time::now();
 				ros::Duration time_diff = nowtime - can_send_time_;
 				double t_diff = time_diff.sec + time_diff.nsec * 1E-9;
-				std::stringstream str_pub;
-				str_pub << t_diff;
-				pub_tmp_.publish(str_pub.str());
-				can_send_time_ = nowtime;
 
 				NdtGnssCheck();
 
@@ -3273,10 +3274,16 @@ public:
 				status.lamp = 0;
 				status.light = 0;
 				status.speed = current_velocity_.twist.linear.x * 3.6;
-				if(can_receive_502_.angle_actual > 0) status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_left;
-				else status.angle = can_receive_502_.angle_actual / wheelrad_to_steering_can_value_right;
+				int16_t angle_val = (waypoint_param_.mpc_target_input == 0) ? can_receive_502_.angle_actual : target_steer_;
+				if(can_receive_502_.angle_actual > 0) status.angle = angle_val / wheelrad_to_steering_can_value_left;
+				else status.angle = angle_val / wheelrad_to_steering_can_value_right;
 				pub_vehicle_status_.publish(status);
-				
+
+				std::stringstream str_pub;
+				str_pub << +waypoint_param_.mpc_target_input << "," << angle_val;
+				pub_tmp_.publish(str_pub.str());
+				can_send_time_ = nowtime;
+
 				kc.write(0x100, (char*)buf, SEND_DATA_SIZE);
 				loop_counter_++;
 				rate.sleep();
