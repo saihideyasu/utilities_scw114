@@ -287,6 +287,9 @@ private:
 	//steer_overwirte
 	const static double STEER_OVERWRIDE_TH = -100000;//sterrのactualを上書きする判定のしきい値
 
+	//mpc_steer_gradually_change_distance
+	const static double MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT = 3;//(m)
+
 	//safety
 	const LIMIT_ANGLE_FROM_VELOCITY_STRUCT limit10 = {10,680,-680}, limit15 = {15,360,-360}, limit20 = {20,180,-180}, limit30={30,90,-90}, limit40={40,45,-45};
 	LIMIT_ANGLE_FROM_VELOCITY_CLASS lafvc_;
@@ -316,7 +319,7 @@ private:
 	ros::Subscriber sub_ekf_covariance_, sub_use_safety_localizer_, sub_config_current_velocity_conversion_;
 	ros::Subscriber sub_cruse_velocity_, sub_mobileye_frame_, sub_mobileye_obstacle_data_, sub_temporary_fixed_velocity_;
 	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_nmea_sentence_, sub_log_write_, sub_cruse_error_;
-	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_override_;
+	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_override_, sub_way_increase_distance_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
 	message_filters::Subscriber<geometry_msgs::PoseStamped> *sub_current_pose_;
@@ -398,6 +401,8 @@ private:
 	bool thread_can_send_run_flag_;//thread_can_send_スレッドが実行されているか
 	bool emergency_reset_flag_;//emergency_resetを実行
 	double steer_override_value_;//-100000以上の場合、steerのtargetをこの値に上書きする
+	double last_steer_override_value_;//steerオーバーライド終了時の上書き値
+	double mpc_steer_gradually_change_distance_;//steer指令を上書き状態からmpc指令に徐々に戻す距離
 	double target_steer_;//現在canに送信したsteer_targetの値
 
 	const int nmea_list_count_ = 5;
@@ -1806,6 +1811,11 @@ private:
 		if(msg->stopper_distance2 > 0) setting_.stopper_distance2 = msg->stopper_distance2;
 		if(msg->stopper_distance3 > 0) setting_.stopper_distance3 = msg->stopper_distance3;
 
+		if(waypoint_param_.steer_override > STEER_OVERWRIDE_TH && msg->steer_override <= STEER_OVERWRIDE_TH)
+		{
+			mpc_steer_gradually_change_distance_ = MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT;
+			last_steer_override_value_ = steer_override_value_;
+		}
 		steer_override_value_ = msg->steer_override;
 
 		//if(msg->use_slow_accel_release == 1) use_slow_accel_release_ = true;
@@ -1990,6 +2000,12 @@ private:
 	void callbackSteerOverride(const autoware_msgs::SteerOverride::ConstPtr &msg)
 	{
 		steer_override_value_ = msg->steer_value;
+	}
+
+	void callbackWayIncreaseDistance(const std_msgs::Float64::ConstPtr &msg)
+	{
+		mpc_steer_gradually_change_distance_ -= msg->data;
+		if(mpc_steer_gradually_change_distance_ < 0) mpc_steer_gradually_change_distance_ = 0;
 	}
 
 	void bufset_mode(unsigned char *buf)
@@ -3030,6 +3046,8 @@ public:
 		, thread_can_send_run_flag_(false)
 		, emergency_reset_flag_(false)
 		, steer_override_value_(STEER_OVERWRIDE_TH)
+		, mpc_steer_gradually_change_distance_(0)
+		, last_steer_override_value_(0)
 	{
 		/*setting_.use_position_checker = true;
 		setting_.velocity_limit = 50;
@@ -3145,6 +3163,7 @@ public:
 		sub_waypoints_file_name_ = nh.subscribe("/waypoints_file_name", 10 , &kvaser_can_sender::callbackWaypointFileName, this);
 		sub_cruse_error_ = nh.subscribe("/cruse_error", 10 , &kvaser_can_sender::callbackCruseError, this);
 		sub_steer_override_ = nh.subscribe("/microbus/steer_override", 10 , &kvaser_can_sender::callbackSteerOverride, this);
+		sub_way_increase_distance_ = nh.subscribe("/way_increase_distance", 10 , &kvaser_can_sender::callbackWayIncreaseDistance, this);
 		//sub_interface_config_ = nh_.subscribe("/config/microbus_interface", 10, &kvaser_can_sender::callbackConfigInterface, this);
 
 		sub_current_pose_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(nh_, "/current_pose", 10);
@@ -3163,6 +3182,8 @@ public:
 		mobileye_obstacle_data_.header.stamp = ros::Time(0);
 		for(int i=0; i<nmae_name_list_.size(); i++) nmea_text_list_.push_back(std::stringstream());
 		waypoint_param_.id = -1;
+
+		waypoint_param_.steer_override = STEER_OVERWRIDE_TH;
 
 		//ボード送信をスレッド化
 		if(pthread_create(&thread_can_send_, nullptr, kvaser_can_sender::launchCanSendThread, this) == 0)
@@ -3270,13 +3291,27 @@ public:
 				status.light = 0;
 				status.speed = current_velocity_.twist.linear.x * 3.6;
 				int16_t angle_val = (waypoint_param_.mpc_target_input == 0) ? can_receive_502_.angle_actual : target_steer_;
+				/*int16_t angle_val;
+				if(waypoint_param_.mpc_target_input == 0)
+				{
+					//steerの上書きからmpcへの変化をゆっくり行う
+					//c1 = 0 でcanからの実測値がangle_actualに入る
+					double c1 = (MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT - mpc_steer_gradually_change_distance_) / MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT;
+					double c2 = 1 - c1;
+					angle_val = c1 * can_receive_502_.angle_actual + c2 * last_steer_override_value_;
+
+					std::stringstream str_pub;
+					str_pub << c1 << "," << c2 << "," << mpc_steer_gradually_change_distance_;
+					pub_tmp_.publish(str_pub.str());
+				}
+				else angle_val = target_steer_;*/
 				if(can_receive_502_.angle_actual > 0) status.angle = angle_val / wheelrad_to_steering_can_value_left;
 				else status.angle = angle_val / wheelrad_to_steering_can_value_right;
 				pub_vehicle_status_.publish(status);
 
-				std::stringstream str_pub;
+				/*std::stringstream str_pub;
 				str_pub << +waypoint_param_.mpc_target_input << "," << angle_val;
-				pub_tmp_.publish(str_pub.str());
+				pub_tmp_.publish(str_pub.str());*/
 
 				kc.write(0x100, (char*)buf, SEND_DATA_SIZE);
 				loop_counter_++;
