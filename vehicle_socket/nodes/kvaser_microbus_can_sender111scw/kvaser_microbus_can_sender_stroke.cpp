@@ -3290,8 +3290,8 @@ public:
 				status.lamp = 0;
 				status.light = 0;
 				status.speed = current_velocity_.twist.linear.x * 3.6;
-				int16_t angle_val = (waypoint_param_.mpc_target_input == 0) ? can_receive_502_.angle_actual : target_steer_;
-				/*int16_t angle_val;
+				//int16_t angle_val = (waypoint_param_.mpc_target_input == 0) ? can_receive_502_.angle_actual : target_steer_;
+				int16_t angle_val;
 				if(waypoint_param_.mpc_target_input == 0)
 				{
 					//steerの上書きからmpcへの変化をゆっくり行う
@@ -3304,7 +3304,7 @@ public:
 					str_pub << c1 << "," << c2 << "," << mpc_steer_gradually_change_distance_;
 					pub_tmp_.publish(str_pub.str());
 				}
-				else angle_val = target_steer_;*/
+				else angle_val = target_steer_;
 				if(can_receive_502_.angle_actual > 0) status.angle = angle_val / wheelrad_to_steering_can_value_left;
 				else status.angle = angle_val / wheelrad_to_steering_can_value_right;
 				pub_vehicle_status_.publish(status);
