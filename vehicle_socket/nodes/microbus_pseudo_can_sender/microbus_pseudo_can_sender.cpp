@@ -1470,7 +1470,7 @@ public:
 
 int main(int argc, char** argv)
 {
-   	ros::init(argc, argv, "microbus_pseudo_can_sender");
+	ros::init(argc, argv, "microbus_pseudo_can_sender");
 	ros::NodeHandle nh;
 	ros::NodeHandle private_nh("~");
 

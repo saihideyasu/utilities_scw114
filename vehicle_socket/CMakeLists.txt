@@ -69,6 +69,15 @@ add_dependencies(kvaser_microbus_can_sender111scw
   ${catkin_EXPORTED_TARGETS}
   )
 
+add_executable(rs232c_microbus_can_receiver
+	nodes/rs232c_microbus_can_receiver/rs232c_microbus_can_receiver.cpp)
+target_link_libraries(rs232c_microbus_can_receiver
+  ${catkin_LIBRARIES}
+  canlib)
+add_dependencies(rs232c_microbus_can_receiver
+  ${catkin_EXPORTED_TARGETS}
+  )
+
 add_executable(microbus_pseudo_can_publisher
 	nodes/microbus_pseudo_can_publisher/microbus_pseudo_can_publisher.cpp)
 target_link_libraries(microbus_pseudo_can_publisher
@@ -88,7 +97,7 @@ add_dependencies(microbus_pseudo_can_sender
   )
 
 install(TARGETS vehicle_sender vehicle_receiver kvaser_microbus_can_sender kvaser_microbus_can_receiver
-                kvaser_microbus_can_sender111scw kvaser_microbus_can_receiver111scw
+                kvaser_microbus_can_sender111scw kvaser_microbus_can_receiver111scw rs232c_microbus_can_receiver
                 microbus_pseudo_can_publisher microbus_pseudo_can_sender
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

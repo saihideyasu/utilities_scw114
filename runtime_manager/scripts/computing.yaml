@@ -769,6 +769,10 @@ subs :
          desc : waypoint_velocity_visualizer desc sample
          cmd  : roslaunch waypoint_maker waypoint_velocity_visualizer.launch
          param: waypoint_velocity_visualizer
+       - name : waypoint_file_move
+         desc : waypoint_file_move desc sample
+         cmd  : roslaunch waypoint_maker waypoint_file_move.launch
+         param: waypoint_file_move
 
     - name : waypoint_planner
       desc : waypoint_planner desc sample
@@ -7354,6 +7358,56 @@ params :
       - gnss_speed
       - imu
       v     : 0
+
+  - name  : waypoint_file_move
+    topic : /config/waypoint_file_move
+    msg   : ConfigWaypointFileMove
+    vars  :
+    - name      : input_file_name
+      desc      : input_file_name desc sample
+      label     : input_file_name
+      kind      : path
+      path_type : multi
+      v         : /tmp/input.csv
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name      : output_file_name
+      desc      : output_file_name desc sample
+      label     : output_file_name
+      kind      : path
+      path_type : save
+      v         : /tmp/output.csv
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name : base_id
+      desc : base_id
+      label: base_id
+      min  : 1
+      max  : 100000
+      v    : 1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : first_id
+      desc : first_id
+      label: first_id
+      min  : 1
+      max  : 100000
+      v    : 1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : end_id
+      desc : end_id
+      label: end_id
+      min  : 1
+      max  : 100000
+      v    : 1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
 
   - name  : lookahead_ratio_magn
     topic : /config/lookahead_ratio_magn
