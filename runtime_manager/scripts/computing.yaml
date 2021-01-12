@@ -848,6 +848,10 @@ subs :
            path_filter_moving_ave_num:
              depend : enable_path_smoothing
              depend_bool : 'lambda v : v == True'
+       - name : cmd_selector
+         desc : cmd_selector desc sample
+         cmd  : roslaunch cmd_selector cmd_selector.launch
+         param: cmd_selector
        - name : twist_filter
          desc : twist_filter desc sample
          cmd  : roslaunch twist_filter twist_filter.launch
@@ -7358,6 +7362,21 @@ params :
       - gnss_speed
       - imu
       v     : 0
+
+  - name  : cmd_selector
+    topic : /config/cmd_selector
+    msg   : ConfigCmdSelector
+    vars  :
+    - name  : cmd_select
+      desc  : cmd_select desc sample
+      label : cmd_select
+      kind    : menu
+      choices : [ '1', '2' ]
+      choices_type : str
+      v       : '1'
+      cmd_param :
+        dash        : ''
+        delim       : ':='
 
   - name  : waypoint_file_move
     topic : /config/waypoint_file_move

@@ -82,6 +82,7 @@ from autoware_config_msgs.msg import ConfigLookAheadRatioMagn
 from autoware_config_msgs.msg import ConfigMicroBusCan111SCW
 from autoware_config_msgs.msg import ConfigMileagePublisher
 from autoware_config_msgs.msg import ConfigWaypointFileMove
+from autoware_config_msgs.msg import ConfigCmdSelector
 from tablet_socket_msgs.msg import mode_cmd
 from tablet_socket_msgs.msg import gear_cmd
 from tablet_socket_msgs.msg import Waypoint
