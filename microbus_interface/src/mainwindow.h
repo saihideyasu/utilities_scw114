@@ -23,8 +23,7 @@
 #include <autoware_msgs/LocalizerMatchStat.h>
 #include <autoware_can_msgs/MicroBusCanSenderStatus.h>
 #include <autoware_msgs/DifferenceToWaypointDistance.h>
-//#include <autoware_config_msgs/ConfigMicrobusInterface.h>
-#include <autoware_config_msgs/ConfigMicroBusCan.h>
+#include <autoware_config_msgs/ConfigMicroBusCan111SCW.h>
 #include <autoware_can_msgs/MicroBusCanVelocityParam.h>
 #include <autoware_msgs/WaypointParam.h>
 #include <autoware_msgs/GnssStandardDeviation.h>
@@ -98,7 +97,7 @@ private:
     void callbackDistanceAngularCheckNdt(const autoware_msgs::DifferenceToWaypointDistance &msg);
     void callbackDistanceAngularCheckEkf(const autoware_msgs::DifferenceToWaypointDistance &msg);
     void callbackDistanceAngularCheckGnss(const autoware_msgs::DifferenceToWaypointDistance &msg);
-    void callbackConfig(const autoware_config_msgs::ConfigMicroBusCan &msg);
+    void callbackConfig(const autoware_config_msgs::ConfigMicroBusCan111SCW &msg);
     void callbackLocalizerSelect(const std_msgs::Int32 &msg);//localizerの遷移状態 
     void callbackLocalizerMatchStat(const autoware_msgs::LocalizerMatchStat &msg);
     void callbackCanVelocityParam(const autoware_can_msgs::MicroBusCanVelocityParam &msg);
@@ -125,7 +124,7 @@ private:
     autoware_can_msgs::MicroBusCanSenderStatus can_status_;//canステータス
     autoware_msgs::DifferenceToWaypointDistance distance_angular_check_, distance_angular_check_ndt_, distance_angular_check_ekf_, distance_angular_check_gnss_;
     geometry_msgs::TwistStamped current_velocity_;//autowareからの現在の速度
-    autoware_config_msgs::ConfigMicroBusCan config_;
+    autoware_config_msgs::ConfigMicroBusCan111SCW config_;
     int localizer_select_;
     autoware_msgs::LocalizerMatchStat localizer_match_stat_;
     autoware_can_msgs::MicroBusCanVelocityParam can_velocity_param_;

@@ -7809,6 +7809,15 @@ params :
       cmd_param:
         dash     : ''
         delim    : ':='
+    - name : gnss_yaw_limit
+      desc : gnss_yaw_limit
+      label: gnss_yaw_limit
+      min  : 0.0
+      max  : 3.0
+      v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
     - name : ndt_gnss_min_distance_limit
       desc : ndt_gnss_min_distance_limit
       label: ndt_gnss_min_distance_limit

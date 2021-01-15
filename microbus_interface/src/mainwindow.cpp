@@ -960,12 +960,6 @@ void MainWindow::window_updata()
     }
 
     {
-        std::stringstream str_stor_stroke_max;
-        str_stor_stroke_max << config_.stop_stroke_max;
-        ui->tx_stop_stroke_max->setText(str_stor_stroke_max.str().c_str());
-    }
-
-    {
         //if(can502_.auto_mode == false && can503_.auto_mode == true) ui->cb_use_localizer_safety->setChecked(false);
         //else ui->cb_use_localizer_safety->setChecked(true);
     }
@@ -986,7 +980,7 @@ void MainWindow::window_updata()
     }
 }
 
-void MainWindow::callbackConfig(const autoware_config_msgs::ConfigMicroBusCan &msg)
+void MainWindow::callbackConfig(const autoware_config_msgs::ConfigMicroBusCan111SCW &msg)
 {
     config_ = msg;
 }
@@ -1064,8 +1058,6 @@ void MainWindow::callbackStopperDistance(const autoware_msgs::StopperDistance &m
 
 void MainWindow::callbackWaypointParam(const autoware_msgs::WaypointParam &msg)
 {
-    if(msg.stop_stroke_max <= -300 && msg.stop_stroke_max >=-500)
-        config_.stop_stroke_max = msg.stop_stroke_max;
     waypoint_param_ = msg;
 }
 

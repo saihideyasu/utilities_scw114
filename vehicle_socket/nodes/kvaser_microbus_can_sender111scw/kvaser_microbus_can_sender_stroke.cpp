@@ -27,15 +27,11 @@
 #include <autoware_can_msgs/MicroBusCan503.h>
 #include <autoware_can_msgs/MicroBusCanSenderStatus.h>
 #include <autoware_can_msgs/MicroBusCanVelocityParam.h>
-//#include <autoware_can_msgs/MicroBusCanSenderPositionCheck.h>
 #include <autoware_config_msgs/ConfigMicroBusCan111SCW.h>
 #include <autoware_config_msgs/ConfigVelocitySet.h>
 #include <autoware_config_msgs/ConfigLocalizerSwitch.h>
 #include <autoware_config_msgs/ConfigCurrentVelocityConversion.h>
-//#include <autoware_config_msgs/ConfigMicrobusInterface.h>
 #include <autoware_system_msgs/Date.h>
-#include <autoware_msgs/WaypointParam.h>
-//#include <autoware_msgs/PositionChecker.h>
 #include <autoware_msgs/WaypointParam.h>
 #include <autoware_msgs/DetectedObjectArray.h>
 #include <autoware_msgs/GnssStandardDeviation.h>
@@ -153,57 +149,6 @@ enum class EControl
   OTHERS = 4,
 };
 
-class waypoint_param_geter
-{
-public:
-	char automatic_door_;
-	bool automatic_door_taiki_;
-
-	waypoint_param_geter()
-	{
-		automatic_door_ = 0;
-		automatic_door_taiki_ = false;
-	}
-};
-
-struct LIMIT_ANGLE_FROM_VELOCITY_STRUCT
-{
-	double velocity;
-	double limit_angle_top;
-	double limit_angle_bottom;
-};
-
-class LIMIT_ANGLE_FROM_VELOCITY_CLASS
-{
-private:
-	std::vector<LIMIT_ANGLE_FROM_VELOCITY_STRUCT> lafvs;
-public:
-	LIMIT_ANGLE_FROM_VELOCITY_CLASS()
-	{
-		lafvs.clear();
-		LIMIT_ANGLE_FROM_VELOCITY_STRUCT data={0,700,-700};
-		lafvs.push_back(data);
-	}
-
-	void add(LIMIT_ANGLE_FROM_VELOCITY_STRUCT data) {lafvs.push_back(data);}
-
-	const LIMIT_ANGLE_FROM_VELOCITY_STRUCT getLimit(double vel)
-	{
-		for(int i=0;i<lafvs.size()-1;i++)
-		{
-			double bottom = lafvs[i].velocity;
-			double top = lafvs[i+1].velocity;
-			std::cout << "velocity_range : " << top << "," << vel << "," << bottom << std::endl;
-			if(vel >= bottom && vel < top)
-			{
-				return lafvs[i+1];
-			}
-		}
-//std::cout << "aaaaaaaaaaaaa\n";
-		return lafvs[lafvs.size()-1];
-	}
-};
-
 class kvaser_can_sender
 {
 private:
@@ -212,34 +157,6 @@ private:
 
 	//stroke params
 	const short PEDAL_VOLTAGE_CENTER_ = 1024;//1052;//計測値は1025;
-	const short PEDAL_DISPLACEMENT_CENTER_ = 1024;//計測値は1029;
-	const short PEDAL_VOLTAGE_MAX_ = 161;
-	const short PEDAL_DISPLACEMENT_MAX_ = 1161;
-	const short PEDAL_VOLTAGE_MIN_ = 1533;
-	const short PEDAL_DISPLACEMENT_MIN_ = 849;
-	//const short PEDAL_STROKE_CENTER_ = 0;
-	//const short PEDAL_STOKE_MAX_ = PEDAL_VOLTAGE_CENTER_ - PEDAL_VOLTAGE_MAX_;
-	//const short PEDAL_STROKE_MIN_ = -450;//PEDAL_VOLTAGE_CENTER_ - PEDAL_VOLTAGE_MIN_;
-	//const short ACCEL_PEDAL_STROKE_OFFSET_ = 10;
-	//const short BRAKE_PEDAL_STROKE_OFFSET_ = -10;
-	//const short BRAKE_PEDAL_STOPPING_MED_ = 400;
-	//const short BRAKE_PEDAL_STOPPING_MAX_ = 500;
-
-	//steer params
-	const double HANDLE_MAX = 675;
-	const double WHEEL_MAX = 36;
-	const unsigned int STEER_VALUE_MARGIN = 20;
-
-	//vanet params
-	//double handle_angle_right_max = 660;
-	//double handle_angle_left_max = 670;
-	double left_wheel_angle_right_max = 33;
-	double right_wheel_angle_right_max = 38;
-	double left_wheel_angle_left_max = 39.5;
-	double right_wheel_angle_left_max = 33;
-	double handle_actual_right_max = 13329;
-	double handle_actual_left_max = 14177;
-	double handle_offset = 188;
 
 	//liesse params
 	double handle_angle_right_max = 730;
@@ -266,15 +183,6 @@ private:
 	//other params
 	const unsigned int SEND_DATA_SIZE = 8;
 
-	//error params pid_params.get_stroke_prev();
-	const int CONFIG_OK = 0;
-	const int ERROR_STROKE_MAX_MIN_INCONSISTENCY = 1;
-	const int ERROR_STROKE_CENTER_INCONSISTENCY = 2;
-	const int ERROR_STROKE_STOPPING_MED_INCONSISTENCY = 3;
-	const int ERROR_STROKE_ACCEL_STROKE_INCONSISTENCY = 4;
-	const int ERROR_STROKE_BRAKE_STROKE_INCONSISTENCY = 5;
-	int config_result;
-
 	//use velocity topic
 	const static int USE_VELOCITY_CAN = 0;
 	const static int USE_VELOCITY_TWIST = 1;
@@ -290,11 +198,6 @@ private:
 	//mpc_steer_gradually_change_distance
 	const static double MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT = 3;//(m)
 
-	//safety
-	const LIMIT_ANGLE_FROM_VELOCITY_STRUCT limit10 = {10,680,-680}, limit15 = {15,360,-360}, limit20 = {20,180,-180}, limit30={30,90,-90}, limit40={40,45,-45};
-	LIMIT_ANGLE_FROM_VELOCITY_CLASS lafvc_;
-	bool dengerStopFlag = false;//自動運転が失敗しそうな場に止めるフラグ
-
 	ros::Publisher pub_microbus_can_sender_status_, pub_log_write_, pub_estimate_stopper_distance_;
 	ros::Publisher pub_localizer_match_stat_, pub_stroke_routine_, pub_vehicle_status_, pub_velocity_param_, pub_tmp_;
 	ros::Publisher pub_way_distance_ave_, pub_brake_i_;
@@ -302,13 +205,12 @@ private:
 	ros::NodeHandle nh_, private_nh_;
 	ros::Subscriber sub_microbus_drive_mode_, sub_microbus_steer_mode_, sub_twist_cmd_;
 	ros::Subscriber sub_microbus_can_501_, sub_microbus_can_502_, sub_microbus_can_503_;
-	//ros::Subscriber sub_current_pose_, sub_current_velocity_;
 	ros::Subscriber sub_emergency_reset_, sub_stroke_mode_, sub_velocity_mode_, sub_drive_control_;
 	ros::Subscriber sub_input_steer_flag_, sub_input_drive_flag_, sub_input_steer_value_, sub_input_drive_value_;
 	ros::Subscriber sub_waypoint_param_, sub_waypoints_, sub_position_checker_, sub_config_microbus_can_;
 	ros::Subscriber sub_shift_auto_, sub_shift_position_;
 	ros::Subscriber sub_emergency_stop_;
-	ros::Subscriber sub_light_high_, sub_light_low_, sub_light_small_;
+	ros::Subscriber sub_light_high_;
 	ros::Subscriber sub_blinker_right_, sub_blinker_left_, sub_blinker_stop_;
 	ros::Subscriber sub_automatic_door_, sub_drive_clutch_, sub_steer_clutch_;
 	ros::Subscriber sub_econtrol_, sub_obtracle_waypoint_, sub_stopper_distance_;
@@ -318,7 +220,7 @@ private:
 	ros::Subscriber sub_localizer_select_num_, sub_config_localizer_switch_, sub_interface_lock_;//sub_interface_config_;
 	ros::Subscriber sub_ekf_covariance_, sub_use_safety_localizer_, sub_config_current_velocity_conversion_;
 	ros::Subscriber sub_cruse_velocity_, sub_mobileye_frame_, sub_mobileye_obstacle_data_, sub_temporary_fixed_velocity_;
-	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_nmea_sentence_, sub_log_write_, sub_cruse_error_;
+	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_log_write_, sub_cruse_error_;
 	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_override_, sub_way_increase_distance_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
@@ -346,7 +248,7 @@ private:
 	bool shift_auto_;
 	unsigned char shift_position_, drive_clutch_, steer_clutch_, automatic_door_;
 	unsigned char emergency_stop_;
-	bool light_high_, light_low_, light_small_;
+	bool light_high_;
 	bool blinker_right_, blinker_left_, blinker_stop_, blinker_param_sender_;
 	EControl econtrol;
 	int obstracle_waypoint_;
@@ -370,15 +272,12 @@ private:
 	ros::Time drive_clutch_timer_, steer_clutch_timer_;
 	ros::Time can_send_time_;
 	double waypoint_id_ = -1;
-	tf::Quaternion waypoint_orientation_;
-	double ndt_gnss_angle_, waypoint_angle_;
+	double ndt_gnss_angle_;
 	tf::Quaternion waypoint_localizer_angle_;
-	waypoint_param_geter wpg_;
 	double accel_avoidance_distance_min_, stop_stroke_max_;
 	bool in_accel_mode_, in_brake_mode_;
 	std_msgs::String routine_;
 	bool use_stopper_distance_, interface_lock_;
-	unsigned int loop_counter_;
 	geometry_msgs::PoseWithCovarianceStamped ekf_covariance_;
 	int ndt_warning_count_;
 	bool use_safety_localizer_;
@@ -388,7 +287,6 @@ private:
 	mobileye_560_660_msgs::ObstacleData mobileye_obstacle_data_;
 	double temporary_fixed_velocity_;
 	double send_step_;
-	unsigned int log_subscribe_count_;
 	autoware_system_msgs::Date gnss_time_;
 	std::string log_folder_;
 	std::string log_path_;
@@ -404,10 +302,6 @@ private:
 	double last_steer_override_value_;//steerオーバーライド終了時の上書き値
 	double mpc_steer_gradually_change_distance_;//steer指令を上書き状態からmpc指令に徐々に戻す距離
 	double target_steer_;//現在canに送信したsteer_targetの値
-
-	const int nmea_list_count_ = 5;
-	std::vector<std::string> nmae_name_list_ = {"#BESTPOSA","#BESTGNSSPOSA","#TIMEA","#INSSTDEVA","#RAWIMUA"};
-	std::vector<std::stringstream> nmea_text_list_;
 
 	void callbackCruseError(const std_msgs::String::ConstPtr &msg)
 	{
@@ -501,30 +395,6 @@ private:
 		}
 
 		return str;
-	}
-
-	void callbackNmeaSentence(const nmea_msgs::Sentence::ConstPtr &msg)
-	{
-		std::vector<std::string> nmea = split(msg->sentence, ',');
-		//std::cout << "sentence : " << nmea[0] << std::endl;
-		for(int i=0; i<nmae_name_list_.size(); i++)
-		{
-			if(nmae_name_list_[i] == nmea[0])
-			{
-				//if(nmea_text_list_[i].str() != "") nmea_text_list_[i] << ":";
-				nmea_text_list_[i] << "[";
-				std::string nmea_end = nmea[nmea.size()-1];
-				nmea[nmea.size()-1] = nmea_end.substr(0,nmea_end.size()-1);
-				//nmea[nmea.size()-1] = replaceOtherStr(nmea_end, "\n", "");
-				std::string str;
-				for(int j=0; j<nmea.size(); j++)
-				{
-					str += nmea[j];
-					if(j != nmea.size()-1) str += ",";
-				}
-				nmea_text_list_[i] << str <<  "]";
-			}
-		}
 	}
 
 	std::string timeString(double time)
@@ -772,34 +642,6 @@ private:
 		double diff_x = ndtx - gnssx;
 		double diff_y = ndty - gnssy;
 		double distance = sqrt(diff_x * diff_x + diff_y* diff_y);
-		/*if(distance > 8)
-		{
-			if(can_receive_501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_AUTO)
-				drive_clutch_ = false;
-			if(can_receive_501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_AUTO)
-				steer_clutch_ = false;
-			//flag_drive_mode_ = false;
-			//flag_steer_mode_ = false;
-			shift_auto_ = false;
-			std::cout << "Denger! Ndt Gnss Distance : " << distance << std::endl;
-			std::stringstream safety_error_message;
-			safety_error_message << "Ndt Gnss Distance" << distance;
-			publishStatus(safety_error_message.str());
-			can_send();
-			flag = false;
-		}*/
-
-		/*diff_x /= distance;
-		diff_y /= distance;
-		ndt_gnss_angle_ = atan2(diff_x,diff_y);//map座標系はｘが上
-		tf::Quaternion localize_qua;
-		localize_qua.setRPY(0,0,ndt_gnss_angle_);
-		waypoint_localizer_angle_ = waypoint_orientation_ * localize_qua.inverse();
-		//if(distance >= 0.5) flag = false;//0.5
-		double wla_roll, wla_pitch, wla_yaw;
-		tf::Matrix3x3 mat_waypoint_localizer_angle_(waypoint_localizer_angle_);
-		mat_waypoint_localizer_angle_.getRPY(wla_roll, wla_pitch, wla_yaw);
-		double waypoint_localizer_angle_deg = wla_yaw * 180.0 / M_PI;*/
 
 		autoware_msgs::LocalizerMatchStat lms;
 		lms.header.stamp = ros::Time::now();
@@ -1343,8 +1185,6 @@ private:
 		double waypoint_roll, waypoint_pitch, waypoint_yaw;
 		tf::Matrix3x3 wla(waypoint_localizer_angle_);
 		wla.getRPY(waypoint_roll, waypoint_pitch, waypoint_yaw);
-		str << "," <<  waypoint_angle_;//47
-		name << "," <<  "waypoint_angle"; 
 		str <<"," << ndt_gnss_angle_ ;
 		name <<"," << "ndt_gnss_angle";
 		str << "," <<waypoint_roll;//49
@@ -1468,21 +1308,8 @@ private:
 		str << "," << mobileye_obstacle_data_.obstacle_angle;
 		name << "," << "mbe_obstacle_angle";
 
-		/*for(int i=0; i<nmae_name_list_.size(); i++)
-		{
-			str << "," << nmea_text_list_[i].str();
-			name << "," << nmae_name_list_[i];
-		}*/
-
-		nmea_text_list_.clear();
-		for(int i=0; i<nmae_name_list_.size(); i++) nmea_text_list_.push_back(std::stringstream());
-
 		std_msgs::String aw_msg;
-		unsigned int sub_count = pub_log_write_.getNumSubscribers();
-		if(sub_count >= 1 && log_subscribe_count_ == 0)
-			aw_msg.data = name.str();
-		else
-			aw_msg.data = str.str();
+		aw_msg.data = str.str();
 		pub_log_write_.publish(aw_msg);
 		if(log_path_ != "")
 		{
@@ -1494,7 +1321,6 @@ private:
 			ofs_log_writer_ << str.str() << "\n";
 			log_write_size_ += str.str().size()+1;
 		}
-		log_subscribe_count_ = sub_count;
 	}
 
 	void TwistPoseCallback(const geometry_msgs::TwistStampedConstPtr &twist_msg,
@@ -1570,9 +1396,6 @@ private:
 		double zisoku = msg->ctrl_cmd.linear_velocity * 3.6;
 
 		bool flag = false;
-
-		LIMIT_ANGLE_FROM_VELOCITY_STRUCT limitAngleData = lafvc_.getLimit(zisoku);
-		std::cout <<"angle range : " << limitAngleData.limit_angle_bottom << "," << deg << "," << limitAngleData.limit_angle_top << std::endl;
 
 		//double targetAngleTimeVal = fabs(deg - front_deg_)/time_sa;
 		std::cout << "time_sa," << time_sa << ",targetAngleTimeVal," << deg << std::endl;
@@ -1674,21 +1497,6 @@ private:
 	void callbackConfigMicroBusCan(const autoware_config_msgs::ConfigMicroBusCan111SCW::ConstPtr &msg)
 	{
 		setting_ = *msg;
-		/*setting_.velocity_limit = 50;
-		setting_.velocity_stop_th = 4.0;
-		setting_.pedal_stroke_center = 0;
-		setting_.pedal_stroke_max = 850;
-		setting_.pedal_stroke_min = -500;
-		setting_.brake_stroke_stopping_med = -370;*/
-		//setting_.accel_stroke_offset = 10;
-		//setting_.brake_stroke_offset = -10;
-		setting_.brake_stroke_stopping_med = 0;
-
-		/*setting_.pedal_stroke_max - setting_.pedal_stroke_min
-		if(setting_.pedal_stroke_max - setting_.pedal_stroke_min > 1300 ||
-				)
-			config_result = ERROR_STROKE_MAX_MIN_INCONSISTENCY;
-		else if(setting_.pedal_stroke_max - setting_.pedal_stroke_center )*/
 		std::string safety_error_message = "";
 		publishStatus(safety_error_message);
 	}
@@ -1836,12 +1644,9 @@ private:
 			waypoint_id_ = -1;
 		}
 
+		tf::Quaternion waypoint_orientation;
 		waypoint_id_ = msg->waypoints[1].waypoint_param.id;
-		tf::quaternionMsgToTF(msg->waypoints[1].pose.pose.orientation, waypoint_orientation_);
-		double roll, pitch, yaw;
-		tf::Matrix3x3 mat(waypoint_orientation_);
-		mat.getRPY(roll, pitch, yaw);
-		waypoint_angle_ = yaw;
+		tf::quaternionMsgToTF(msg->waypoints[1].pose.pose.orientation, waypoint_orientation);
 	}
 
 	/*void callbackPositionChecker(const autoware_msgs::PositionChecker::ConstPtr &msg)
@@ -1933,20 +1738,6 @@ private:
 		std::cout << "light_high : " << str << std::endl;
 	}
 
-	void callbackLightLow(const std_msgs::Bool::ConstPtr &msg)
-	{
-		light_low_ = msg->data;
-		std::string str = (light_low_) ? "true" : "false";
-		std::cout << "light_low : " << str << std::endl;
-	}
-
-	void callbackLightSmall(const std_msgs::Bool::ConstPtr &msg)
-	{
-		light_small_ = msg->data;
-		std::string str = (light_small_) ? "true" : "false";
-		std::cout << "light_small : " << str << std::endl;
-	}
-
 	void callbackDriveClutch(const std_msgs::Bool::ConstPtr &msg)
 	{
 		drive_clutch_ = msg->data;
@@ -2022,9 +1813,6 @@ private:
 		buf[0] = mode;  buf[1] = 0;
 	}
 
-	double handle_control_max_speed = 50; //
-	double handle_control_min_speed = 10; //
-	double handle_control_ratio = 1.0/32.0;
 	void bufset_steer(unsigned char *buf, ros::Time nowtime)
 	{
 		short steer_val;
@@ -2039,8 +1827,6 @@ private:
 			{
 				double wheel_ang = twist_.ctrl_cmd.steering_angle;
 				double zisoku = twist_.ctrl_cmd.linear_velocity * 3.6;
-				double ratio = ((handle_control_ratio - 1.0) * (zisoku - handle_control_min_speed))
-						/ (handle_control_max_speed - handle_control_min_speed) + 1;
 				if(wheel_ang > 0)
 				{
 					steer_val = wheel_ang * wheelrad_to_steering_can_value_left * steer_correction_;
@@ -2374,7 +2160,7 @@ private:
 			std::cout << "stopper list : "<< setting_.stopper_distance1 << "," << setting_.stopper_distance2 << "," << setting_.stopper_distance3 << std::endl;
 			std::cout << "kkk stop_stroke_max : " << stop_stroke_max_ << std::endl;
 			if(stopper_distance_.distance >= setting_.stopper_distance2 && stopper_distance_.distance <= setting_.stopper_distance1)
-			{std::cout << loop_counter_ << " : stopD1" << std::endl;
+			{std::cout << "stopD1" << std::endl;
 				stop_distance_over_sum_ = 0;
 				/*std::cout << "tbs," << target_brake_stroke;
 				double d = stop_stroke - target_brake_stroke;
@@ -2383,7 +2169,7 @@ private:
 				std::cout << ",tbs," << target_brake_stroke << ",d," << d << ",dis," << stopper_distance_ << std::endl;*/
 			}
 			else if(stopper_distance_.distance >= setting_.stopper_distance3 && stopper_distance_.distance <= setting_.stopper_distance2)
-			{std::cout << loop_counter_ << "stopD2" << std::endl;
+			{std::cout << "stopD2" << std::endl;
 				stop_distance_over_sum_ = 0;
 				/*if(current_velocity > 5.0)
 				{
@@ -2415,7 +2201,7 @@ private:
 				}*/
 			}
 			else if(stopper_distance_.distance >= 0 && stopper_distance_.distance <= setting_.stopper_distance3)
-			{std::cout << loop_counter_ << "stopD3" << std::endl;
+			{std::cout << "stopD3" << std::endl;
 				//if(temporary_fixed_velocity_ == 0)
 				if(stopper_distance_.fixed_velocity == 0 || stopper_distance_.send_process == autoware_msgs::StopperDistance::SIGNAL)
 				{
@@ -3014,8 +2800,6 @@ public:
 	    , shift_position_(0)
 	    , emergency_stop_(false)
 	    , light_high_(false)
-	    , light_low_(false)
-	    , light_small_(false)
 	    , blinker_right_(false)
 	    , blinker_left_(false)
 	    , blinker_stop_(false)
@@ -3023,7 +2807,6 @@ public:
 	    , automatic_door_(0)
 	    , drive_clutch_(true)
 	    , steer_clutch_(true)
-	    , config_result(CONFIG_OK)
 	    , use_velocity_data_(USE_VELOCITY_TWIST)
 	    , use_acceleration_data_(USE_ACCELERATION_IMU)
 	    , acceleration1_twist_(0)
@@ -3039,12 +2822,10 @@ public:
 		, in_brake_mode_(true)
 		, use_stopper_distance_(true)
 		, interface_lock_(false)
-		, loop_counter_(0)
 		, ndt_warning_count_(0)
 		, use_safety_localizer_(true)
 		, cruse_velocity_(0)
 		, temporary_fixed_velocity_(0)
-		, log_subscribe_count_(0)
 		, log_folder_("")
 		, stop_distance_over_sum_(0)
 		, stop_distance_over_add_(10.0/100.0)
@@ -3087,8 +2868,6 @@ public:
 		canStatus res = kc.init(kvaser_channel, canBITRATE_500K);
 		if(res != canStatus::canOK) {std::cout << "open error" << std::endl;}
 
-		lafvc_.add(limit10); lafvc_.add(limit15); lafvc_.add(limit20); lafvc_.add(limit30); lafvc_.add(limit40);
-
 		pub_microbus_can_sender_status_ = nh_.advertise<autoware_can_msgs::MicroBusCanSenderStatus>("/microbus/can_sender_status", 1, true);
 		pub_log_write_ = nh_.advertise<std_msgs::String>("/microbus/log_write", 1);
 		pub_estimate_stopper_distance_ = nh_.advertise<std_msgs::Float64>("/microbus/estimate_stopper_distance", 1);
@@ -3125,8 +2904,6 @@ public:
 		sub_shift_position_ = nh_.subscribe("/microbus/shift_position", 10, &kvaser_can_sender::callbackShiftPosition, this);
 		sub_emergency_stop_ = nh_.subscribe("/microbus/emergency_stop", 10, &kvaser_can_sender::callbackEmergencyStop, this);
 		sub_light_high_ = nh_.subscribe("/microbus/light_high", 10, &kvaser_can_sender::callbackLightHigh, this);
-		sub_light_low_ = nh_.subscribe("/microbus/light_low", 10, &kvaser_can_sender::callbackLightLow, this);
-		sub_light_small_ = nh_.subscribe("/microbus/light_small", 10, &kvaser_can_sender::callbackLightSmall, this);
 		sub_blinker_right_ = nh_.subscribe("/microbus/blinker_right", 10, &kvaser_can_sender::callbackBlinkerRight, this);
 		sub_blinker_left_ = nh_.subscribe("/microbus/blinker_left", 10, &kvaser_can_sender::callbackBlinkerLeft, this);
 		sub_blinker_stop_ = nh_.subscribe("/microbus/blinker_stop", 10, &kvaser_can_sender::callbackBlinkerStop, this);
@@ -3163,7 +2940,6 @@ public:
 		sub_mobileye_obstacle_data_ = nh.subscribe("/use_mobileye_obstacle", 10 , &kvaser_can_sender::callbackMobileyeObstacleData, this);
 		sub_temporary_fixed_velocity_ = nh.subscribe("/temporary_fixed_velocity", 10 , &kvaser_can_sender::callbackTemporaryFixedVelocity, this);
 		sub_gnss_time_ = nh.subscribe("/gnss_time", 10 , &kvaser_can_sender::callbackGnssTime, this);
-		sub_nmea_sentence_ = nh.subscribe("/novatel_oem7_2/nmea_sentence", 10 , &kvaser_can_sender::callbackNmeaSentence, this);
 		sub_log_write_ = nh.subscribe("/microbus/log_on", 10 , &kvaser_can_sender::callbackLogWrite, this);
 		sub_log_folder_ = nh.subscribe("/microbus/log_folder", 10 , &kvaser_can_sender::callbackLogFolder, this);
 		sub_waypoints_file_name_ = nh.subscribe("/waypoints_file_name", 10 , &kvaser_can_sender::callbackWaypointFileName, this);
@@ -3184,13 +2960,14 @@ public:
 		automatic_door_time_ = blinker_right_time_ = blinker_left_time_ =
 		        blinker_stop_time_ = can_send_time_ = ros::Time::now();
 
+		ros::Time nowtime = ros::Time::now();
 		pid_params.init(0.0);
 		mobileye_obstacle_data_.header.stamp = ros::Time(0);
-		for(int i=0; i<nmae_name_list_.size(); i++) nmea_text_list_.push_back(std::stringstream());
 		waypoint_param_.id = -1;
-
 		waypoint_param_.steer_override = STEER_OVERWRIDE_TH;
-
+		current_velocity_.header.stamp = nowtime;
+		current_velocity_.twist.linear.x = 0;
+		current_velocity_.twist.angular.z = 0;
 		//ボード送信をスレッド化
 		if(pthread_create(&thread_can_send_, nullptr, kvaser_can_sender::launchCanSendThread, this) == 0)
 		{
@@ -3320,7 +3097,6 @@ public:
 				pub_tmp_.publish(str_pub.str());*/
 
 				kc.write(0x100, (char*)buf, SEND_DATA_SIZE);
-				loop_counter_++;
 				rate.sleep();
 			}
 		}
