@@ -101,7 +101,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
 
     nh_ = nh;  private_nh_ = p_nh;
 
-    pub_unlock_ = nh_.advertise<std_msgs::Empty>("/microbus/emergency_reset", 1);
+    pub_unlock_ = nh_.advertise<std_msgs::Empty>("/microbus/first_lock_release", 1);
     pub_drive_mode_ = nh_.advertise<std_msgs::Bool>("/microbus/drive_mode_send", 1);
     pub_drive_control_ = nh_.advertise<std_msgs::Int8>("/microbus/drive_control", 1);
     pub_steer_mode_ = nh_.advertise<std_msgs::Bool>("/microbus/steer_mode_send", 1);
@@ -125,7 +125,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     sub_distance_angular_check_ndt_ = nh_.subscribe("/difference_to_waypoint_distance_ndt", 10, &MainWindow::callbackDistanceAngularCheckNdt, this);
     sub_distance_angular_check_ekf_ = nh_.subscribe("/difference_to_waypoint_distance_ekf", 10, &MainWindow::callbackDistanceAngularCheckEkf, this);
     sub_distance_angular_check_gnss_ = nh_.subscribe("/difference_to_waypoint_distance_gnss", 10, &MainWindow::callbackDistanceAngularCheckGnss, this);
-    sub_config_ = nh_.subscribe("/config/microbus_can", 10, &MainWindow::callbackConfig, this);
+    sub_config_ = nh_.subscribe("/config/microbus_can111scw", 10, &MainWindow::callbackConfig, this);
     sub_localizer_select_ = nh_.subscribe("/localizer_select_num", 10, &MainWindow::callbackLocalizerSelect, this);
     sub_localizer_match_stat_ = nh_.subscribe("/microbus/localizer_match_stat", 10, &MainWindow::callbackLocalizerMatchStat, this);
     sub_can_velocity_param_ = nh_.subscribe("/microbus/velocity_param", 10, &MainWindow::callbackCanVelocityParam, this);

@@ -15,8 +15,8 @@ $Id$
   <arg name="max_range" default="130.0" />
   <arg name="model" default="VLP16"/>
   <arg name="topic_name" default="points_raw"/>
-  <arg name="port" default="2369" />
-  <arg name="frame_id" default="velodyne2" />
+  <arg name="port" default="2372" />
+  <arg name="frame_id" default="velodyne4" />
 
   <!-- start nodelet manager and driver nodelets -->
   <include file="$(find velodyne_driver)/launch/nodelet_manager.launch" ns="$(arg frame_id)">

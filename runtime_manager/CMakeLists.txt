@@ -89,12 +89,19 @@ install(
     scripts/launch_files/planning.launch
     scripts/launch_files/sensor.launch
     scripts/launch_files/set.launch
-    scripts/launch_files/velodyne_hdl32e.launch
     scripts/launch_files/velodyne_hdl64e_s2.launch
     scripts/launch_files/velodyne_hdl64e_s3.launch
+    scripts/launch_files/velodyne_hdl32e.launch
     scripts/launch_files/velodyne_vlp16.launch
     scripts/launch_files/velodyne_vlp16_hires.launch
     scripts/launch_files/velodyne_vlp32c.launch
+    scripts/launch_files/velodyne_hdl32e_single.launch
+    scripts/launch_files/velodyne_vlp16_front_left.launch
+    scripts/launch_files/velodyne_vlp16_front_right.launch
+    scripts/launch_files/velodyne_vlp16_back_left.launch
+    scripts/launch_files/velodyne_vlp16_back_right.launch
+    scripts/launch_files/VLS128_points.launch
+    scripts/launch_files/VLS128_points_single.launch
     scripts/mqtt_socket.launch
     scripts/points2image.launch
     scripts/setup_tf.launch
