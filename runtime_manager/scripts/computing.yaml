@@ -773,6 +773,10 @@ subs :
          desc : waypoint_file_move desc sample
          cmd  : roslaunch waypoint_maker waypoint_file_move.launch
          param: waypoint_file_move
+       - name : straight_line_fix
+         desc : straight_line_fix desc sample
+         cmd  : roslaunch waypoint_maker straight_line_fix.launch
+         param: straight_line_fix
 
     - name : waypoint_planner
       desc : waypoint_planner desc sample
@@ -781,6 +785,10 @@ subs :
         desc : astar_avoid desc sample
         cmd  : roslaunch waypoint_planner astar_avoid.launch
         param: astar_avoid_param
+      - name : temporary_stopper
+        desc : temporary_stopper desc sample
+        cmd  : roslaunch waypoint_planner temporary_stopper.launch
+        param: temporary_stopper
       - name : velocity_set
         desc : velocity_set desc sample
         cmd  : roslaunch waypoint_planner velocity_set_option.launch
@@ -7345,6 +7353,74 @@ params :
         dash        : ''
         delim       : ':='
 
+  - name  : temporary_stopper
+    topic : /config/temporary_stopper
+    msg   : ConfigTemporaryStopper
+    vars  :
+    - name : search_distance
+      desc : search_distance
+      label: search_distance(m)
+      min  : 0.0
+      max  : 100.0
+      v    : 7
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : deceleration
+      desc : deceleration
+      label: deceleration
+      min  : 0.0
+      max  : 5
+      v    : 0.45
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : number_of_zeros_ahead
+      desc : number_of_zeros_ahead
+      label: number_of_zeros_ahead(m)
+      min  : 0.0
+      max  : 10.0
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : number_of_zeros_behind
+      desc : number_of_zeros_behind
+      label: number_of_zeros_behind(m)
+      min  : 0.0
+      max  : 100.0
+      v    : 5
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : stop_speed_threshold
+      desc : stop_speed_threshold
+      label: stop_speed_threshold(hm/h)
+      min  : 0.0
+      max  : 3.0
+      v    : 0.018
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : fixed_velocity
+      desc : fixed_velocity
+      label: fixed_velocity(km/h)
+      min  : 0.0
+      max  : 40.0
+      v    : 0.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : velocity_limit
+      desc : velocity_limit
+      label: velocity_limit(km/h)
+      min  : 0.0
+      max  : 50.0
+      v    : 25.0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+
   - name  : mileage_publisher
     topic : /config/mileage_publisher
     msg   : ConfigMileagePublisher
@@ -7412,6 +7488,47 @@ params :
     - name : first_id
       desc : first_id
       label: first_id
+      min  : 1
+      max  : 100000
+      v    : 1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : end_id
+      desc : end_id
+      label: end_id
+      min  : 1
+      max  : 100000
+      v    : 1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+
+  - name  : straight_line_fix
+    topic : /config/straight_line_fix
+    msg   : ConfigStraightLineFix
+    vars  :
+    - name      : input_file_name
+      desc      : input_file_name desc sample
+      label     : input_file_name
+      kind      : path
+      path_type : multi
+      v         : /tmp/input.csv
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name      : output_file_name
+      desc      : output_file_name desc sample
+      label     : output_file_name
+      kind      : path
+      path_type : save
+      v         : /tmp/output.csv
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name : start_id
+      desc : start_id
+      label: start_id
       min  : 1
       max  : 100000
       v    : 1

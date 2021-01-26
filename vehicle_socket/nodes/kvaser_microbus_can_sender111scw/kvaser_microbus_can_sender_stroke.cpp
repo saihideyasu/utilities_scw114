@@ -192,6 +192,9 @@ private:
 	//mpc_steer_gradually_change_distance
 	const static double MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT = 3;//(m)
 
+	//localizer更新時間のチェック時間(s)
+	const static double LOCALIZER_UPDATE_CHECK_TIME = 0.2;
+
 	ros::Publisher pub_microbus_can_sender_status_, pub_log_write_;
 	ros::Publisher pub_localizer_match_stat_, pub_stroke_routine_, pub_vehicle_status_, pub_velocity_param_, pub_tmp_;
 	ros::Publisher pub_brake_i_;
@@ -263,7 +266,7 @@ private:
 	ros::Time automatic_door_time_;
 	ros::Time blinker_right_time_, blinker_left_time_, blinker_stop_time_;
 	ros::Time drive_clutch_timer_, steer_clutch_timer_;
-	ros::Time can_send_time_;
+	ros::Time can_send_time_, localizer_timer_;
 	double waypoint_id_ = -1;
 	double ndt_gnss_angle_;
 	tf::Quaternion waypoint_localizer_angle_;
@@ -1305,6 +1308,8 @@ private:
 	void TwistPoseCallback(const geometry_msgs::TwistStampedConstPtr &twist_msg,
 	                       const geometry_msgs::PoseStampedConstPtr &pose_msg)
 	{
+		localizer_timer_ = twist_msg->header.stamp;
+
 		std::cout << "current velocity : " << twist_msg->twist.linear.x << std::endl;
 		std::cout << "current pose : "      << pose_msg->pose.position.x << "," << pose_msg->pose.position.y << std::endl;
 
@@ -2516,6 +2521,27 @@ pub_tmp_.publish(str_ret);*/
        	reinterpret_cast<kvaser_can_sender*>(pParam)->can_send();
 		pthread_exit(NULL);
     }
+
+	//現在のlocalizerの更新が一定時間ない場合はエラー
+	void localizerTimeCheck(ros::Time nowtime)
+	{
+		ros::Duration localizer_time_diff = nowtime - localizer_timer_;
+		double localizer_time_dt = localizer_time_diff.sec + localizer_time_diff.nsec * 1E-9;
+		if(localizer_time_dt > LOCALIZER_UPDATE_CHECK_TIME)
+		{
+			if(can_receive_501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_AUTO)
+				drive_clutch_ = false;
+			if(can_receive_501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_AUTO)
+				steer_clutch_ = false;
+			//flag_drive_mode_ = false;
+			//flag_steer_mode_ = false;
+			shift_auto_ = false;
+			std::cout << "localizer update time over : " << localizer_time_dt << std::endl;
+			std::stringstream safety_error_message;
+			safety_error_message << "localizer update time over : " << localizer_time_dt;
+			publishStatus(safety_error_message.str());
+		}
+	}
 public:
 	kvaser_can_sender(ros::NodeHandle nh, ros::NodeHandle p_nh)
 	    : nh_(nh)
@@ -2664,7 +2690,7 @@ public:
 
 		waypoint_param_.blinker = 0;
 		automatic_door_time_ = blinker_right_time_ = blinker_left_time_ =
-		        blinker_stop_time_ = can_send_time_ = ros::Time::now();
+		        blinker_stop_time_ = can_send_time_ = localizer_timer_ = ros::Time::now();
 
 		ros::Time nowtime = ros::Time::now();
 		pid_params.init(0.0);
@@ -2727,6 +2753,10 @@ public:
 				double t_diff = time_diff.sec + time_diff.nsec * 1E-9;
 				can_send_time_ = nowtime;
 
+				//現在のlocalizerの更新が一定時間ない場合はエラー
+				localizerTimeCheck(nowtime);
+
+				//ndtとgnssのチェック
 				NdtGnssCheck();
 
 				double current_velocity = 0;// = can_receive_502_.velocity_average / 100.0;
@@ -2822,13 +2852,6 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	/*ros::Rate loop_rate(100);
-	while(ros::ok())
-	{
-		kcs.can_send();
-		ros::spinOnce();
-		loop_rate.sleep();
-	}*/
 	ros::spin();
 	kcs.end_can_send();
 	return 0;

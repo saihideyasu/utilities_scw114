@@ -285,33 +285,33 @@ void MainWindow::window_updata()
                 ui->tx2_drive_mode->setPalette(palette_drive_mode_error_);
                 if(can501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_NOT_V0)
                 {
-                    ui->tx_drive_mode->setText("not V0");
-                    ui->tx2_drive_mode->setText("not V0");
+                    ui->tx_drive_mode->setText("1not V0");
+                    ui->tx2_drive_mode->setText("1not V0");
                 }
                 else if(can501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_NOT_JOY_CENTER)
                 {
-                    ui->tx_drive_mode->setText("not joy center");
-                    ui->tx2_drive_mode->setText("not joy center");
+                    ui->tx_drive_mode->setText("2not joy center");
+                    ui->tx2_drive_mode->setText("2not joy center");
                 }
                 else if(can501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_NOT_BOARD_RES)
                 {
-                    ui->tx_drive_mode->setText("not board res");
-                    ui->tx2_drive_mode->setText("not board res");
+                    ui->tx_drive_mode->setText("3not board res");
+                    ui->tx2_drive_mode->setText("3not board res");
                 }
                 else if(can501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_V0 + autoware_can_msgs::MicroBusCan501::DRIVE_NOT_JOY_CENTER)
                 {
-                    ui->tx_drive_mode->setText("not V0\nnot joy center");
-                    ui->tx2_drive_mode->setText("not V0\nnot joy center");
+                    ui->tx_drive_mode->setText("4not V0\nnot joy center");
+                    ui->tx2_drive_mode->setText("4not V0\nnot joy center");
                 }
                 else if(can501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_V0 + autoware_can_msgs::MicroBusCan501::DRIVE_NOT_BOARD_RES)
                 {
-                    ui->tx_drive_mode->setText("not V0\nnot board res");
-                    ui->tx2_drive_mode->setText("not V0\nnot board res");
+                    ui->tx_drive_mode->setText("5not V0\nnot board res");
+                    ui->tx2_drive_mode->setText("5not V0\nnot board res");
                 }
                 else if(can501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_NOT_JOY_CENTER + autoware_can_msgs::MicroBusCan501::DRIVE_NOT_BOARD_RES)
                 {
-                    ui->tx_drive_mode->setText("not joy cente\nnot board res");
-                    ui->tx2_drive_mode->setText("not joy cente\nnot board res");
+                    ui->tx_drive_mode->setText("6not joy cente\nnot board res");
+                    ui->tx2_drive_mode->setText("6not joy cente\nnot board res");
                 }
                 else
                 {
@@ -370,33 +370,33 @@ void MainWindow::window_updata()
                 ui->tx2_steer_mode->setPalette(palette_steer_mode_error_);
                 if(can501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_NOT_V0)
                 {
-                    ui->tx_steer_mode->setText("not V0");
-                    ui->tx2_steer_mode->setText("not V0");
+                    ui->tx_steer_mode->setText("1not V0");
+                    ui->tx2_steer_mode->setText("1not V0");
                 }
                 else if(can501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_NOT_JOY_CENTER)
                 {
-                    ui->tx_steer_mode->setText("not joy center");
-                    ui->tx2_steer_mode->setText("not joy center");
+                    ui->tx_steer_mode->setText("2not joy center");
+                    ui->tx2_steer_mode->setText("2not joy center");
                 }
                 else if(can501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_NOT_BOARD_RES)
                 {
-                    ui->tx_steer_mode->setText("not board res");
-                    ui->tx2_steer_mode->setText("not board res");
+                    ui->tx_steer_mode->setText("3not board res");
+                    ui->tx2_steer_mode->setText("3not board res");
                 }
                 else if(can501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_V0 + autoware_can_msgs::MicroBusCan501::STEER_NOT_JOY_CENTER)
                 {
-                    ui->tx_steer_mode->setText("not V0\nnot joy center");
-                    ui->tx2_steer_mode->setText("not V0\nnot joy center");
+                    ui->tx_steer_mode->setText("4not V0\nnot joy center");
+                    ui->tx2_steer_mode->setText("4not V0\nnot joy center");
                 }
                 else if(can501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_V0 + autoware_can_msgs::MicroBusCan501::STEER_NOT_BOARD_RES)
                 {
-                    ui->tx_steer_mode->setText("not V0\nnot board res");
-                    ui->tx2_steer_mode->setText("not V0\nnot board res");
+                    ui->tx_steer_mode->setText("5not V0\nnot board res");
+                    ui->tx2_steer_mode->setText("5not V0\nnot board res");
                 }
                 else if(can501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_NOT_JOY_CENTER + autoware_can_msgs::MicroBusCan501::STEER_NOT_BOARD_RES)
                 {
-                    ui->tx_steer_mode->setText("not joy cente\nnot board res");
-                    ui->tx2_steer_mode->setText("not joy cente\nnot board res");
+                    ui->tx_steer_mode->setText("6not joy cente\nnot board res");
+                    ui->tx2_steer_mode->setText("6not joy cente\nnot board res");
                 }
                 else
                 {
