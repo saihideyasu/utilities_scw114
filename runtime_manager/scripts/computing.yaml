@@ -402,10 +402,17 @@ subs :
             border : 16
             flags : [ all ]
 
+      - name : period_signal
+        desc : period_signal desc sample
+        cmd  : roslaunch trafficlight_recognizer period_signal.launch
+        param : period_signal
+        gui   :
+          dialog_height : 350
+
       - name : region_tlr
         desc : region_tlr desc sample
         cmd  : roslaunch trafficlight_recognizer traffic_light_recognition.launch
-        param: region_tlr
+        param: region_tlr2
         gui  :
           flags : [ need_camera_info ]
           sel_cam_dialog_only : [ camera_id ]
@@ -532,6 +539,10 @@ subs :
       - name : lane_rule
         desc : lane_rule desc sample
         cmd  : roslaunch lane_planner lane_rule_option.launch
+        param: lane_rule
+      - name : lane_rule_waypoint
+        desc : lane_rule_waypoint desc sample
+        cmd  : roslaunch lane_planner lane_rule_option_waypoint.launch
         param: lane_rule
       - name : lane_stop
         desc : lane_stop desc sample
@@ -3342,6 +3353,67 @@ params :
     vars :
     - name  : data
       desc  : data desc sample
+      label : Display superimpose result
+      kind  : checkbox
+      v     : False
+    - name         : camera_id
+      desc         : camera_id desc sample
+      kind         : menu
+      label        : Camera ID
+      choices_type : str
+      v            : ''
+      cmd_param    :
+        dash         : ''
+        delim        : ':='
+        only_enable  : True
+
+  - name : region_tlr2
+    topic: /config/region_tlr
+    msg  : ConfigRegionTlr
+    vars :
+    - name : daytime_green_lower
+      desc : daytime_green_lower desc sample
+      label: daytime_green_lower
+      min  : 0.0
+      max  : 360.0
+      v    : 120.0
+    - name : daytime_green_upper
+      desc : daytime_green_upper desc sample
+      label: daytime_green_upper
+      min  : 0.0
+      max  : 360.0
+      v    : 180.0
+    - name : daytime_yellow_lower
+      desc : daytime_yellow_lower desc sample
+      label: daytime_yellow_lower
+      min  : 0.0
+      max  : 360.0
+      v    : 50.0
+    - name : daytime_yellow_upper
+      desc : daytime_yellow_upper desc sample
+      label: daytime_yellow_upper
+      min  : 0.0
+      max  : 360.0
+      v    : 70.0
+    - name : daytime_red_lower
+      desc : daytime_red_lower desc sample
+      label: daytime_red_lower
+      min  : 0.0
+      max  : 360.0
+      v    : 340.0
+    - name : daytime_red_upper
+      desc : daytime_red_upper desc sample
+      label: daytime_red_upper
+      min  : 0.0
+      max  : 360.0
+      v    : 50.0
+    - name  : publish_mask
+      desc  : publish_mask desc sample
+      label : publish_mask result
+      kind  : checkbox
+      v     : False
+    - name  : display_superimpose
+      desc  : display_superimpose desc sample
       label : Display superimpose result
       kind  : checkbox
       v     : False
@@ -7473,6 +7545,94 @@ params :
       cmd_param :
         dash        : ''
         delim       : ':='
+
+  - name  : period_signal
+    topic : /config/period_signal
+    msg   : ConfigPeriodSignal
+    vars  :
+    - name  : search_distance
+      desc  : search_distance
+      label : search_distance
+      min   : 30
+      max   : 200
+      v     : 50
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : first_hour
+      desc  : first_hour
+      label : first_hour
+      min   : 0
+      max   : 60
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : first_min
+      desc  : first_min
+      label : first_min
+      min   : 0
+      max   : 60
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : first_sec
+      desc  : first_sec
+      label : first_sec
+      min   : 0
+      max   : 60
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : step_green
+      desc  : step_green
+      label : step_green
+      min   : 0
+      max   : 120
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : step_yellow
+      desc  : step_yellow
+      label : step_yellow
+      min   : 0
+      max   : 10
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : step_red
+      desc  : step_red
+      label : step_red
+      min   : 0
+      max   : 120
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : takeover_acc
+      desc  : takeover_acc
+      label : takeover_acc
+      min   : 0.0
+      max   : 1.0
+      v     : 0.45
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : use_time_flag
+      desc  : use_time_flag desc sample
+      label : use_time_flag
+      kind  : radio_box
+      choices:
+      - gnss
+      - ros
+      descs :
+      - gnss
+      - ros
+      v     : 0
 
   - name  : waypoint_file_move
     topic : /config/waypoint_file_move

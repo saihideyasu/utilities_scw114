@@ -193,7 +193,7 @@ private:
 	const static double MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT = 3;//(m)
 
 	//localizer更新時間のチェック時間(s)
-	const static double LOCALIZER_UPDATE_CHECK_TIME = 0.2;
+	const static double LOCALIZER_UPDATE_CHECK_TIME = 0.4;
 
 	ros::Publisher pub_microbus_can_sender_status_, pub_log_write_;
 	ros::Publisher pub_localizer_match_stat_, pub_stroke_routine_, pub_vehicle_status_, pub_velocity_param_, pub_tmp_;

@@ -229,7 +229,7 @@ public:
 					unsigned char *voltage_tmp = (unsigned char*)&can.pedal_voltage;
 					voltage_tmp[0] = data[3];  voltage_tmp[1] = data[2];
 
-					unsigned char *displacement_tmp = (unsigned char*)&can.pedal_displacement;
+					unsigned char *displacement_tmp = (unsigned char*)&can.pedal_can_displacement;//can.pedal_displacement;
 					displacement_tmp[0] = data[5];  displacement_tmp[1] = data[4];
 
 					unsigned char *engine_rotation_tmp = (unsigned char*)&can.engine_rotation;
@@ -241,6 +241,8 @@ public:
 					can.read_counter = kc.get_read_counter();
 
 					can.pedal_voltage_displacement = PEDAL_VOLTAGE_CENTER_ - can.pedal_voltage;
+					can.pedal_displacement = can.pedal_voltage_displacement;
+
 					pub_microbus_can_503_.publish(can);
 					std::cout << "pedal_voltage : " << can.pedal_voltage << std::endl;
 					std::cout << "pedal_displacement : " << can.pedal_displacement << std::endl;
