@@ -2031,7 +2031,7 @@ private:
 		double stroke = PEDAL_VOLTAGE_CENTER_ - can_receive_503_.pedal_voltage;
 		//std::cout << "stroke " << stroke << std::endl;
 		//std::cout << "if : " << stroke << " > " << setting_.accel_stroke_offset << std::endl;;
-		if (stroke > 20) //PEDAL_VOLTAGE_CENTER_(1024)が中央値ではないので、中央の値を補正するために辻褄合わせをする。
+		if (stroke > 25) //PEDAL_VOLTAGE_CENTER_(1024)が中央値ではないので、中央の値を補正するために辻褄合わせをする。
 		{
 			std::cout << "ACCEL_PEDAL_STROKE_OFFSET_" << std::endl;
 			//pid_params.set_brake_e_prev_velocity(0);
@@ -2071,7 +2071,7 @@ private:
 		e_i_val_ = e_i;
 
 
-		double stop_max = 340;
+		double stop_max = 320;
 		if(use_stopper_distance_ == true && (stopper_distance_.fixed_velocity <= 0 ||
 		                                     stopper_distance_.send_process == autoware_msgs::StopperDistance::SIGNAL ||
 											 stopper_distance_.send_process == autoware_msgs::StopperDistance::OBSTACLE))
@@ -2575,7 +2575,7 @@ public:
 	    , steer_correction_(1.0)
 		, localizer_select_num_(1)
 		, accel_avoidance_distance_min_(30)
-		, stop_stroke_max_(340)
+		, stop_stroke_max_(320)
 		, in_accel_mode_(true)
 		, in_brake_mode_(true)
 		, use_stopper_distance_(true)

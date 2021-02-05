@@ -3407,6 +3407,12 @@ params :
       min  : 0.0
       max  : 360.0
       v    : 50.0
+    - name : circle_level_threshold
+      desc : circle_level_threshold desc sample
+      label: circle_level_threshold
+      min  : 0.0
+      max  : 1.0
+      v    : 0.75
     - name  : publish_mask
       desc  : publish_mask desc sample
       label : publish_mask result
