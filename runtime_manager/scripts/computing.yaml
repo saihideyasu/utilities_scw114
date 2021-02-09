@@ -8323,6 +8323,15 @@ params :
       cmd_param:
         dash     : ''
         delim    : ':='
+    - name : pedal_center_voltage
+      desc : pedal_center_voltage
+      label: pedal_center_voltage
+      min  : 900
+      max  : 1100
+      v    : 1024
+      cmd_param:
+        dash     : ''
+        delim    : ':='
 
   - name  : microbus_can
     topic : /config/microbus_can

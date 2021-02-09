@@ -145,6 +145,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     sub_period_signal_takeover_ = nh.subscribe("/period_signal_takeover", 10 , &MainWindow::callbackPeriodSignalTakeover, this);
     sub_automode_mileage_ = nh.subscribe("/way_current_distance_all", 10 , &MainWindow::callbackAutomodeMileage, this);
     sub_vehicle_cmd_ = nh.subscribe("/vehicle_cmd", 10 , &MainWindow::callbackVehicleCmd, this);
+    sub_cmd_select_ = nh.subscribe("/cmd_selector/select", 10 , &MainWindow::callbackCmdSelect, this);
 
     can_status_.angle_limit_over = can_status_.position_check_stop = true;
     error_text_lock_ = false;
@@ -159,6 +160,12 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     stopper_distance_.distance = -1;
 
     publish_use_safety_localizer();
+
+    //非表示
+    ui->lb2_acc->setVisible(false);
+    ui->tx2_acc->setVisible(false);
+    ui->lb2_jurk->setVisible(false);
+    ui->tx2_jurk->setVisible(false);
 
     timer_error_lock_ = ros::Time::now();
 }
@@ -757,7 +764,11 @@ void MainWindow::window_updata()
         std::stringstream str_vel;
         str_vel << std::fixed << std::setprecision(keta) << can_velocity_param_.velocity * 3.6;
         ui->tx_can_velocity->setText(str_vel.str().c_str());
-        ui->tx2_vel->setText(str_vel.str().c_str());
+        ui->tx2_cur_vel->setText(str_vel.str().c_str());
+
+        std::stringstream str_vehicle_cmd;
+        str_vehicle_cmd << std::fixed << std::setprecision(keta) << vehicle_cmd_.ctrl_cmd.linear_velocity * 3.6;
+        ui->tx2_cmd_vel->setText(str_vehicle_cmd.str().c_str());
 
         std::stringstream str_acc;
         str_acc << std::fixed << std::setprecision(keta) << can_velocity_param_.acceleration;
@@ -957,6 +968,14 @@ void MainWindow::window_updata()
         std::stringstream str_mileage;
         str_mileage << std::fixed << std::setprecision(keta) << automode_mileage_;
         ui->tx_automode_mileage->setText(str_mileage.str().c_str());
+
+        std::stringstream str_pedal_voltage_center;
+        str_pedal_voltage_center << config_.pedal_center_voltage;
+        ui->tx2_pedal_vol_center->setText(str_pedal_voltage_center.str().c_str());
+
+        std::stringstream str_pedal_voltage_diff;
+        str_pedal_voltage_diff << config_.pedal_center_voltage - can503_.pedal_voltage;
+        ui->tx2_pedal_vol_diff->setText(str_pedal_voltage_diff.str().c_str());
     }
 
     {
@@ -973,10 +992,22 @@ void MainWindow::window_updata()
             else ui->tx2_stopD->setPalette(palette_stop_line_middle_);
         }
         else ui->tx2_stopD->setPalette(palette_stop_line_non_);
+    }
 
-        std::stringstream str_vehicle_cmd;
-        str_vehicle_cmd << std::fixed << std::setprecision(keta) << vehicle_cmd_.ctrl_cmd.linear_velocity * 3.6;
-        ui->tx2_cmd_vel->setText(str_vehicle_cmd.str().c_str());
+    {
+        std::stringstream str_cmd_select;
+        switch (cmd_select_)
+        {
+        case 1:
+            str_cmd_select << "MPC";
+            break;
+        case 2:
+            str_cmd_select << "PURE";
+            break;
+        default:
+            str_cmd_select << "UNKNOW";
+        }
+        ui->tx2_cmd_node->setText(str_cmd_select.str().c_str());
     }
 }
 
@@ -1191,6 +1222,11 @@ void MainWindow::callbackAutomodeMileage(const std_msgs::Float64 &msg)
 void MainWindow::callbackVehicleCmd(const autoware_msgs::VehicleCmd &msg)
 {
     vehicle_cmd_ = msg;
+}
+
+void MainWindow::callbackCmdSelect(const std_msgs::Int32 &msg)
+{
+    cmd_select_ = msg.data;
 }
 
 void MainWindow::publish_emergency_clear()

@@ -41,6 +41,7 @@
 #include <autoware_msgs/VehicleStatus.h>
 #include <autoware_msgs/StopperDistance.h>
 #include <autoware_msgs/SteerOverride.h>
+#include <autoware_msgs/DriveOverride.h>
 #include <tf/tf.h>
 #include "kvaser_can111scw.h"
 #include <time.h>
@@ -187,7 +188,8 @@ private:
 	const static int USE_ACCELERATION_IMU = 2;
 
 	//steer_overwirte
-	const static double STEER_OVERWRIDE_TH = -100000;//sterrのactualを上書きする判定のしきい値
+	const static double STEER_OVERRIDE_TH = -100000;//steerのactualを上書きする判定のしきい値
+	const static double DRIVE_OVERRIDE_TH = -100000;//driveのactualを上書きする判定のしきい値
 
 	//mpc_steer_gradually_change_distance
 	const static double MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT = 3;//(m)
@@ -218,7 +220,7 @@ private:
 	ros::Subscriber sub_ekf_covariance_, sub_use_safety_localizer_, sub_config_current_velocity_conversion_;
 	ros::Subscriber sub_cruse_velocity_, sub_mobileye_frame_, sub_mobileye_obstacle_data_, sub_temporary_fixed_velocity_;
 	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_log_write_, sub_cruse_error_;
-	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_override_, sub_way_increase_distance_;
+	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_override_, sub_drive_override_, sub_way_increase_distance_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
 	message_filters::Subscriber<geometry_msgs::PoseStamped> *sub_current_pose_;
@@ -295,6 +297,7 @@ private:
 	bool thread_can_send_run_flag_;//thread_can_send_スレッドが実行されているか
 	bool first_lock_release_flag_;//emergency_resetを実行
 	double steer_override_value_;//-100000以上の場合、steerのtargetをこの値に上書きする
+	double drive_override_value_;//-100000以上の場合、driveのtargetをこの値に上書きする
 	double last_steer_override_value_;//steerオーバーライド終了時の上書き値
 	double mpc_steer_gradually_change_distance_;//steer指令を上書き状態からmpc指令に徐々に戻す距離
 	double target_steer_;//現在canに送信したsteer_targetの値
@@ -1587,7 +1590,7 @@ private:
 		if(msg->stopper_distance2 > 0) setting_.stopper_distance2 = msg->stopper_distance2;
 		if(msg->stopper_distance3 > 0) setting_.stopper_distance3 = msg->stopper_distance3;
 
-		if(waypoint_param_.steer_override > STEER_OVERWRIDE_TH && msg->steer_override <= STEER_OVERWRIDE_TH)
+		if(waypoint_param_.steer_override > STEER_OVERRIDE_TH && msg->steer_override <= STEER_OVERRIDE_TH)
 		{
 			mpc_steer_gradually_change_distance_ = MPC_STEER_GRADUALLY_CHANGE_DISTANCE_INIT;
 			last_steer_override_value_ = steer_override_value_;
@@ -1761,6 +1764,11 @@ private:
 		steer_override_value_ = msg->steer_value;
 	}
 
+	void callbackDriveOverride(const autoware_msgs::DriveOverride::ConstPtr &msg)
+	{
+		drive_override_value_ = msg->drive_value;
+	}
+
 	void callbackWayIncreaseDistance(const std_msgs::Float64::ConstPtr &msg)
 	{
 		mpc_steer_gradually_change_distance_ -= msg->data;
@@ -1780,7 +1788,7 @@ private:
 		short steer_val;
 		if(input_steer_mode_ == false)
 		{
-			if(steer_override_value_ > STEER_OVERWRIDE_TH)//steerのオーバーライドがON
+			if(steer_override_value_ > STEER_OVERRIDE_TH)//steerのオーバーライドがON
 			{
 				steer_val = steer_override_value_;
 				std::cout << "steer_override" << std::endl;
@@ -1904,7 +1912,7 @@ private:
 		}
 
 		//ブレーキからアクセルに変わった場合、Iの積算値をリセット
-		double stroke = PEDAL_VOLTAGE_CENTER_ - can_receive_503_.pedal_voltage;
+		double stroke = setting_.pedal_center_voltage - can_receive_503_.pedal_voltage;
 		std::cout << "voltage stroke : " << stroke << std::endl;
 		std::cout << "voltage center : " << PEDAL_VOLTAGE_CENTER_ << std::endl;
 		std::cout << "voltage        : " << can_receive_503_.pedal_voltage << std::endl;
@@ -2026,12 +2034,10 @@ private:
 			//else return pid_params.get_stroke_prev();
 		}
 		
-		//std::cout << "cur" << current_velocity << "  cmd" << cmd_velocity << std::endl;
 		//アクセルからブレーキに変わった場合、Iの積算値をリセット
-		double stroke = PEDAL_VOLTAGE_CENTER_ - can_receive_503_.pedal_voltage;
-		//std::cout << "stroke " << stroke << std::endl;
-		//std::cout << "if : " << stroke << " > " << setting_.accel_stroke_offset << std::endl;;
-		if (stroke > 25) //PEDAL_VOLTAGE_CENTER_(1024)が中央値ではないので、中央の値を補正するために辻褄合わせをする。
+		//double stroke = PEDAL_VOLTAGE_CENTER_ - can_receive_503_.pedal_voltage;;
+		double stroke = setting_.pedal_center_voltage - can_receive_503_.pedal_voltage;
+		if (stroke > 0)//25) //PEDAL_VOLTAGE_CENTER_(1024)が中央値ではないので、中央の値を補正するために辻褄合わせをする。
 		{
 			std::cout << "ACCEL_PEDAL_STROKE_OFFSET_" << std::endl;
 			//pid_params.set_brake_e_prev_velocity(0);
@@ -2263,6 +2269,14 @@ private:
 		}
 		else
 		{
+			if(drive_override_value_ > DRIVE_OVERRIDE_TH)
+			{
+				short input_stroke = (short)drive_override_value_;
+				unsigned char *drive_point = (unsigned char*)&input_stroke;
+				buf[4] = drive_point[1];  buf[5] = drive_point[0];
+				return;
+			}
+
 			/*double cmd_velocity;
 			if(input_drive_mode_ == false)
 				cmd_velocity = twist_.ctrl_cmd.linear_velocity * 3.6;
@@ -2546,8 +2560,8 @@ public:
 	kvaser_can_sender(ros::NodeHandle nh, ros::NodeHandle p_nh)
 	    : nh_(nh)
 	    , private_nh_(p_nh)
-	    , flag_drive_mode_(false)
-	    , flag_steer_mode_(false)
+	    , flag_drive_mode_(true)
+	    , flag_steer_mode_(true)
 	    , input_drive_mode_(true)
 	    , input_steer_mode_(true)
 	    , input_steer_(0)
@@ -2589,8 +2603,9 @@ public:
 		, stop_distance_over_add_(10.0/100.0)
 		, use_slow_accel_release_(true)
 		, thread_can_send_run_flag_(false)
-		, first_lock_release_flag_(false)
-		, steer_override_value_(STEER_OVERWRIDE_TH)
+		, first_lock_release_flag_(true)
+		, steer_override_value_(STEER_OVERRIDE_TH)
+		, drive_override_value_(DRIVE_OVERRIDE_TH)
 		, mpc_steer_gradually_change_distance_(0)
 		, last_steer_override_value_(0)
 	{
@@ -2677,6 +2692,7 @@ public:
 		sub_waypoints_file_name_ = nh.subscribe("/waypoints_file_name", 10 , &kvaser_can_sender::callbackWaypointFileName, this);
 		sub_cruse_error_ = nh.subscribe("/cruse_error", 10 , &kvaser_can_sender::callbackCruseError, this);
 		sub_steer_override_ = nh.subscribe("/microbus/steer_override", 10 , &kvaser_can_sender::callbackSteerOverride, this);
+		sub_drive_override_ = nh.subscribe("/microbus/drive_override", 10 , &kvaser_can_sender::callbackDriveOverride, this);
 		sub_way_increase_distance_ = nh.subscribe("/way_increase_distance", 10 , &kvaser_can_sender::callbackWayIncreaseDistance, this);
 		//sub_interface_config_ = nh_.subscribe("/config/microbus_interface", 10, &kvaser_can_sender::callbackConfigInterface, this);
 
@@ -2696,7 +2712,7 @@ public:
 		pid_params.init(0.0);
 		mobileye_obstacle_data_.header.stamp = ros::Time(0);
 		waypoint_param_.id = -1;
-		waypoint_param_.steer_override = STEER_OVERWRIDE_TH;
+		waypoint_param_.steer_override = STEER_OVERRIDE_TH;
 		current_velocity_.header.stamp = nowtime;
 		current_velocity_.twist.linear.x = 0;
 		current_velocity_.twist.angular.z = 0;

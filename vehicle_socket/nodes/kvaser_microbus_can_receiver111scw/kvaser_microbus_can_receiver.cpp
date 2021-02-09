@@ -205,6 +205,9 @@ public:
 					if(can.velocity_actual >= 0) can.angle_deg = can.angle_actual * angle_magn_left;
 					else can.angle_deg = can.angle_actual * angle_magn_right;
 
+					unsigned char *steer_voltage = (unsigned char*)&can.angle_target_vlotage;
+					steer_voltage[0] = data[3];  steer_voltage[1] = data[2];
+
 					unsigned char status0 = data[0],  status1 = data[1];
 					can.clutch = (status1 & 0x40) ? false : true;
 

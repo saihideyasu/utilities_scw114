@@ -88,6 +88,7 @@ private:
     ros::Subscriber sub_signal_change_time_;//次の信号の切り替わり時間
     ros::Subscriber sub_automode_mileage_;//自動走行時の距離
     ros::Subscriber sub_vehicle_cmd_;//canで処理される速度とステアのコマンド
+    ros::Subscriber sub_cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
 
     void callbackCan501(const autoware_can_msgs::MicroBusCan501 &msg);//マイコン応答ID501
     void callbackCan502(const autoware_can_msgs::MicroBusCan502 &msg);//マイコン応答ID502
@@ -117,6 +118,7 @@ private:
     void callbackPeriodSignalTakeover(const std_msgs::Bool &msg);
     void callbackAutomodeMileage(const std_msgs::Float64 &msg);
     void callbackVehicleCmd(const autoware_msgs::VehicleCmd &msg);
+    void callbackCmdSelect(const std_msgs::Int32 &msg);
 
     autoware_can_msgs::MicroBusCan501 can501_;//マイコン応答ID501
     autoware_can_msgs::MicroBusCan502 can502_;//マイコン応答ID502
@@ -145,6 +147,7 @@ private:
     bool period_signal_takeover_;
     double automode_mileage_;
     autoware_msgs::VehicleCmd vehicle_cmd_;
+    int cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
     //タイマー
     ros::Time timer_error_lock_;
 
