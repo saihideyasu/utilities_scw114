@@ -808,7 +808,12 @@ subs :
          desc : straight_line_fix desc sample
          cmd  : roslaunch waypoint_maker straight_line_fix.launch
          param: straight_line_fix
-
+       - name : waypoint_adjustment
+         desc : waypoint_adjustment desc sample
+         cmd  : roslaunch waypoint_maker waypoint_adjustment.launch
+         param: waypoint_adjustment
+         gui  :
+           dialog_height : 450
     - name : waypoint_planner
       desc : waypoint_planner desc sample
       subs :
@@ -816,6 +821,9 @@ subs :
         desc : astar_avoid desc sample
         cmd  : roslaunch waypoint_planner astar_avoid.launch
         param: astar_avoid_param
+      - name : local_waypoint_adjustment
+        desc : local_waypoint_adjustment desc sample
+        cmd  : roslaunch waypoint_planner local_waypoint_adjustment.launch
       - name : temporary_stopper
         desc : temporary_stopper desc sample
         cmd  : roslaunch waypoint_planner temporary_stopper.launch
@@ -7412,6 +7420,83 @@ params :
       label : height
       min   : 0.0
       max   : 10000.0
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+
+  - name  : waypoint_adjustment
+    topic : /config/waypoint_adjustment
+    msg   : ConfigWaypointAdjustment
+    vars  :
+    - name  : start_id1
+      desc  : start_id1
+      label : start_id1
+      min   : 0
+      max   : 100000
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : start_id2
+      desc  : start_id2
+      label : start_id2
+      min   : 0
+      max   : 100000
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : end_id1
+      desc  : end_id1
+      label : end_id1
+      min   : 0
+      max   : 100000
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : end_id2
+      desc  : end_id2
+      label : end_id2
+      min   : 0
+      max   : 100000
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : start_magn1
+      desc  : start_magn1
+      label : start_magn1
+      min   : -5.0
+      max   : 5.0
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : start_magn2
+      desc  : start_magn2
+      label : start_magn2
+      min   : -5.0
+      max   : 5.0
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : end_magn1
+      desc  : end_magn1
+      label : end_magn1
+      min   : -5.0
+      max   : 5.0
+      v     : 0
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : end_magn2
+      desc  : end_magn2
+      label : end_magn2
+      min   : -5.0
+      max   : 5.0
       v     : 0
       cmd_param :
         dash        : ''

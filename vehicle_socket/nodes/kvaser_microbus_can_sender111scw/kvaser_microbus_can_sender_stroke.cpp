@@ -1145,6 +1145,7 @@ private:
 		
 		double gnssx = gnss_pose_.pose.position.x;
 		double gnssy = gnss_pose_.pose.position.y;
+		double gnssz = gnss_pose_.pose.position.z;
 
 		double ekfx = ekf_pose_.pose.position.x;
 		double ekfy = ekf_pose_.pose.position.y;
@@ -1155,8 +1156,10 @@ private:
 		name <<"," <<"ndty";
 		str <<"," << gnssx;
 		name <<"," << "gnssx";
-		str <<"," << gnssy;//41
+		str <<"," << gnssy;
 		name <<"," << "gnssy";
+		str <<"," << gnssz;
+		name <<"," << "gnssz";
 		str <<"," << ekfx;
 		name <<"," << "ekfx";
 		str <<"," << ekfy;
@@ -2314,7 +2317,10 @@ pub_tmp_.publish(str_ret);*/
 			//std::cout << "if : " <<current_velocity << " > " << setting_.velocity_limit << std::endl;
 			//加速判定
 			std::cout << "kkk accel_avoidance_distance_min : " << accel_avoidance_distance_min_ << std::endl;
-			double accel_mode_avoidance_distance = (current_velocity > accel_avoidance_distance_min_) ? current_velocity : accel_avoidance_distance_min_;
+
+			//停止線での加速判定 0.75は40km/hで走った場合に30m前で加速を止める
+			double accel_mode_avoidance_distance = (current_velocity > accel_avoidance_distance_min_) ? current_velocity * 0.75 : accel_avoidance_distance_min_;
+
 			std::cout << "velocity hikaku : " << cmd_velocity << "," << current_velocity << std::endl;
 			std::cout << "flag : " << (int)checkMobileyeObstacleStop(nowtime) << "," << stopper_distance_.distance << "," << in_accel_mode_ << std::endl;
 			if (checkMobileyeObstacleStop(nowtime) == false
@@ -2588,7 +2594,7 @@ public:
 	    , angle_limit_over_(false)
 	    , steer_correction_(1.0)
 		, localizer_select_num_(1)
-		, accel_avoidance_distance_min_(30)
+		, accel_avoidance_distance_min_(10)
 		, stop_stroke_max_(320)
 		, in_accel_mode_(true)
 		, in_brake_mode_(true)
