@@ -766,6 +766,11 @@ void MainWindow::window_updata()
         ui->tx_can_velocity->setText(str_vel.str().c_str());
         ui->tx2_cur_vel->setText(str_vel.str().c_str());
 
+        std::stringstream str_g_vel;
+        str_g_vel << std::fixed << std::setprecision(keta) << waypoint_param_.global_twist.linear.x *3.6;
+        ui->tx2_global_vel->setText(str_g_vel.str().c_str());
+        ui->tx2_global_vel->setText(str_g_vel.str().c_str());
+
         std::stringstream str_vehicle_cmd;
         str_vehicle_cmd << std::fixed << std::setprecision(keta) << vehicle_cmd_.ctrl_cmd.linear_velocity * 3.6;
         ui->tx2_cmd_vel->setText(str_vehicle_cmd.str().c_str());

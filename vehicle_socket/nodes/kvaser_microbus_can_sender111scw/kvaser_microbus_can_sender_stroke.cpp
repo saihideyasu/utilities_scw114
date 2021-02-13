@@ -986,6 +986,7 @@ private:
 	void callbackMicrobusCan503(const autoware_can_msgs::MicroBusCan503::ConstPtr &msg)
 	{
 		std::cout << "sub can_503" << std::endl;
+		//クラッチの切り替わり(on->off)
 		if(msg->clutch==true && can_receive_503_.clutch==false)
 		{
 			//drive_control_mode_ = MODE_VELOCITY;
@@ -993,14 +994,21 @@ private:
 			input_drive_mode_ = false;
 			pid_params.set_stroke_prev(0);//ガチャコン対策
 			pid_params.set_stop_stroke_prev(0);//ガチャコン対策
+			pid_params.set_brake_e_prev_velocity(0);//ガチャコン対策
+			pid_params.set_brake_e_prev_acceleration(0);//ガチャコン対策
 			std::string safety_error_message = "";
 			publishStatus(safety_error_message);
 		}
+		//クラッチの切り替わり(off->on)
 		if(msg->clutch==false && can_receive_503_.clutch==true)
 		{
 			//drive_control_mode_ = MODE_STROKE;
 			shift_auto_ = false;
 			input_drive_mode_ = true;
+			pid_params.set_stroke_prev(0);//ガチャコン対策
+			pid_params.set_stop_stroke_prev(0);//ガチャコン対策
+			pid_params.set_brake_e_prev_velocity(0);//ガチャコン対策
+			pid_params.set_brake_e_prev_acceleration(0);//ガチャコン対策
 			std::string safety_error_message = "";
 			publishStatus(safety_error_message);
 		}
@@ -1167,7 +1175,7 @@ private:
 		str <<"," << sqrt(ekf_covariance_.pose.covariance[0]);
 		name <<"," << "sqrt(ekf_covariance_.pose.covariance[0])";
 		str <<"," << sqrt(ekf_covariance_.pose.covariance[6*1+1]);
-		name <<"," << "sqrt(ekf_covariance_.pose.covariance[6*1+1])";
+		name <<"," << "sqrt(ekf_covariance_.pose.covariance[6x1+1])";
 		str <<"," << distance;//46
 		name <<"," << "distance";
 		double waypoint_roll, waypoint_pitch, waypoint_yaw;
@@ -1513,22 +1521,23 @@ private:
 			automaticDoorSet(1);
 		}
 
-		if(can_receive_502_.clutch == false && can_receive_503_.clutch == false && blinker_param_sender_ == true)
+		//if(can_receive_502_.clutch == false && can_receive_503_.clutch == false && blinker_param_sender_ == true)
+		if(can_receive_502_.clutch == false && blinker_param_sender_ == true)
 		{
 			blinkerStop();
 			blinker_param_sender_ = false;
 		}
-		else if(msg->blinker == 1 && (can_receive_502_.clutch == true || can_receive_503_.clutch == true))
+		else if(msg->blinker == 1 && (can_receive_502_.clutch == true))// || can_receive_503_.clutch == true))
 		{
 			blinkerLeft();
 			blinker_param_sender_ = true;
 		}
-		else if(msg->blinker == 2 && (can_receive_502_.clutch == true || can_receive_503_.clutch == true))
+		else if(msg->blinker == 2 && (can_receive_502_.clutch == true))// || can_receive_503_.clutch == true))
 		{
 			blinkerRight();
 			blinker_param_sender_ = true;
 		}
-		else if(msg->blinker == 0 && (can_receive_502_.clutch == true || can_receive_503_.clutch == true))
+		else if(msg->blinker == 0 && (can_receive_502_.clutch == true))// || can_receive_503_.clutch == true))
 		{
 			blinkerStop();
 			blinker_param_sender_ = false;
@@ -2614,6 +2623,7 @@ public:
 		, drive_override_value_(DRIVE_OVERRIDE_TH)
 		, mpc_steer_gradually_change_distance_(0)
 		, last_steer_override_value_(0)
+		, ndt_stat_string_("NO")
 	{
 		stopper_distance_.distance = -1;
 		stopper_distance_.send_process = autoware_msgs::StopperDistance::UNKNOWN;

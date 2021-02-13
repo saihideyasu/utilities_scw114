@@ -814,6 +814,11 @@ subs :
          param: waypoint_adjustment
          gui  :
            dialog_height : 450
+       - name : travel_route_registration
+         desc : travel_route_registration desc sample
+         cmd  : roslaunch waypoint_maker travel_route_registration.launch
+         param: travel_route_registration
+
     - name : waypoint_planner
       desc : waypoint_planner desc sample
       subs :
@@ -7209,6 +7214,33 @@ params :
         dash     : ''
         delim    : ':='
 
+  - name  : travel_route_registration
+    vars  :
+    - name      : waypoint_file_name
+      desc      : waypoint_file_name desc sample
+      label     : waypoint_file_name
+      kind      : path
+      v         : /tmp/input.csv
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name      : log_file_name
+      desc      : log_file_name desc sample
+      label     : log_file_name
+      kind      : path
+      v         : /tmp/log.csv
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name      : output_file_name
+      desc      : output_file_name desc sample
+      label     : output_file_name
+      kind      : path
+      v         : /tmp/output.csv
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+
   - name  : localizer_switch
     topic : /config/localizer_switch
     msg   : ConfigLocalizerSwitch
@@ -7838,6 +7870,14 @@ params :
       cmd_param:
         dash     : ''
         delim    : ':='
+    - name      : use_history
+      desc      : use_history
+      label     : use_history
+      kind      : checkbox
+      v         : false
+      cmd_param :
+        dash      : ''
+        delim     : ':='
 
   - name  : microbus_can111scw
     topic : /config/microbus_can111scw
