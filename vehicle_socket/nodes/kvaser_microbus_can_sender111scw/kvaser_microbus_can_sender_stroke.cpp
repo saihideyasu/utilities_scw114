@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
@@ -2863,6 +2864,15 @@ public:
 
 int main(int argc, char** argv)
 {
+	/*time_t nowtime = time(NULL);
+	tm* date = localtime(&nowtime);
+	int year = date->tm_year-100+2000;
+	int mou = date->tm_mon+1;
+	int day = date->tm_mday;
+	std::stringstream ss;
+	ss << "/home/sit/autoware_log" << "/" << std::setfill('0') << std::right << std::setw(2) << year << "_" << std::setw(2)<< mou << "_" << std::setw(2) << day;
+	mkdir(ss.str().c_str(), 0777);*/
+
 	ros::init(argc, argv, "kvaser_microbus_can_sender_stroke");
 	ros::NodeHandle nh;
 	ros::NodeHandle private_nh("~");

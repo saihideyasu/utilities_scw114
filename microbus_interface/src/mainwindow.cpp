@@ -1,6 +1,34 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+std::vector<std::string> split(const std::string &string)
+{
+  std::vector<std::string> str_vec_ptr;
+  std::string token;
+  std::stringstream ss(string);
+
+  while (getline(ss, token, ','))
+    str_vec_ptr.push_back(token);
+
+  return str_vec_ptr;
+}
+
+void MainWindow::killWaypointsNode()
+{
+    system("rosnode kill /waypoint_loader_show_id &");
+    system("rosnode kill /waypoint_replanner &");
+    system("rosnode kill /waypoint_marker_publisher_show_id &");
+    //ros::Rate rate(1.0);
+    //rate.sleep();
+}
+
+void MainWindow::runWaypointsNode()
+{
+    std::stringstream ss;
+    ss << "roslaunch waypoint_maker " << std::setfill('0') << std::right << std::setw(2) << load_name_count_ << ".launch &";
+    system(ss.str().c_str());
+}
+
 MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -11,7 +39,8 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     signal_red_green_time2_(0),
     signal_change_time_(0),
     period_signal_takeover_(false),
-    automode_mileage_(0)
+    automode_mileage_(0),
+    load_name_count_(1)
 {
     ui->setupUi(this);
 
@@ -29,6 +58,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     palette_score_ok_ = ui->tx_ndt_score->palette();
     palette_lb_normal_ = ui->lb2_ndt->palette();
     palette_signal_text_unknown_ = ui->tx2_signal_color->palette();
+    palette_auto_check_ok_ = ui->tx4_auto_ok->palette();
     palette_drive_mode_error_ = palette_drive_mode_ok_;
     palette_steer_mode_error_ = palette_steer_mode_ok_;
     palette_drive_clutch_cut_ = palette_drive_clutch_connect_;
@@ -42,6 +72,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     palette_signal_text_green_ = palette_signal_text_unknown_;
     palette_signal_text_red_ = palette_signal_text_unknown_;
     palette_stop_line_non_ = ui->tx2_stopD->palette();
+    palette_auto_check_error_ = palette_auto_check_ok_;
     palette_drive_mode_error_.setColor(QPalette::Base, QColor("#FF0000"));
     palette_steer_mode_error_.setColor(QPalette::Base, QColor("#FF0000"));
     palette_drive_clutch_cut_.setColor(QPalette::Base, QColor("#00FF00"));
@@ -58,6 +89,8 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     palette_period_signal_takeover_.setColor(QPalette::Text, QColor("#FF0000"));
     palette_stop_line_middle_.setColor(QPalette::Base, QColor("#FF0000"));
     palette_stop_line_stop_.setColor(QPalette::Base, QColor("#0000A0"));
+    palette_auto_check_ok_.setColor(QPalette::Base, QColor("#0000A0"));
+    palette_auto_check_error_.setColor(QPalette::Base, QColor("#FF0000"));
     ui->tx2_period_signal_takeover->setPalette(palette_period_signal_takeover_);
     ui->lb2_ndt->setPalette(palette_lb_localize_);
     ui->lb2_ekf->setPalette(palette_lb_localize_);
@@ -98,6 +131,8 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     connect(ui->bt3_signal_time, SIGNAL(clicked()), this, SLOT(click_signal_time()));
     connect(ui->bt3_signal_time_clear, SIGNAL(clicked()), this, SLOT(click_signal_time_clear()));
     connect(ui->bt2_log_folder, SIGNAL(clicked()), this, SLOT(click_log_folder()));
+    connect(ui->bt4_next, SIGNAL(clicked()), this, SLOT(click_load_next()));
+    connect(ui->bt4_back, SIGNAL(clicked()), this, SLOT(click_load_back()));
 
     nh_ = nh;  private_nh_ = p_nh;
 
@@ -146,6 +181,8 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     sub_automode_mileage_ = nh.subscribe("/way_current_distance_all", 10 , &MainWindow::callbackAutomodeMileage, this);
     sub_vehicle_cmd_ = nh.subscribe("/vehicle_cmd", 10 , &MainWindow::callbackVehicleCmd, this);
     sub_cmd_select_ = nh.subscribe("/cmd_selector/select", 10 , &MainWindow::callbackCmdSelect, this);
+    sub_load_name_ = nh.subscribe("/load_name", 10 , &MainWindow::callbackLoadName, this);
+    sub_base_waypoints_ = nh.subscribe("/lane_waypoints_array", 10 , &MainWindow::callbackBaseWaypoints, this);
 
     can_status_.angle_limit_over = can_status_.position_check_stop = true;
     error_text_lock_ = false;
@@ -167,7 +204,13 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     ui->lb2_jurk->setVisible(false);
     ui->tx2_jurk->setVisible(false);
 
-    timer_error_lock_ = ros::Time::now();
+    ros::Time nowtime = ros::Time::now();
+    timer_error_lock_ = nowtime;
+    current_velocity_.header.stamp = nowtime;
+    
+    killWaypointsNode();
+    runWaypointsNode();
+    //ui->tx4_auto_ok->setAlignment(Qt::AlignJustify);
 }
 
 MainWindow::~MainWindow()
@@ -195,6 +238,8 @@ void MainWindow::window_updata()
 {
     const int keta = 3;
     bool unlock_flag = (can501_.emergency == false) ? true : false;
+
+    ros::Time nowtime = ros::Time::now();
 
     ui->bt_drive_mode_manual->setEnabled(unlock_flag);
     ui->bt_drive_mode_program->setEnabled(unlock_flag);
@@ -1009,6 +1054,37 @@ void MainWindow::window_updata()
         }
         ui->tx2_cmd_node->setText(str_cmd_select.str().c_str());
     }
+
+    {
+        if(sub_base_waypoints_.getNumPublishers() > 0)
+        {
+            ui->tx4_read_global_waypoints->setText("OK");
+        }
+        else
+        {
+            ui->tx4_read_global_waypoints->setText("NG");
+        }
+
+		ros::Duration localizer_time_diff = nowtime - current_velocity_.header.stamp;
+		double localizer_time_dt = localizer_time_diff.sec + localizer_time_diff.nsec * 1E-9;
+
+        if(gnss_deviation_.lat_std_dev < config_.gnss_lat_limit &&
+           gnss_deviation_.lon_std_dev < config_.gnss_lon_limit &&
+           gnss_deviation_.alt_std_dev < config_.gnss_alt_limit &&
+           distance_angular_check_.baselink_distance < config_.check_distance_th &&
+           distance_angular_check_.baselink_angular < config_.check_angular_th &&
+           gnss_stat_ == 3 &&
+           localizer_time_dt < 0.4)
+        {
+            ui->tx4_auto_ok->setText("OK");
+            ui->tx4_auto_ok->setPalette(palette_auto_check_ok_);
+        }
+        else
+        {
+            ui->tx4_auto_ok->setText("NG");
+            ui->tx4_auto_ok->setPalette(palette_auto_check_error_);
+        }
+    }
 }
 
 void MainWindow::callbackConfig(const autoware_config_msgs::ConfigMicroBusCan111SCW &msg)
@@ -1227,6 +1303,26 @@ void MainWindow::callbackVehicleCmd(const autoware_msgs::VehicleCmd &msg)
 void MainWindow::callbackCmdSelect(const std_msgs::Int32 &msg)
 {
     cmd_select_ = msg.data;
+}
+
+void MainWindow::callbackLoadName(const std_msgs::String &msg)
+{
+    std::vector<std::string> strs = split(msg.data);
+    if(strs.size() != 2)
+    {
+        ui->tx4_load_name->setText("NONE");
+    }
+    else
+    {
+        std::stringstream ss;
+        ss << strs[0] << "\n↓\n" << strs[1];
+        ui->tx4_load_name->setText(ss.str().c_str());
+    }
+}
+
+void MainWindow::callbackBaseWaypoints(const autoware_msgs::LaneArray &msg)
+{
+
 }
 
 void MainWindow::publish_emergency_clear()
@@ -1461,4 +1557,24 @@ void MainWindow::click_signal_time_clear()
     ui->tx3_signal_yellow_red_difference->setText("");
     ui->tx3_signal_red_green_difference->setText("");
     signal_red_green_time_ = signal_green_yellow_time_ = signal_yellow_red_time_ = signal_red_green_time2_ = 0;
+}
+
+void MainWindow::click_load_next()
+{
+    publish_log_stop();
+    killWaypointsNode();
+    load_name_count_++;
+    if(load_name_count_ > LOAD_NAME_MAX) load_name_count_ = 1;
+    runWaypointsNode();
+    publish_log_write();
+}
+
+void MainWindow::click_load_back()
+{
+    publish_log_stop();
+    killWaypointsNode();
+    load_name_count_--;
+    if(load_name_count_ <= 0) load_name_count_ = LOAD_NAME_MAX;
+    runWaypointsNode();
+    publish_log_write();
 }

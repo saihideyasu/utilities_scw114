@@ -32,6 +32,7 @@
 #include <autoware_msgs/StopperDistance.h>
 #include <autoware_msgs/TrafficLight.h>
 #include <autoware_msgs/VehicleCmd.h>
+#include <autoware_msgs/LaneArray.h>
 #include <QFileDialog>
 #include <QStandardPaths>
 
@@ -54,6 +55,8 @@ private:
     static const int TRAFFIC_LIGHT_GREEN  = 1;
     static const int TRAFFIC_LIGHT_UNKNOWN = 2;
 
+    static const int LOAD_NAME_MAX = 4;
+    int load_name_count_;
     Ui::MainWindow *ui;
 
     ros::NodeHandle nh_, private_nh_;
@@ -89,6 +92,8 @@ private:
     ros::Subscriber sub_automode_mileage_;//自動走行時の距離
     ros::Subscriber sub_vehicle_cmd_;//canで処理される速度とステアのコマンド
     ros::Subscriber sub_cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
+    ros::Subscriber sub_load_name_;
+    ros::Subscriber sub_base_waypoints_;
 
     void callbackCan501(const autoware_can_msgs::MicroBusCan501 &msg);//マイコン応答ID501
     void callbackCan502(const autoware_can_msgs::MicroBusCan502 &msg);//マイコン応答ID502
@@ -119,6 +124,11 @@ private:
     void callbackAutomodeMileage(const std_msgs::Float64 &msg);
     void callbackVehicleCmd(const autoware_msgs::VehicleCmd &msg);
     void callbackCmdSelect(const std_msgs::Int32 &msg);
+    void callbackLoadName(const std_msgs::String &msg);
+    void callbackBaseWaypoints(const autoware_msgs::LaneArray &msg);
+
+    void killWaypointsNode();
+    void runWaypointsNode();
 
     autoware_can_msgs::MicroBusCan501 can501_;//マイコン応答ID501
     autoware_can_msgs::MicroBusCan502 can502_;//マイコン応答ID502
@@ -148,6 +158,7 @@ private:
     double automode_mileage_;
     autoware_msgs::VehicleCmd vehicle_cmd_;
     int cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
+
     //タイマー
     ros::Time timer_error_lock_;
 
@@ -163,6 +174,7 @@ private:
     QPalette palette_current_localizer_, palette_lb_normal_, palette_lb_localize_;
     QPalette palette_signal_text_green_, palette_signal_text_red_, palette_signal_text_unknown_, palette_period_signal_takeover_;//信号関連
     QPalette palette_stop_line_non_, palette_stop_line_middle_, palette_stop_line_stop_;
+    QPalette palette_auto_check_ok_, palette_auto_check_error_;
 
     std::string gnss_time_str();
     void error_view(std::string error_message);
@@ -195,6 +207,8 @@ private slots:
     void click_signal_time();
     void click_signal_time_clear();
     void click_log_folder();
+    void click_load_next();
+    void click_load_back();
 };
 
 #endif // MAINWINDOW_H

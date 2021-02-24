@@ -102,6 +102,7 @@ install(
     scripts/launch_files/velodyne_vlp16_back_right.launch
     scripts/launch_files/VLS128_points.launch
     scripts/launch_files/VLS128_points_single.launch
+    scripts/launch_files/map_to_world.launch
     scripts/mqtt_socket.launch
     scripts/points2image.launch
     scripts/setup_tf.launch

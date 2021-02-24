@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>813</width>
+    <width>1246</width>
     <height>965</height>
    </rect>
   </property>
@@ -22,12 +22,12 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>691</width>
+      <width>971</width>
       <height>891</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -6710,12 +6710,203 @@ GREEN</string>
       </widget>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>tab4</string>
+     </attribute>
+     <widget class="QTextEdit" name="tx4_load_name">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>951</width>
+        <height>361</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>60</pointsize>
+       </font>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="textInteractionFlags">
+       <set>Qt::TextSelectableByMouse</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt4_back">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>380</y>
+        <width>251</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>40</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>back</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt4_next">
+      <property name="geometry">
+       <rect>
+        <x>570</x>
+        <y>380</y>
+        <width>251</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>40</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>next</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lb4_read_global_waypoints">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>500</y>
+        <width>361</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>30</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>GLOBAL WAYPOINT</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QTextEdit" name="tx4_read_global_waypoints">
+      <property name="geometry">
+       <rect>
+        <x>660</x>
+        <y>500</y>
+        <width>171</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>30</pointsize>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="textInteractionFlags">
+       <set>Qt::TextSelectableByMouse</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lb4_auto_ok">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>590</y>
+        <width>221</width>
+        <height>141</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>50</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>AUTO</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QTextEdit" name="tx4_auto_ok">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>590</y>
+        <width>241</width>
+        <height>141</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>50</pointsize>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="textInteractionFlags">
+       <set>Qt::TextSelectableByMouse</set>
+      </property>
+     </widget>
+    </widget>
    </widget>
    <widget class="QPushButton" name="bt_emergency_clear">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>770</y>
+      <x>980</x>
+      <y>830</y>
       <width>101</width>
       <height>25</height>
      </rect>
@@ -6730,8 +6921,8 @@ GREEN</string>
     </property>
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>40</y>
+      <x>1090</x>
+      <y>30</y>
       <width>311</width>
       <height>151</height>
      </rect>
@@ -7290,8 +7481,8 @@ GREEN</string>
     </property>
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>220</y>
+      <x>1090</x>
+      <y>210</y>
       <width>311</width>
       <height>91</height>
      </rect>
@@ -7838,8 +8029,8 @@ GREEN</string>
    <widget class="QTextEdit" name="tx_automode_mileage">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>110</y>
+      <x>970</x>
+      <y>80</y>
       <width>111</width>
       <height>41</height>
      </rect>
@@ -7871,8 +8062,8 @@ GREEN</string>
    <widget class="QTextEdit" name="tx_stop_stroke_max">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>690</y>
+      <x>970</x>
+      <y>660</y>
       <width>111</width>
       <height>41</height>
      </rect>
@@ -7904,8 +8095,8 @@ GREEN</string>
    <widget class="QLabel" name="lb_stop_stroke_max">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>660</y>
+      <x>970</x>
+      <y>630</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -7928,8 +8119,8 @@ GREEN</string>
    <widget class="QLabel" name="lb_automode_mileage">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>60</y>
+      <x>970</x>
+      <y>30</y>
       <width>111</width>
       <height>41</height>
      </rect>
@@ -7953,8 +8144,8 @@ mileage</string>
    <widget class="QLabel" name="lb2_acc">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>480</y>
+      <x>970</x>
+      <y>450</y>
       <width>51</width>
       <height>31</height>
      </rect>
@@ -7980,8 +8171,8 @@ mileage</string>
    <widget class="QTextEdit" name="tx2_acc">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>510</y>
+      <x>970</x>
+      <y>480</y>
       <width>101</width>
       <height>41</height>
      </rect>
@@ -8013,8 +8204,8 @@ mileage</string>
    <widget class="QLabel" name="lb2_jurk">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>550</y>
+      <x>970</x>
+      <y>520</y>
       <width>51</width>
       <height>31</height>
      </rect>
@@ -8040,8 +8231,8 @@ mileage</string>
    <widget class="QTextEdit" name="tx2_jurk">
     <property name="geometry">
      <rect>
-      <x>690</x>
-      <y>590</y>
+      <x>960</x>
+      <y>560</y>
       <width>101</width>
       <height>41</height>
      </rect>
@@ -8076,7 +8267,7 @@ mileage</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>813</width>
+     <width>1246</width>
      <height>28</height>
     </rect>
    </property>
