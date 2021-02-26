@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <iomanip>
+#include <fstream>
 #include <std_msgs/Empty.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Int8.h>
@@ -92,8 +94,9 @@ private:
     ros::Subscriber sub_automode_mileage_;//自動走行時の距離
     ros::Subscriber sub_vehicle_cmd_;//canで処理される速度とステアのコマンド
     ros::Subscriber sub_cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
-    ros::Subscriber sub_load_name_;
-    ros::Subscriber sub_base_waypoints_;
+    ros::Subscriber sub_load_name_;//waypointを読み込むlaunchファイルでload_nameトピック(std_msgs/String)を投げると、その文字列を表示(場所確認用)
+    ros::Subscriber sub_base_waypoints_;//base_waypoints(global waypointの最終情報)がpublishされている場合、tab4でOKを出す
+    ros::Subscriber sub_log_write_flag_;//canからのlog書き込み情報
 
     void callbackCan501(const autoware_can_msgs::MicroBusCan501 &msg);//マイコン応答ID501
     void callbackCan502(const autoware_can_msgs::MicroBusCan502 &msg);//マイコン応答ID502
@@ -126,6 +129,7 @@ private:
     void callbackCmdSelect(const std_msgs::Int32 &msg);
     void callbackLoadName(const std_msgs::String &msg);
     void callbackBaseWaypoints(const autoware_msgs::LaneArray &msg);
+    void callbackLogWriteFlag(const std_msgs::Bool &msg);
 
     void killWaypointsNode();
     void runWaypointsNode();
@@ -158,6 +162,8 @@ private:
     double automode_mileage_;
     autoware_msgs::VehicleCmd vehicle_cmd_;
     int cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
+    bool use_first_waypoint_interface_;//callbackLoadNameでの経路読み込みが行われたかのフラグ
+    bool log_write_flag_;//現在log出力が行われいるか？
 
     //タイマー
     ros::Time timer_error_lock_;
@@ -180,6 +186,7 @@ private:
     void error_view(std::string error_message);
 
     double signal_red_green_time_, signal_green_yellow_time_, signal_yellow_red_time_, signal_red_green_time2_;
+
 private slots:
     void publish_emergency_clear();
     void publish_Dmode_manual();

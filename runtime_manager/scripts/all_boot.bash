@@ -1,7 +1,8 @@
 #!/bin/bash
 
-AUTOWARE_PATH="/home/sit/saiko_car_ware_ai114"
-VELODYNE_APTH="/home/sit/velodyne_vls"
+AUTOWARE_PATH="/home/autoware/saiko_car_ware_ai114"
+VELODYNE_APTH="/home/autoware/velodyne_vls"
+WAYPOINT_FILE="/home/autoware/load_data/sibusawa/2021_02_06/1-doramakan-kitakouen/2021_02_15_go_end_waypoint_fix.csv"
 
 source /opt/ros/melodic/setup.bash
 source ${VELODYNE_APTH}/install/setup.bash
@@ -94,8 +95,8 @@ yaw_correction2: -0.1" -l &
 sleep 1
 echo "currency : /config/localizer_switch"
 
-Set localizer_switch
-#roslaunch autoware_connector localizer_switch.launch base_link_pose_topic1:=/ndt_pose estimate_twist_topic1:=/ndt_estimate_twist  localizer_pose_topic1:=/ndt_localizer_pose alignment_mechanism1:=0 ndt_status_topic1:=/ndt_stat gnss_deviation_topic1:='' base_link_pose_topic2:=/RTK_gnss_pose estimate_twist_topic2:=/gnss_estimate_twist localizer_pose_topic2:=/gnss_localizer_pose alignment_mechanism2:=1 ndt_status_topic2:='' gnss_deviation_topic2:=/gnss_standard_deviation fusion_select:=1 &
+#Set localizer_switch
+roslaunch autoware_connector localizer_switch.launch base_link_pose_topic1:=/ndt_pose estimate_twist_topic1:=/ndt_estimate_twist  localizer_pose_topic1:=/ndt_localizer_pose alignment_mechanism1:=0 ndt_status_topic1:=/ndt_stat gnss_deviation_topic1:='' base_link_pose_topic2:=/RTK_gnss_pose estimate_twist_topic2:=/gnss_estimate_twist localizer_pose_topic2:=/gnss_localizer_pose alignment_mechanism2:=1 ndt_status_topic2:='' gnss_deviation_topic2:=/gnss_standard_deviation fusion_select:=1 &
 sleep 3
 echo "currency : localizer_switch"
 
@@ -166,7 +167,7 @@ sleep 1
 echo "currency : /config/waypoint_replanner"
 
 #Set waypoint_loader
-roslaunch waypoint_maker waypoint_loader_show_id.launch load_csv:=True multi_lane_csv:=/home/sit/load_data/sibusawa/2021_02_06/1-doramakan-kitakouen/2021_02_15_go_end_waypoint_fix.csv replanning_mode:=False realtime_tuning_mode:=False resample_mode:=True resample_interval:=1.0 replan_curve_mode:=False overwrite_vmax_mode:=False replan_endpoint_mode:=True velocity_max:=20 radius_thresh:=20 radius_min:=6 velocity_min:=4 accel_limit:=0.5 decel_limit:=0.3 velocity_offset:=4 braking_distance:=5 end_point_offset:=1 use_decision_maker:=False &
+roslaunch waypoint_maker waypoint_loader_show_id.launch load_csv:=True multi_lane_csv:=${WAYPOINT_FILE} replanning_mode:=False realtime_tuning_mode:=False resample_mode:=True resample_interval:=1.0 replan_curve_mode:=False overwrite_vmax_mode:=False replan_endpoint_mode:=True velocity_max:=20 radius_thresh:=20 radius_min:=6 velocity_min:=4 accel_limit:=0.5 decel_limit:=0.3 velocity_offset:=4 braking_distance:=5 end_point_offset:=1 use_decision_maker:=False &
 sleep 3
 echo "currency : waypoint_loader"
 

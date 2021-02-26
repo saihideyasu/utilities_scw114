@@ -19,6 +19,7 @@ find_package(autoware_msgs REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  roslib
   std_msgs
   can_msgs
   mobileye_560_660_msgs
@@ -61,6 +62,5 @@ install(TARGETS microbus_interface
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(FILES
-		launch/microbus_interface.launch
-		DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-		)
+	launch/microbus_interface.launch
+	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)

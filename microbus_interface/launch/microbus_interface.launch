@@ -1,4 +1,7 @@
 <launch>
+	<arg name="first_waypoint_interface" default="False"/>
+
 	<node pkg="microbus_interface" type="microbus_interface" name="microbus_interface" output="log">
+		<param name="first_waypoint_interface" value="$(arg first_waypoint_interface)"/>
 	</node>
 </launch>

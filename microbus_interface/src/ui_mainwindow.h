@@ -221,7 +221,6 @@ public:
     QPushButton *bt2_blinker_left;
     QPushButton *bt2_blinker_stop;
     QPushButton *bt2_log_write;
-    QPushButton *bt2_log_stop;
     QPushButton *bt2_log_folder;
     QTextEdit *tx2_log_folder;
     QGroupBox *gb2_signal;
@@ -231,6 +230,7 @@ public:
     QTextEdit *tx2_signal_color;
     QLabel *lb2_cmd_node;
     QTextEdit *tx2_cmd_node;
+    QLabel *lb2_log_flag;
     QWidget *tab_3;
     QGroupBox *gb3_signal_time;
     QPushButton *bt3_signal_time;
@@ -255,6 +255,7 @@ public:
     QTextEdit *tx4_read_global_waypoints;
     QLabel *lb4_auto_ok;
     QTextEdit *tx4_auto_ok;
+    QLabel *lb4_log_flag;
     QPushButton *bt_emergency_clear;
     QGroupBox *gb_shift;
     QPushButton *bt_shift_P;
@@ -278,6 +279,7 @@ public:
     QTextEdit *tx2_acc;
     QLabel *lb2_jurk;
     QTextEdit *tx2_jurk;
+    QPushButton *bt2_log_stop;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -1722,13 +1724,6 @@ public:
         bt2_log_write->setCheckable(false);
         bt2_log_write->setAutoRepeat(false);
         bt2_log_write->setAutoExclusive(false);
-        bt2_log_stop = new QPushButton(tab_2);
-        bt2_log_stop->setObjectName(QStringLiteral("bt2_log_stop"));
-        bt2_log_stop->setGeometry(QRect(160, 800, 141, 41));
-        bt2_log_stop->setFont(font4);
-        bt2_log_stop->setCheckable(false);
-        bt2_log_stop->setAutoRepeat(false);
-        bt2_log_stop->setAutoExclusive(false);
         bt2_log_folder = new QPushButton(tab_2);
         bt2_log_folder->setObjectName(QStringLiteral("bt2_log_folder"));
         bt2_log_folder->setGeometry(QRect(310, 800, 91, 41));
@@ -1805,6 +1800,13 @@ public:
         tx2_cmd_node->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tx2_cmd_node->setReadOnly(true);
         tx2_cmd_node->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        lb2_log_flag = new QLabel(tab_2);
+        lb2_log_flag->setObjectName(QStringLiteral("lb2_log_flag"));
+        lb2_log_flag->setGeometry(QRect(150, 800, 161, 51));
+        lb2_log_flag->setFont(font1);
+        lb2_log_flag->setCursor(QCursor(Qt::SplitVCursor));
+        lb2_log_flag->setScaledContents(false);
+        lb2_log_flag->setAlignment(Qt::AlignCenter);
         tab3->addTab(tab_2, QString());
         tab_3 = new QWidget();
         tab_3->setObjectName(QStringLiteral("tab_3"));
@@ -1998,6 +2000,13 @@ public:
         tx4_auto_ok->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tx4_auto_ok->setReadOnly(true);
         tx4_auto_ok->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        lb4_log_flag = new QLabel(tab_4);
+        lb4_log_flag->setObjectName(QStringLiteral("lb4_log_flag"));
+        lb4_log_flag->setGeometry(QRect(270, 750, 441, 81));
+        lb4_log_flag->setFont(font11);
+        lb4_log_flag->setCursor(QCursor(Qt::SplitVCursor));
+        lb4_log_flag->setScaledContents(false);
+        lb4_log_flag->setAlignment(Qt::AlignCenter);
         tab3->addTab(tab_4, QString());
         bt_emergency_clear = new QPushButton(centralWidget);
         bt_emergency_clear->setObjectName(QStringLiteral("bt_emergency_clear"));
@@ -2237,6 +2246,13 @@ public:
         tx2_jurk->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tx2_jurk->setReadOnly(true);
         tx2_jurk->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        bt2_log_stop = new QPushButton(centralWidget);
+        bt2_log_stop->setObjectName(QStringLiteral("bt2_log_stop"));
+        bt2_log_stop->setGeometry(QRect(970, 750, 141, 41));
+        bt2_log_stop->setFont(font4);
+        bt2_log_stop->setCheckable(false);
+        bt2_log_stop->setAutoRepeat(false);
+        bt2_log_stop->setAutoExclusive(false);
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -2373,11 +2389,11 @@ public:
         bt2_blinker_left->setText(QApplication::translate("MainWindow", "LEFT", Q_NULLPTR));
         bt2_blinker_stop->setText(QApplication::translate("MainWindow", "STOP", Q_NULLPTR));
         bt2_log_write->setText(QApplication::translate("MainWindow", "LOG WRITE", Q_NULLPTR));
-        bt2_log_stop->setText(QApplication::translate("MainWindow", "LOG STOP", Q_NULLPTR));
         bt2_log_folder->setText(QApplication::translate("MainWindow", "folder", Q_NULLPTR));
         gb2_signal->setTitle(QApplication::translate("MainWindow", "SIGNAL", Q_NULLPTR));
         lb2_signal_change_time->setText(QApplication::translate("MainWindow", "CHANGE_TIME", Q_NULLPTR));
         lb2_cmd_node->setText(QApplication::translate("MainWindow", "cmd_node", Q_NULLPTR));
+        lb2_log_flag->setText(QString());
         tab3->setTabText(tab3->indexOf(tab_2), QApplication::translate("MainWindow", "Tab 2", Q_NULLPTR));
         gb3_signal_time->setTitle(QApplication::translate("MainWindow", "SIGNAL_TIME", Q_NULLPTR));
         bt3_signal_time->setText(QApplication::translate("MainWindow", "signal\n"
@@ -2393,10 +2409,13 @@ public:
 "GREEN", Q_NULLPTR));
         lb3_signal_time_difference->setText(QApplication::translate("MainWindow", "difference", Q_NULLPTR));
         tab3->setTabText(tab3->indexOf(tab_3), QApplication::translate("MainWindow", "tab3", Q_NULLPTR));
+        tx4_load_name->setDocumentTitle(QString());
+        tx4_load_name->setPlaceholderText(QString());
         bt4_back->setText(QApplication::translate("MainWindow", "back", Q_NULLPTR));
         bt4_next->setText(QApplication::translate("MainWindow", "next", Q_NULLPTR));
         lb4_read_global_waypoints->setText(QApplication::translate("MainWindow", "GLOBAL WAYPOINT", Q_NULLPTR));
         lb4_auto_ok->setText(QApplication::translate("MainWindow", "AUTO", Q_NULLPTR));
+        lb4_log_flag->setText(QString());
         tab3->setTabText(tab3->indexOf(tab_4), QApplication::translate("MainWindow", "tab4", Q_NULLPTR));
         bt_emergency_clear->setText(QApplication::translate("MainWindow", "\345\256\211\345\205\250\346\251\237\350\203\275\350\247\243\351\231\244", Q_NULLPTR));
         gb_shift->setTitle(QApplication::translate("MainWindow", "Shift", Q_NULLPTR));
@@ -2414,6 +2433,7 @@ public:
 "mileage", Q_NULLPTR));
         lb2_acc->setText(QApplication::translate("MainWindow", "acc", Q_NULLPTR));
         lb2_jurk->setText(QApplication::translate("MainWindow", "jurk", Q_NULLPTR));
+        bt2_log_stop->setText(QApplication::translate("MainWindow", "LOG STOP", Q_NULLPTR));
     } // retranslateUi
 
 };

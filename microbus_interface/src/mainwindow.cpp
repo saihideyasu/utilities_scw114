@@ -40,7 +40,9 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     signal_change_time_(0),
     period_signal_takeover_(false),
     automode_mileage_(0),
-    load_name_count_(1)
+    load_name_count_(1),
+    use_first_waypoint_interface_(false),
+    log_write_flag_(false)
 {
     ui->setupUi(this);
 
@@ -127,7 +129,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     connect(ui->cb_use_localizer_safety, SIGNAL(clicked()), this, SLOT(publish_use_safety_localizer()));
     connect(ui->cb_use_distance_safety, SIGNAL(clicked()), this, SLOT(publish_use_distance_localizer()));
     connect(ui->bt2_log_write, SIGNAL(clicked()), this, SLOT(publish_log_write()));
-    connect(ui->bt2_log_stop, SIGNAL(clicked()), this, SLOT(publish_log_stop()));
+    //connect(ui->bt2_log_stop, SIGNAL(clicked()), this, SLOT(publish_log_stop()));
     connect(ui->bt3_signal_time, SIGNAL(clicked()), this, SLOT(click_signal_time()));
     connect(ui->bt3_signal_time_clear, SIGNAL(clicked()), this, SLOT(click_signal_time_clear()));
     connect(ui->bt2_log_folder, SIGNAL(clicked()), this, SLOT(click_log_folder()));
@@ -183,6 +185,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     sub_cmd_select_ = nh.subscribe("/cmd_selector/select", 10 , &MainWindow::callbackCmdSelect, this);
     sub_load_name_ = nh.subscribe("/load_name", 10 , &MainWindow::callbackLoadName, this);
     sub_base_waypoints_ = nh.subscribe("/lane_waypoints_array", 10 , &MainWindow::callbackBaseWaypoints, this);
+    sub_log_write_flag_ = nh.subscribe("/microbus/log_write", 10 , &MainWindow::callbackLogWriteFlag, this);
 
     can_status_.angle_limit_over = can_status_.position_check_stop = true;
     error_text_lock_ = false;
@@ -207,14 +210,35 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     ros::Time nowtime = ros::Time::now();
     timer_error_lock_ = nowtime;
     current_velocity_.header.stamp = nowtime;
-    
-    killWaypointsNode();
-    runWaypointsNode();
+
+    //保存されているlog_folderのパスを取得
+    std::string log_folder_path = ros::package::getPath("runtime_manager") + "/log_folder_path";
+    std::ifstream ifs_log(log_folder_path, std::ios_base::in);
+    if(ifs_log)
+    {
+        std::getline(ifs_log, log_folder_);
+        ifs_log.close();
+    }
+
+    private_nh_.param<bool>("first_waypoint_interface", use_first_waypoint_interface_, false);
+    if(use_first_waypoint_interface_)
+    {
+        killWaypointsNode();
+        runWaypointsNode();
+    }
     //ui->tx4_auto_ok->setAlignment(Qt::AlignJustify);
 }
 
 MainWindow::~MainWindow()
 {
+    //保存されているlog_folderのパスを保存
+    std::string log_folder_path = ros::package::getPath("runtime_manager") + "/log_folder_path";
+    std::ofstream ofs_log(log_folder_path, std::ios_base::out);
+    if(ofs_log)
+    {
+        ofs_log.write(log_folder_.c_str(), log_folder_.size());
+    }
+
     delete ui;
 }
 
@@ -1325,6 +1349,24 @@ void MainWindow::callbackBaseWaypoints(const autoware_msgs::LaneArray &msg)
 
 }
 
+void MainWindow::callbackLogWriteFlag(const std_msgs::Bool &msg)
+{
+    if(msg.data == true)
+    {
+        ui->lb2_log_flag->setText("記録中");
+        ui->lb4_log_flag->setText("ＬＯＧ記録中");
+        ui->bt2_log_write->setText("LOG STOP");
+        log_write_flag_ = true;
+    }
+    else
+    {
+        ui->lb2_log_flag->setText("");
+        ui->lb4_log_flag->setText("");
+        ui->bt2_log_write->setText("LOG WRITE");
+        log_write_flag_ = false;
+    }
+}
+
 void MainWindow::publish_emergency_clear()
 {
     std_msgs::Empty msg;
@@ -1467,7 +1509,8 @@ void MainWindow::publish_use_distance_localizer()
 void MainWindow::publish_log_write()
 {
     std_msgs::Bool msg;
-    msg.data = true;
+    if(log_write_flag_ == false) msg.data = true;
+    else msg.data = false;
     pub_log_write_.publish(msg);
 }
 
@@ -1563,18 +1606,18 @@ void MainWindow::click_load_next()
 {
     publish_log_stop();
     killWaypointsNode();
-    load_name_count_++;
+    if(ui->tx4_load_name->toPlainText() != "") load_name_count_++;
     if(load_name_count_ > LOAD_NAME_MAX) load_name_count_ = 1;
     runWaypointsNode();
-    publish_log_write();
+    //publish_log_write();
 }
 
 void MainWindow::click_load_back()
 {
     publish_log_stop();
     killWaypointsNode();
-    load_name_count_--;
+    if(ui->tx4_load_name->toPlainText() != "") load_name_count_--;
     if(load_name_count_ <= 0) load_name_count_ = LOAD_NAME_MAX;
     runWaypointsNode();
-    publish_log_write();
+    //publish_log_write();
 }

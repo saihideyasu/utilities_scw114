@@ -200,7 +200,7 @@ private:
 
 	ros::Publisher pub_microbus_can_sender_status_, pub_log_write_;
 	ros::Publisher pub_localizer_match_stat_, pub_stroke_routine_, pub_vehicle_status_, pub_velocity_param_, pub_tmp_;
-	ros::Publisher pub_brake_i_;
+	ros::Publisher pub_brake_i_, pub_log_write_flag_;
 
 	ros::NodeHandle nh_, private_nh_;
 	ros::Subscriber sub_microbus_drive_mode_, sub_microbus_steer_mode_, sub_twist_cmd_;
@@ -327,7 +327,15 @@ private:
 
 	void callbackLogFolder(const std_msgs::String::ConstPtr &msg)
 	{
-		log_folder_ = msg->data;
+		time_t nowtime = time(NULL);
+		tm* date = localtime(&nowtime);
+		int year = date->tm_year-100+2000;
+		int mou = date->tm_mon+1;
+		int day = date->tm_mday;
+		std::stringstream ss;
+		ss << msg->data << "/" << std::setfill('0') << std::right << std::setw(2) << year << "_" << std::setw(2)<< mou << "_" << std::setw(2) << day;
+		mkdir(ss.str().c_str(), 0777);
+		log_folder_ = ss.str();
 	}
 
 	void callbackLogWrite(const std_msgs::Bool::ConstPtr &msg)
@@ -354,6 +362,10 @@ private:
 					std::cout << "log write start : " << str.str() << std::endl;
 					ofs_log_writer_ << waypoints_file_name_ << "\n";
 					log_path_ = str.str();
+
+					std_msgs::Bool flag;
+					flag.data = true;
+					pub_log_write_flag_.publish(flag);
 				}
 			}
 		}
@@ -365,6 +377,10 @@ private:
 				std::cout << "log write stop : " << std::endl;
 				log_path_ = "";
 				log_write_size_ = 0;
+
+				std_msgs::Bool flag;
+				flag.data = false;
+				pub_log_write_flag_.publish(flag);
 			}
 			//system("/home/autoware/saiko_car_ware/src/autoware/utilities/runtime_manager/scripts/log_stop.sh");
 		}
@@ -2636,6 +2652,7 @@ public:
 		pub_vehicle_status_ = nh_.advertise<autoware_msgs::VehicleStatus>("/microbus/vehicle_status", 1);//vehicle_statusトピックのpublish mpcが使用
 		pub_velocity_param_ = nh_.advertise<autoware_can_msgs::MicroBusCanVelocityParam>("/microbus/velocity_param", 1);//速度に関する情報 加速度や過加速度もある
 		pub_brake_i_ = nh_.advertise<std_msgs::Float64>("/microbus/brake_i", 1);//brake処理でのPID積分項の表示(確認用)
+		pub_log_write_flag_ = nh_.advertise<std_msgs::Bool>("/microbus/log_write", 1, true);//現在logを出力しているか？
 		pub_tmp_ = nh_.advertise<std_msgs::String>("/microbus/tmp", 1);//即席表示用
 
 		sub_microbus_drive_mode_ = nh_.subscribe("/microbus/drive_mode_send", 10, &kvaser_can_sender::callbackDModeSend, this);//driveのautoとmanualの切り替え
@@ -2864,15 +2881,6 @@ public:
 
 int main(int argc, char** argv)
 {
-	/*time_t nowtime = time(NULL);
-	tm* date = localtime(&nowtime);
-	int year = date->tm_year-100+2000;
-	int mou = date->tm_mon+1;
-	int day = date->tm_mday;
-	std::stringstream ss;
-	ss << "/home/sit/autoware_log" << "/" << std::setfill('0') << std::right << std::setw(2) << year << "_" << std::setw(2)<< mou << "_" << std::setw(2) << day;
-	mkdir(ss.str().c_str(), 0777);*/
-
 	ros::init(argc, argv, "kvaser_microbus_can_sender_stroke");
 	ros::NodeHandle nh;
 	ros::NodeHandle private_nh("~");
