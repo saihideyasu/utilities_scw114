@@ -1168,6 +1168,7 @@ private:
 			pid_params_.set_stroke_state_mode_(PID_params::STROKE_STATE_MODE_KEEP_);
 		}
 		else {
+			std::cout << "keep" << std::endl;
 			pid_params_.set_stroke_state_mode_(PID_params::STROKE_STATE_MODE_KEEP_);
 		}
 

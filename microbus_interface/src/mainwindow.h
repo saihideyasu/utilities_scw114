@@ -37,6 +37,7 @@
 #include <autoware_msgs/VehicleCmd.h>
 #include <autoware_msgs/LaneArray.h>
 #include <autoware_msgs/WaypointsSerialNumLaunch.h>
+#include <autoware_msgs/VehicleCmd.h>
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QMessageBox>
@@ -78,9 +79,10 @@ private:
     ros::Publisher pub_use_safety_localizer_;//localizer関連のセーフティのチェック
     ros::Publisher pub_log_write_, pub_log_stop, pub_log_folder_;//ログ出力通知
     ros::Publisher pub_use_distance_localizer_;//距離のフェイルセーブを使用するか
+    ros::Publisher pub_vehicle_cmd_;//canに固定の指定速度指令を送る
 
     ros::Subscriber sub_can501_, sub_can502_, sub_can503_;//マイクロバスcanのID501,502
-    ros::Subscriber sub_can_status_;//canステータス情報
+    ros::Subscriber sub_can_status_;//canステータス情報 
     ros::Subscriber sub_distance_angular_check_, sub_distance_angular_check_ndt_, sub_distance_angular_check_ekf_, sub_distance_angular_check_gnss_;//経路と自車位置のチェック用
     ros::Subscriber sub_config_;
     ros::Subscriber sub_localizer_select_;//localizerの遷移状態 
@@ -168,6 +170,7 @@ private:
     int cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
     bool use_first_waypoint_interface_;//callbackLoadNameでの経路読み込みが行われたかのフラグ
     bool log_write_flag_;//現在log出力が行われいるか？
+    bool use_specified_speed_;//固定指令速度を送信するか?
 
     //タイマー
     ros::Time timer_error_lock_;
@@ -188,6 +191,7 @@ private:
 
     std::string gnss_time_str();
     void error_view(std::string error_message);
+    void specified_speed_add(double add);
 
     double signal_red_green_time_, signal_green_yellow_time_, signal_yellow_red_time_, signal_red_green_time2_;
 
@@ -214,6 +218,8 @@ private slots:
     void publish_use_distance_localizer();
     void publish_log_write();
     void publish_log_stop();
+    void publish_specified_speed();
+    void publish_specified_speed_stop();
     void click_error_text_reset();
     void click_signal_time();
     void click_signal_time_clear();
@@ -222,6 +228,11 @@ private slots:
     void click_load_backA();
     void click_load_nextB();
     void click_load_backB();
+    void click_specified_speed_plus1();
+    void click_specified_speed_minus1();
+    void click_specified_speed_plus5();
+    void click_specified_speed_minus5();
+    void slide_specified_speed(int val);
 };
 
 #endif // MAINWINDOW_H

@@ -74,15 +74,9 @@ Visualization Manager:
               Value: true
             front_base_link:
               Value: true
-            gps:
-              Value: true
-            gps2:
-              Value: true
             map:
               Value: true
             me_viz:
-              Value: true
-            rtk_base_link:
               Value: true
             velodyne:
               Value: true
@@ -114,37 +108,7 @@ Visualization Manager:
           Tree:
             world:
               map:
-                base_link:
-                  front_base_link:
-                    {}
-                  me_viz:
-                    {}
-                  velodyne:
-                    camera:
-                      {}
-                  velodyne8:
-                    velodyne1:
-                      {}
-                    velodyne2:
-                      {}
-                    velodyne3:
-                      {}
-                    velodyne4:
-                      {}
-                    velodyne5:
-                      {}
-                    velodyne6:
-                      {}
-                    velodyne7:
-                      {}
-                    velodyne9:
-                      {}
-                gps:
-                  {}
-                gps2:
-                  {}
-                rtk_base_link:
-                  {}
+                {}
           Update Interval: 0
           Value: true
         - Alpha: 1
@@ -588,9 +552,7 @@ Visualization Manager:
           Marker Topic: /local_waypoints_mark
           Name: Local Waypoints
           Namespaces:
-            local_path_marker: true
-            local_point_marker: true
-            local_waypoint_velocity: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -598,8 +560,7 @@ Visualization Manager:
           Marker Topic: /detection_range
           Name: Detection Range
           Namespaces:
-            Decelerate Detection: true
-            Stop Detection: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Group
@@ -675,7 +636,7 @@ Visualization Manager:
           Marker Topic: /trajectory_circle_mark
           Name: Pure Pursuit Trajectory
           Namespaces:
-            trajectory_circle_marker: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -683,7 +644,7 @@ Visualization Manager:
           Marker Topic: /next_target_mark
           Name: Pure Pursuit Target
           Namespaces:
-            next_target_marker: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -691,7 +652,7 @@ Visualization Manager:
           Marker Topic: /mpc_follower/debug/predicted_traj
           Name: MPC Predicted Trajectory
           Namespaces:
-            predicted_traj: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -699,7 +660,7 @@ Visualization Manager:
           Marker Topic: /mpc_follower/debug/filtered_traj
           Name: MPC Reference Trajectory
           Namespaces:
-            ref_traj: true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true

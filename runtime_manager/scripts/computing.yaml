@@ -7513,9 +7513,11 @@ params :
       choices:
       - static
       - waypoint
+      - interface
       descs :
       - static
       - waypoint
+      - interface
       v     : 0
     - name  : velocity_mps
       desc  : velocity_mps

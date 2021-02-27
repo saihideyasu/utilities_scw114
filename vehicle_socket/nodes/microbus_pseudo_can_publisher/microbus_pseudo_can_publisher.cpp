@@ -41,6 +41,7 @@ private:
 	ros::Rate *rate_;//処理ステップ数
 	ros::Time prev_time_;
 	double way_velocity_;
+	double interface_velocity_;
 	bool steer_clutch_, drive_clutch_;
 	autoware_can_msgs::MicroBusPseudoParams pseudo_params_;//疑似senderノードから送られてくるactual情報
 
@@ -63,6 +64,7 @@ private:
 	void callbackEstimate(const geometry_msgs::PoseWithCovarianceStamped &msg)
 	{
 		way_velocity_ = 0;
+		interface_velocity_ = 0;
 	}
 
 	void callbackOdom(const nav_msgs::Odometry &msg)
@@ -89,6 +91,7 @@ public:
 		: nh_(nh)
 		, p_nh_(p_nh)
 		, way_velocity_(0)
+		, interface_velocity_(0)
 		, steer_clutch_(true)
 		, drive_clutch_(true)
 	{
@@ -148,6 +151,13 @@ public:
 		way_vel.data = way_velocity_;
 		pub_way_velocity_.publish(way_vel);
 
+		if(drive_clutch_ == false) interface_velocity_ = 0;
+		else if(odom_.twist.twist.linear.x < vehicle_cmd_.ctrl_cmd.linear_velocity)
+			interface_velocity_ += 0.01;
+		else if(odom_.twist.twist.linear.x > vehicle_cmd_.ctrl_cmd.linear_velocity)
+			interface_velocity_ -= 0.1;
+		interface_velocity_ = std::max(0.0, interface_velocity_);
+
 		autoware_can_msgs::MicroBusCan501 can501;
 		can501.header.stamp = nowtime;
 		can501.emergency = false;
@@ -183,6 +193,10 @@ public:
 			case autoware_config_msgs::ConfigMicrobusPseudoCanPublisher::UVF_WAYPOINT:
 				//std::cout << "way," << way_velocity_ << std::endl;
 				can502.velocity_mps = way_velocity_;
+				if(can502.velocity_mps < 0.01) can502.velocity_mps = 0;
+				break;
+			case autoware_config_msgs::ConfigMicrobusPseudoCanPublisher::UVF_INTERFACE_CMD:
+				can502.velocity_mps = interface_velocity_;
 				if(can502.velocity_mps < 0.01) can502.velocity_mps = 0;
 				break;
 			//default:

@@ -17,6 +17,7 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
@@ -259,6 +260,18 @@ public:
     QPushButton *bt4_backB;
     QPushButton *bt4_nextB;
     QTextEdit *tx4_load_name;
+    QWidget *tab_5;
+    QLineEdit *li5_can_send_velocity_;
+    QPushButton *bt5_can_send;
+    QPushButton *bt5_can_stop;
+    QPushButton *bt5_plus1;
+    QPushButton *bt5_minus1;
+    QPushButton *bt5_plus5;
+    QPushButton *bt5_minus5;
+    QSlider *slider_can_send_velocity;
+    QLabel *lb5_can_send_velocity;
+    QLineEdit *li5_can_velocity;
+    QLabel *lb5_can_velocity;
     QPushButton *bt_emergency_clear;
     QGroupBox *gb_shift;
     QPushButton *bt_shift_P;
@@ -296,7 +309,7 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         tab3 = new QTabWidget(centralWidget);
         tab3->setObjectName(QStringLiteral("tab3"));
-        tab3->setGeometry(QRect(0, 0, 971, 891));
+        tab3->setGeometry(QRect(0, -10, 971, 891));
         tab = new QWidget();
         tab->setObjectName(QStringLiteral("tab"));
         groupBox_drive = new QGroupBox(tab);
@@ -2026,6 +2039,61 @@ public:
         tx4_load_name->setReadOnly(true);
         tx4_load_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
         tab3->addTab(tab_4, QString());
+        tab_5 = new QWidget();
+        tab_5->setObjectName(QStringLiteral("tab_5"));
+        li5_can_send_velocity_ = new QLineEdit(tab_5);
+        li5_can_send_velocity_->setObjectName(QStringLiteral("li5_can_send_velocity_"));
+        li5_can_send_velocity_->setGeometry(QRect(100, 130, 341, 91));
+        li5_can_send_velocity_->setFont(font10);
+        li5_can_send_velocity_->setAlignment(Qt::AlignCenter);
+        bt5_can_send = new QPushButton(tab_5);
+        bt5_can_send->setObjectName(QStringLiteral("bt5_can_send"));
+        bt5_can_send->setGeometry(QRect(160, 420, 281, 101));
+        bt5_can_send->setFont(font8);
+        bt5_can_stop = new QPushButton(tab_5);
+        bt5_can_stop->setObjectName(QStringLiteral("bt5_can_stop"));
+        bt5_can_stop->setGeometry(QRect(510, 420, 281, 101));
+        bt5_can_stop->setFont(font8);
+        bt5_plus1 = new QPushButton(tab_5);
+        bt5_plus1->setObjectName(QStringLiteral("bt5_plus1"));
+        bt5_plus1->setGeometry(QRect(210, 290, 111, 101));
+        bt5_plus1->setFont(font8);
+        bt5_minus1 = new QPushButton(tab_5);
+        bt5_minus1->setObjectName(QStringLiteral("bt5_minus1"));
+        bt5_minus1->setGeometry(QRect(330, 290, 111, 101));
+        bt5_minus1->setFont(font8);
+        bt5_plus5 = new QPushButton(tab_5);
+        bt5_plus5->setObjectName(QStringLiteral("bt5_plus5"));
+        bt5_plus5->setGeometry(QRect(510, 290, 111, 101));
+        bt5_plus5->setFont(font8);
+        bt5_minus5 = new QPushButton(tab_5);
+        bt5_minus5->setObjectName(QStringLiteral("bt5_minus5"));
+        bt5_minus5->setGeometry(QRect(630, 290, 111, 101));
+        bt5_minus5->setFont(font8);
+        slider_can_send_velocity = new QSlider(tab_5);
+        slider_can_send_velocity->setObjectName(QStringLiteral("slider_can_send_velocity"));
+        slider_can_send_velocity->setGeometry(QRect(179, 260, 601, 20));
+        slider_can_send_velocity->setMaximum(60);
+        slider_can_send_velocity->setOrientation(Qt::Horizontal);
+        lb5_can_send_velocity = new QLabel(tab_5);
+        lb5_can_send_velocity->setObjectName(QStringLiteral("lb5_can_send_velocity"));
+        lb5_can_send_velocity->setGeometry(QRect(100, 50, 341, 71));
+        lb5_can_send_velocity->setFont(font8);
+        lb5_can_send_velocity->setScaledContents(false);
+        lb5_can_send_velocity->setAlignment(Qt::AlignCenter);
+        li5_can_velocity = new QLineEdit(tab_5);
+        li5_can_velocity->setObjectName(QStringLiteral("li5_can_velocity"));
+        li5_can_velocity->setGeometry(QRect(510, 130, 341, 91));
+        li5_can_velocity->setFont(font10);
+        li5_can_velocity->setAlignment(Qt::AlignCenter);
+        li5_can_velocity->setReadOnly(true);
+        lb5_can_velocity = new QLabel(tab_5);
+        lb5_can_velocity->setObjectName(QStringLiteral("lb5_can_velocity"));
+        lb5_can_velocity->setGeometry(QRect(510, 50, 341, 71));
+        lb5_can_velocity->setFont(font8);
+        lb5_can_velocity->setScaledContents(false);
+        lb5_can_velocity->setAlignment(Qt::AlignCenter);
+        tab3->addTab(tab_5, QString());
         bt_emergency_clear = new QPushButton(centralWidget);
         bt_emergency_clear->setObjectName(QStringLiteral("bt_emergency_clear"));
         bt_emergency_clear->setGeometry(QRect(980, 830, 101, 25));
@@ -2278,7 +2346,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tab3->setCurrentIndex(1);
+        tab3->setCurrentIndex(4);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -2431,6 +2499,15 @@ public:
         tx4_load_name->setDocumentTitle(QString());
         tx4_load_name->setPlaceholderText(QString());
         tab3->setTabText(tab3->indexOf(tab_4), QApplication::translate("MainWindow", "tab4", Q_NULLPTR));
+        bt5_can_send->setText(QApplication::translate("MainWindow", "send", Q_NULLPTR));
+        bt5_can_stop->setText(QApplication::translate("MainWindow", "stop", Q_NULLPTR));
+        bt5_plus1->setText(QApplication::translate("MainWindow", "+1", Q_NULLPTR));
+        bt5_minus1->setText(QApplication::translate("MainWindow", "-1", Q_NULLPTR));
+        bt5_plus5->setText(QApplication::translate("MainWindow", "+5", Q_NULLPTR));
+        bt5_minus5->setText(QApplication::translate("MainWindow", "-5", Q_NULLPTR));
+        lb5_can_send_velocity->setText(QApplication::translate("MainWindow", "\346\214\207\344\273\244\345\200\244(km/h)", Q_NULLPTR));
+        lb5_can_velocity->setText(QApplication::translate("MainWindow", "\345\256\237\346\270\254\345\200\244(km/h)", Q_NULLPTR));
+        tab3->setTabText(tab3->indexOf(tab_5), QApplication::translate("MainWindow", "\346\214\207\345\256\232\351\200\237\345\272\246\345\205\245\345\212\233", Q_NULLPTR));
         bt_emergency_clear->setText(QApplication::translate("MainWindow", "\345\256\211\345\205\250\346\251\237\350\203\275\350\247\243\351\231\244", Q_NULLPTR));
         gb_shift->setTitle(QApplication::translate("MainWindow", "Shift", Q_NULLPTR));
         bt_shift_P->setText(QApplication::translate("MainWindow", "P", Q_NULLPTR));

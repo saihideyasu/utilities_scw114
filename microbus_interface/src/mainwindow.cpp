@@ -71,7 +71,8 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     automode_mileage_(0),
     //load_name_count_(1),
     use_first_waypoint_interface_(false),
-    log_write_flag_(false)
+    log_write_flag_(false),
+    use_specified_speed_(false)
 {
     ui->setupUi(this);
 
@@ -166,6 +167,13 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     connect(ui->bt4_backA, SIGNAL(clicked()), this, SLOT(click_load_backA()));
     connect(ui->bt4_nextB, SIGNAL(clicked()), this, SLOT(click_load_nextB()));
     connect(ui->bt4_backB, SIGNAL(clicked()), this, SLOT(click_load_backB()));
+    connect(ui->bt5_can_send, SIGNAL(clicked()), this, SLOT(publish_specified_speed()));
+    connect(ui->bt5_can_stop, SIGNAL(clicked()), this, SLOT(publish_specified_speed_stop()));
+    connect(ui->bt5_plus1, SIGNAL(clicked()), this, SLOT(click_specified_speed_plus1()));
+    connect(ui->bt5_minus1, SIGNAL(clicked()), this, SLOT(click_specified_speed_minus1()));
+    connect(ui->bt5_plus5, SIGNAL(clicked()), this, SLOT(click_specified_speed_plus5()));
+    connect(ui->bt5_minus5, SIGNAL(clicked()), this, SLOT(click_specified_speed_minus5()));
+    connect(ui->slider_can_send_velocity, SIGNAL(valueChanged(int)), this, SLOT(slide_specified_speed(int)));
 
     nh_ = nh;  private_nh_ = p_nh;
 
@@ -184,6 +192,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     pub_use_safety_localizer_ = nh_.advertise<std_msgs::Bool>("/microbus/use_safety_localizer", 1, true);
     pub_log_write_ = nh_.advertise<std_msgs::Bool>("/microbus/log_on", 1);
     pub_log_folder_ = nh_.advertise<std_msgs::String>("/microbus/log_folder", 1, true);
+    pub_vehicle_cmd_ = nh_.advertise<autoware_msgs::VehicleCmd>("/vehicle_cmd", 1);
 
     sub_can501_ = nh_.subscribe("/microbus/can_receive501", 10, &MainWindow::callbackCan501, this);
     sub_can502_ = nh_.subscribe("/microbus/can_receive502", 10, &MainWindow::callbackCan502, this);
@@ -1156,6 +1165,24 @@ void MainWindow::window_updata()
             ui->tx4_auto_ok->setPalette(palette_auto_check_error_);
         }
     }
+
+    {
+        if(use_specified_speed_ == true)
+        {
+            std::stringstream ss_vel;
+            ss_vel << can502_.velocity_mps * 3.6;
+            ui->li5_can_velocity->setText(ss_vel.str().c_str());
+
+            char *str = ui->li5_can_send_velocity_->text().toUtf8().data();
+            double speed = atof(str);
+            speed /= 3.6;
+            autoware_msgs::VehicleCmd cmd;
+            cmd.header.stamp = ros::Time(0);
+            cmd.ctrl_cmd.linear_velocity = speed;
+            cmd.ctrl_cmd.linear_acceleration = cmd.ctrl_cmd.linear_acceleration = 0;
+            pub_vehicle_cmd_.publish(cmd);
+        }
+    }
 }
 
 void MainWindow::callbackConfig(const autoware_config_msgs::ConfigMicroBusCan111SCW &msg)
@@ -1583,6 +1610,16 @@ void MainWindow::publish_log_stop()
     pub_log_write_.publish(msg);
 }
 
+void MainWindow::publish_specified_speed()
+{
+    use_specified_speed_ = true;
+}
+
+void MainWindow::publish_specified_speed_stop()
+{
+    use_specified_speed_ = false;
+}
+
 void MainWindow::click_error_text_reset()
 {
     std_msgs::Bool msg;
@@ -1709,4 +1746,44 @@ void MainWindow::click_load_backB()
     //if(load_name_count_ <= 0) load_name_count_ = LOAD_NAME_MAX;
     runWaypointsNode(waypoints_serial_num_.toBback, std::string("B"));
     //publish_log_write();
+}
+
+void MainWindow::specified_speed_add(double add)
+{
+    char *str = ui->li5_can_send_velocity_->text().toUtf8().data();
+    double speed = atof(str) + add;
+    int maxval = ui->slider_can_send_velocity->maximum();
+    int minval = ui->slider_can_send_velocity->minimum();
+    if(speed > maxval) speed = maxval;
+    if(speed < minval) speed = minval;
+    char buf[10];
+    sprintf(buf, "%2.3f", speed);
+    ui->li5_can_send_velocity_->setText(buf);
+}
+
+void MainWindow::click_specified_speed_plus1()
+{
+    specified_speed_add(1);
+}
+
+void MainWindow::click_specified_speed_minus1()
+{
+    specified_speed_add(-1);
+}
+
+void MainWindow::click_specified_speed_plus5()
+{
+    specified_speed_add(5);
+}
+
+void MainWindow::click_specified_speed_minus5()
+{
+    specified_speed_add(-5);
+}
+
+void MainWindow::slide_specified_speed(int val)
+{
+    char buf[10];
+    sprintf(buf, "%d", val);
+    ui->li5_can_send_velocity_->setText(buf);
 }
