@@ -271,6 +271,21 @@ roslaunch cmd_selector cmd_selector.launch &
 sleep 3
 echo "currency : cmd_selector"
 
+#Set /config/twist_filter
+rostopic pub __name:=config_twist_filter /config/twist_filter autoware_config_msgs/ConfigTwistFilter "header:
+  seq: 0
+  stamp: {secs: 0, nsecs: 0}
+  frame_id: ''
+use_decision_maker: false
+lateral_accel_limit: 5  
+lateral_jerk_limit: 5  
+lowpass_gain_linear_x: 0.0
+lowpass_gain_angular_z: 0.0
+lowpass_gain_steering_angle: 0.0" -l &
+
+#Set twist_filter
+roslaunch twist_filter twist_filter.launch wheel_base:=2.7 lateral_accel_limit:=5.0 lateral_jerk_limit:=5.0 lowpass_gain_linear_x:=0.0 lowpass_gain_angular_z:=0.0 lowpass_gain_steering_angle:=0.0 loop_rate:=30.0 use_decision_maker:=False &
+
 #Set /config/lookahead_ratio_magn
 rostopic pub /config/lookahead_ratio_magn autoware_config_msgs/ConfigLookAheadRatioMagn "header:
   seq: 0
@@ -294,7 +309,7 @@ rostopic pub /config/microbus_can111scw autoware_config_msgs/ConfigMicroBusCan11
   stamp: {secs: 0, nsecs: 0}
   frame_id: ''
 use_position_checker: false
-velocity_limit: 55
+velocity_limit: 65
 velocity_stop_th: 0.0
 accel_max_i: 1600
 brake_max_i: 520

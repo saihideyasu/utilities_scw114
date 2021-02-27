@@ -36,7 +36,6 @@
 #include <autoware_msgs/TrafficLight.h>
 #include <autoware_msgs/VehicleCmd.h>
 #include <autoware_msgs/LaneArray.h>
-#include <autoware_msgs/WaypointsSerialNumLaunch.h>
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QMessageBox>
@@ -60,9 +59,8 @@ private:
     static const int TRAFFIC_LIGHT_GREEN  = 1;
     static const int TRAFFIC_LIGHT_UNKNOWN = 2;
 
-    //static const int LOAD_NAME_MAX = 7;//tab4のlaunchファイルの連番最大数
-    //int load_name_count_;//tab4_launchファイルの現在の連番
-    autoware_msgs::WaypointsSerialNumLaunch waypoints_serial_num_;//tab4の経路launchファイルの連番情報
+    static const int LOAD_NAME_MAX = 7;//tab4のlaunchファイルの連番最大数
+    int load_name_count_;//tab4_launchファイルの現在の連番
 
     Ui::MainWindow *ui;
 
@@ -132,11 +130,11 @@ private:
     void callbackAutomodeMileage(const std_msgs::Float64 &msg);
     void callbackVehicleCmd(const autoware_msgs::VehicleCmd &msg);
     void callbackCmdSelect(const std_msgs::Int32 &msg);
-    void callbackLoadName(const autoware_msgs::WaypointsSerialNumLaunch &msg);
+    void callbackLoadName(const std_msgs::String &msg);
     void callbackBaseWaypoints(const autoware_msgs::LaneArray &msg);
     void callbackLogWriteFlag(const std_msgs::Bool &msg);
 
-    void runWaypointsNode(int num, std::string branch);
+    void runWaypointsNode();
 
     autoware_can_msgs::MicroBusCan501 can501_;//マイコン応答ID501
     autoware_can_msgs::MicroBusCan502 can502_;//マイコン応答ID502
@@ -220,8 +218,6 @@ private slots:
     void click_log_folder();
     void click_load_nextA();
     void click_load_backA();
-    void click_load_nextB();
-    void click_load_backB();
 };
 
 #endif // MAINWINDOW_H

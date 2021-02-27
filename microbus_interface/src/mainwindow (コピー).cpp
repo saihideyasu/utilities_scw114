@@ -34,15 +34,15 @@ void killWaypointsNode()
     //rate.sleep();
 }
 
-void MainWindow::runWaypointsNode(int num, std::string branch)
+void MainWindow::runWaypointsNode()
 {
-    std::stringstream ss_launch_serial_num;
-    ss_launch_serial_num << std::setfill('0') << std::right << std::setw(2) << num;// << "A.launch";
-    std::string launch_str = ros::package::getPath("waypoint_maker") + "/launch/" + ss_launch_serial_num.str() + branch + ".launch";
+    std::stringstream ss;
+    ss << std::setfill('0') << std::right << std::setw(2) << load_name_count_ << "A.launch";
+    std::string launch_str = ros::package::getPath("waypoint_maker") + "/launch/" + ss.str();
     if(existFile(launch_str.c_str()) == false)
     {
         QMessageBox msgBox(this);
-        std::string error_str = "経路launchファイルがありません\n" + launch_str;
+        std::string error_str = "経路launchファイルがありません\n" + ss.str();
         msgBox.setText(error_str.c_str());
         msgBox.setWindowTitle("error");
         msgBox.setStandardButtons(QMessageBox::Ok);
@@ -51,7 +51,7 @@ void MainWindow::runWaypointsNode(int num, std::string branch)
     }
     else
     {
-        std::string cmd = "roslaunch waypoint_maker " + ss_launch_serial_num.str() + branch + ".launch &";
+        std::string cmd = "roslaunch waypoint_maker " + ss.str() + " &";
         system(cmd.c_str());
     }
     
@@ -69,7 +69,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     signal_change_time_(0),
     period_signal_takeover_(false),
     automode_mileage_(0),
-    //load_name_count_(1),
+    load_name_count_(1),
     use_first_waypoint_interface_(false),
     log_write_flag_(false)
 {
@@ -158,14 +158,12 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     connect(ui->cb_use_localizer_safety, SIGNAL(clicked()), this, SLOT(publish_use_safety_localizer()));
     connect(ui->cb_use_distance_safety, SIGNAL(clicked()), this, SLOT(publish_use_distance_localizer()));
     connect(ui->bt2_log_write, SIGNAL(clicked()), this, SLOT(publish_log_write()));
-    connect(ui->bt2_log_stop, SIGNAL(clicked()), this, SLOT(publish_log_stop()));
+    //connect(ui->bt2_log_stop, SIGNAL(clicked()), this, SLOT(publish_log_stop()));
     connect(ui->bt3_signal_time, SIGNAL(clicked()), this, SLOT(click_signal_time()));
     connect(ui->bt3_signal_time_clear, SIGNAL(clicked()), this, SLOT(click_signal_time_clear()));
     connect(ui->bt2_log_folder, SIGNAL(clicked()), this, SLOT(click_log_folder()));
     connect(ui->bt4_nextA, SIGNAL(clicked()), this, SLOT(click_load_nextA()));
     connect(ui->bt4_backA, SIGNAL(clicked()), this, SLOT(click_load_backA()));
-    connect(ui->bt4_nextB, SIGNAL(clicked()), this, SLOT(click_load_nextB()));
-    connect(ui->bt4_backB, SIGNAL(clicked()), this, SLOT(click_load_backB()));
 
     nh_ = nh;  private_nh_ = p_nh;
 
@@ -238,13 +236,6 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     ui->lb2_jurk->setVisible(false);
     ui->tx2_jurk->setVisible(false);
 
-    //無効
-    ui->bt4_backB->setEnabled(false);
-    ui->bt4_nextB->setEnabled(false);
-    ui->bt4_backA->setEnabled(false);
-
-    ui->tx4_load_name->setAlignment(Qt::AlignCenter);
-
     ros::Time nowtime = ros::Time::now();
     timer_error_lock_ = nowtime;
     current_velocity_.header.stamp = nowtime;
@@ -256,23 +247,14 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     {
         std::getline(ifs_log, log_folder_);
         ifs_log.close();
-        std_msgs::String str;
-        str.data = log_folder_;
-        pub_log_folder_.publish(str);
     }
 
     private_nh_.param<bool>("first_waypoint_interface", use_first_waypoint_interface_, false);
     if(use_first_waypoint_interface_)
     {
         killWaypointsNode();
-        runWaypointsNode(1, std::string("A"));
+        runWaypointsNode();
     }
-    else
-    {
-        waypoints_serial_num_.route_current = waypoints_serial_num_.route_next = "";
-        waypoints_serial_num_.toAback = waypoints_serial_num_.toAnext = waypoints_serial_num_.toBback = waypoints_serial_num_.toBnext = 0;
-    }
-    
     //ui->tx4_auto_ok->setAlignment(Qt::AlignJustify);
 }
 
@@ -1376,9 +1358,9 @@ void MainWindow::callbackCmdSelect(const std_msgs::Int32 &msg)
     cmd_select_ = msg.data;
 }
 
-void MainWindow::callbackLoadName(const autoware_msgs::WaypointsSerialNumLaunch &msg)
+void MainWindow::callbackLoadName(const std_msgs::String &msg)
 {
-    /*std::vector<std::string> strs = split(msg.data);
+    std::vector<std::string> strs = split(msg.data);
     if(strs.size() != 2)
     {
         ui->tx4_load_name->setText("NONE");
@@ -1388,21 +1370,7 @@ void MainWindow::callbackLoadName(const autoware_msgs::WaypointsSerialNumLaunch 
         std::stringstream ss;
         ss << strs[0] << "\n↓\n" << strs[1];
         ui->tx4_load_name->setText(ss.str().c_str());
-    }*/
-
-    std::string text = msg.route_current + "\n↓\n" + msg.route_next;
-    ui->tx4_load_name->setText(text.c_str());
-
-    if(msg.toAnext == 0) ui->bt4_nextA->setEnabled(false);
-    else ui->bt4_nextA->setEnabled(true);
-    if(msg.toAback == 0) ui->bt4_backA->setEnabled(false);
-    else ui->bt4_backA->setEnabled(true);
-    if(msg.toBnext == 0) ui->bt4_nextB->setEnabled(false);
-    else ui->bt4_nextB->setEnabled(true);
-    if(msg.toBback == 0) ui->bt4_backB->setEnabled(false);
-    else ui->bt4_backB->setEnabled(true);
-
-    waypoints_serial_num_ = msg;
+    }
 }
 
 void MainWindow::callbackBaseWaypoints(const autoware_msgs::LaneArray &msg)
@@ -1570,9 +1538,8 @@ void MainWindow::publish_use_distance_localizer()
 void MainWindow::publish_log_write()
 {
     std_msgs::Bool msg;
-    //if(log_write_flag_ == false) msg.data = true;
-    //else msg.data = false;
-    msg.data = true;
+    if(log_write_flag_ == false) msg.data = true;
+    else msg.data = false;
     pub_log_write_.publish(msg);
 }
 
@@ -1668,16 +1635,9 @@ void MainWindow::click_load_nextA()
 {
     publish_log_stop();
     killWaypointsNode();
-    //if(ui->tx4_load_name->toPlainText() != "") load_name_count_++;
-    //if(load_name_count_ > LOAD_NAME_MAX) load_name_count_ = 1;
-    if(waypoints_serial_num_.toAback == 0 &&
-       waypoints_serial_num_.toAnext == 0 &&
-       waypoints_serial_num_.toBback == 0 &&
-       waypoints_serial_num_.toBnext == 0)//連番読み込みがされていない場合、1A.launchを読み込む
-    {
-        runWaypointsNode(1, std::string("A"));    
-    }
-    else runWaypointsNode(waypoints_serial_num_.toAnext, std::string("A"));
+    if(ui->tx4_load_name->toPlainText() != "") load_name_count_++;
+    if(load_name_count_ > LOAD_NAME_MAX) load_name_count_ = 1;
+    runWaypointsNode();
     //publish_log_write();
 }
 
@@ -1685,28 +1645,8 @@ void MainWindow::click_load_backA()
 {
     publish_log_stop();
     killWaypointsNode();
-    //if(ui->tx4_load_name->toPlainText() != "") load_name_count_--;
-    //if(load_name_count_ <= 0) load_name_count_ = LOAD_NAME_MAX;
-    runWaypointsNode(waypoints_serial_num_.toAback, std::string("A"));
-    //publish_log_write();
-}
-
-void MainWindow::click_load_nextB()
-{
-    publish_log_stop();
-    killWaypointsNode();
-    //if(ui->tx4_load_name->toPlainText() != "") load_name_count_--;
-    //if(load_name_count_ <= 0) load_name_count_ = LOAD_NAME_MAX;
-    runWaypointsNode(waypoints_serial_num_.toBnext, std::string("B"));
-    //publish_log_write();
-}
-
-void MainWindow::click_load_backB()
-{
-    publish_log_stop();
-    killWaypointsNode();
-    //if(ui->tx4_load_name->toPlainText() != "") load_name_count_--;
-    //if(load_name_count_ <= 0) load_name_count_ = LOAD_NAME_MAX;
-    runWaypointsNode(waypoints_serial_num_.toBback, std::string("B"));
+    if(ui->tx4_load_name->toPlainText() != "") load_name_count_--;
+    if(load_name_count_ <= 0) load_name_count_ = LOAD_NAME_MAX;
+    runWaypointsNode();
     //publish_log_write();
 }

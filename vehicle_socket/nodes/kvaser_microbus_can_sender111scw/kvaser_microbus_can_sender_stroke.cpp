@@ -49,6 +49,19 @@
 #include <fstream>
 #include <pthread.h>
 
+int existFile(const char* path)
+{
+    //pathが存在するか
+    struct stat st;
+    if (stat(path, &st) == 0) {
+        return 1;
+    }
+
+    // ファイルかどうか
+    // return (st.st_mode & S_IFMT) == S_IFREG;
+	return 0;
+}
+
 static const int SYNC_FRAMES = 50;
 typedef message_filters::sync_policies::ApproximateTime<geometry_msgs::TwistStamped, geometry_msgs::PoseStamped>
     TwistPoseSync;
@@ -334,8 +347,8 @@ private:
 		int day = date->tm_mday;
 		std::stringstream ss;
 		ss << msg->data << "/" << std::setfill('0') << std::right << std::setw(2) << year << "_" << std::setw(2)<< mou << "_" << std::setw(2) << day;
-		mkdir(ss.str().c_str(), 0777);
 		log_folder_ = ss.str();
+		//log_folder_ = msg->data;
 	}
 
 	void callbackLogWrite(const std_msgs::Bool::ConstPtr &msg)
@@ -352,6 +365,8 @@ private:
 
 			if(!ofs_log_writer_.is_open())
 			{
+				if(existFile(log_folder_.c_str()) == 0) mkdir(log_folder_.c_str(), 0777);
+
 				std::vector<std::string> sv = split(waypoints_file_name_, '/');
 
 				std::stringstream str;

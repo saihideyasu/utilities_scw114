@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /System1/Health Checker1
+        - /Planning1
       Splitter Ratio: 0.7357512712478638
     Tree Height: 230
   - Class: rviz/Selection
@@ -73,7 +74,15 @@ Visualization Manager:
               Value: true
             front_base_link:
               Value: true
+            gps:
+              Value: true
+            gps2:
+              Value: true
+            map:
+              Value: true
             me_viz:
+              Value: true
+            rtk_base_link:
               Value: true
             velodyne:
               Value: true
@@ -95,13 +104,47 @@ Visualization Manager:
               Value: true
             velodyne9:
               Value: true
+            world:
+              Value: true
           Marker Scale: 5
           Name: TF
           Show Arrows: true
           Show Axes: true
           Show Names: true
           Tree:
-            {}
+            world:
+              map:
+                base_link:
+                  front_base_link:
+                    {}
+                  me_viz:
+                    {}
+                  velodyne:
+                    camera:
+                      {}
+                  velodyne8:
+                    velodyne1:
+                      {}
+                    velodyne2:
+                      {}
+                    velodyne3:
+                      {}
+                    velodyne4:
+                      {}
+                    velodyne5:
+                      {}
+                    velodyne6:
+                      {}
+                    velodyne7:
+                      {}
+                    velodyne9:
+                      {}
+                gps:
+                  {}
+                gps2:
+                  {}
+                rtk_base_link:
+                  {}
           Update Interval: 0
           Value: true
         - Alpha: 1
@@ -533,19 +576,21 @@ Visualization Manager:
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
-          Enabled: true
+          Enabled: false
           Marker Topic: /global_waypoints_mark
           Name: Global Waypoints
           Namespaces:
             {}
           Queue Size: 100
-          Value: true
+          Value: false
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /local_waypoints_mark
           Name: Local Waypoints
           Namespaces:
-            {}
+            local_path_marker: true
+            local_point_marker: true
+            local_waypoint_velocity: true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -553,7 +598,8 @@ Visualization Manager:
           Marker Topic: /detection_range
           Name: Detection Range
           Namespaces:
-            {}
+            Decelerate Detection: true
+            Stop Detection: true
           Queue Size: 100
           Value: true
         - Class: rviz/Group
@@ -629,7 +675,7 @@ Visualization Manager:
           Marker Topic: /trajectory_circle_mark
           Name: Pure Pursuit Trajectory
           Namespaces:
-            {}
+            trajectory_circle_marker: true
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -637,7 +683,7 @@ Visualization Manager:
           Marker Topic: /next_target_mark
           Name: Pure Pursuit Target
           Namespaces:
-            {}
+            next_target_marker: true
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -645,7 +691,7 @@ Visualization Manager:
           Marker Topic: /mpc_follower/debug/predicted_traj
           Name: MPC Predicted Trajectory
           Namespaces:
-            {}
+            predicted_traj: true
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
@@ -653,7 +699,7 @@ Visualization Manager:
           Marker Topic: /mpc_follower/debug/filtered_traj
           Name: MPC Reference Trajectory
           Namespaces:
-            {}
+            ref_traj: true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -701,21 +747,26 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0
-      Class: rviz/TopDownOrtho
+      Class: rviz/ThirdPersonFollower
+      Distance: 39.450897216796875
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 5.325493335723877
-      Target Frame: <Fixed Frame>
-      Value: TopDownOrtho (rviz)
-      X: -49313
-      Y: 22405
+      Pitch: 0.6803982257843018
+      Target Frame: gps
+      Value: ThirdPersonFollower (rviz)
+      Yaw: 3.1953959465026855
     Saved: ~
 Window Geometry:
   Displays:
@@ -738,4 +789,4 @@ Window Geometry:
     collapsed: true
   Width: 1160
   X: 67
-  Y: 29
+  Y: 27
