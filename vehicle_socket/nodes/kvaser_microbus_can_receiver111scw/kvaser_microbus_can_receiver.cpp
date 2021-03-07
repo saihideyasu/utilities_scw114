@@ -22,8 +22,8 @@ private:
 	//liesse params
 	double handle_angle_right_max = 730;
 	double handle_angle_left_max = 765;
-	double wheelrad_to_steering_can_value_left = 20935.4958411006;//20691.8161699557;//20952.8189547718;
-	double wheelrad_to_steering_can_value_right = 20791.4464661611;//20802.5331916036;//20961.415734248;
+	double wheelrad_to_steering_can_value_left = 25009.6727514125;//liesse 20935.4958411006;//cmdのwheel指令をcanのハンドル指令に変換する係数(左回り用)
+	double wheelrad_to_steering_can_value_right = 26765.9140133745;//liesse 20791.4464661611;//cmdのwheel指令をcanのハンドル指令に変換する係数(右回り用)
 	//double wheelrad_to_steering_can_value_left = 20691.8161699557;
 	//double wheelrad_to_steering_can_value_right = 20802.5331916036;
 	double angle_magn_right = handle_angle_right_max / 15000;

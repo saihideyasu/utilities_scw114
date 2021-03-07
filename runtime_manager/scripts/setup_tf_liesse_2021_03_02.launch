@@ -17,12 +17,12 @@
   <param name="/tf_roll" value="$(arg roll)"/>
 
 //base_link_to_gnss antena
-  <param name="/gx1" value="0.0"/>
-  <param name="/gy1" value="0.0"/>
-  <param name="/gz1" value="2.4"/>
-  <param name="/gyaw1" value="0.0"/>
-  <param name="/gpitch1" value="0.0"/>
-  <param name="/groll1" value="0.0"/>
+  <param name="/gx1" value="1.339441429"/>
+  <param name="/gy1" value="0.183363883"/>
+  <param name="/gz1" value="2.731212824"/>
+  <param name="/gyaw1" value="0.0480601522"/>
+  <param name="/gpitch1" value="-0.0156916668"/>
+  <param name="/groll1" value="-0.0022148428"/>
 
   <!-- param name="/gx2" value="0.6382821547"/ -->
   <!-- param name="/gy2" value="-0.4094757795"/ -->

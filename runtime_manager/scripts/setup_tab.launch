@@ -1,4 +1,5 @@
 <launch>
+  <arg name="autoware_path" default="/home/autoware/saiko_car_ware_ai114"/>
   <arg name="x" default="3.35"/>
   <arg name="y" default="0.0"/>
   <arg name="z" default="2.7"/>
@@ -17,12 +18,12 @@
   <param name="/tf_roll" value="$(arg roll)"/>
 
 //base_link_to_gnss antena
-  <param name="/gx1" value="0.0"/>
-  <param name="/gy1" value="0.0"/>
-  <param name="/gz1" value="2.4"/>
-  <param name="/gyaw1" value="0.0"/>
-  <param name="/gpitch1" value="0.0"/>
-  <param name="/groll1" value="0.0"/>
+  <param name="/gx1" value="1.339441429"/>
+  <param name="/gy1" value="0.183363883"/>
+  <param name="/gz1" value="2.731212824"/>
+  <param name="/gyaw1" value="0.0480601522"/>
+  <param name="/gpitch1" value="-0.0156916668"/>
+  <param name="/groll1" value="-0.0022148428"/>
 
   <!-- param name="/gx2" value="0.6382821547"/ -->
   <!-- param name="/gy2" value="-0.4094757795"/ -->
@@ -78,4 +79,25 @@
 
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_localizer" args="$(arg x) $(arg y) $(arg z) $(arg yaw) $(arg pitch) $(arg roll) $(arg frame_id) $(arg child_frame_id) $(arg period_in_ms)"/>
 
+
+
+  <arg name="base_frame" default="/base_link"/>
+  <arg name="topic_name" default="vehicle_model"/>
+  <arg name="offset_x" default="1.2"/>
+  <arg name="offset_y" default="0.0"/>
+  <arg name="offset_z" default="0.0"/>
+  <arg name="offset_roll" default="0.0"/> <!-- degree -->
+  <arg name="offset_pitch" default="0.0"/> <!-- degree -->
+  <arg name="offset_yaw" default="0.0"/> <!-- degree -->
+  <arg name="model_path" default="$(arg autoware_path)/install/liesse_model/share/liesse_model/urdf/liesse_model.urdf" />
+  <arg name="gui" default="False" />
+
+  <param name="robot_description" textfile="$(arg model_path)" />
+  <param name="use_gui" value="$(arg gui)"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+
+
+  <arg name="info_path" default="$(arg autoware_path)/src/autoware/visualization_scw114/liesse_model/param/liesse_XZB70M.yaml"/>
+  <rosparam command="load" file="$(arg info_path)"/>
 </launch>

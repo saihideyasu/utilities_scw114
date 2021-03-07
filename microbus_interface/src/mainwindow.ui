@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -3079,7 +3079,7 @@
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
-      <string>Tab 2</string>
+      <string>Tab 2(&amp;2)</string>
      </attribute>
      <widget class="QGroupBox" name="gb2_can_mode">
       <property name="enabled">
@@ -5906,7 +5906,7 @@ CLEAR</string>
        </font>
       </property>
       <property name="text">
-       <string>LOG WRITE</string>
+       <string>LOG WRITE(&amp;w)</string>
       </property>
       <property name="checkable">
        <bool>false</bool>
@@ -6221,7 +6221,7 @@ CLEAR</string>
        </font>
       </property>
       <property name="text">
-       <string>LOG STOP</string>
+       <string>LOG STOP(&amp;s)</string>
       </property>
       <property name="checkable">
        <bool>false</bool>
@@ -6739,14 +6739,14 @@ GREEN</string>
     </widget>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
-      <string>tab4</string>
+      <string>tab4(&amp;4)</string>
      </attribute>
      <widget class="QPushButton" name="bt4_backA">
       <property name="geometry">
        <rect>
-        <x>140</x>
+        <x>120</x>
         <y>380</y>
-        <width>281</width>
+        <width>331</width>
         <height>101</height>
        </rect>
       </property>
@@ -6756,15 +6756,15 @@ GREEN</string>
        </font>
       </property>
       <property name="text">
-       <string>A経路 back</string>
+       <string>A経路 back(&amp;a)</string>
       </property>
      </widget>
      <widget class="QPushButton" name="bt4_nextA">
       <property name="geometry">
        <rect>
-        <x>560</x>
+        <x>530</x>
         <y>380</y>
-        <width>271</width>
+        <width>321</width>
         <height>101</height>
        </rect>
       </property>
@@ -6774,7 +6774,7 @@ GREEN</string>
        </font>
       </property>
       <property name="text">
-       <string>A経路 next</string>
+       <string>A経路 next(&amp;s)</string>
       </property>
      </widget>
      <widget class="QLabel" name="lb4_read_global_waypoints">
@@ -6921,9 +6921,9 @@ GREEN</string>
      <widget class="QPushButton" name="bt4_backB">
       <property name="geometry">
        <rect>
-        <x>140</x>
+        <x>120</x>
         <y>490</y>
-        <width>281</width>
+        <width>331</width>
         <height>101</height>
        </rect>
       </property>
@@ -6933,7 +6933,7 @@ GREEN</string>
        </font>
       </property>
       <property name="text">
-       <string>B経路 back</string>
+       <string>B経路 back(&amp;d)</string>
       </property>
       <property name="checkable">
        <bool>false</bool>
@@ -6942,9 +6942,9 @@ GREEN</string>
      <widget class="QPushButton" name="bt4_nextB">
       <property name="geometry">
        <rect>
-        <x>560</x>
+        <x>530</x>
         <y>490</y>
-        <width>271</width>
+        <width>321</width>
         <height>101</height>
        </rect>
       </property>
@@ -6954,7 +6954,7 @@ GREEN</string>
        </font>
       </property>
       <property name="text">
-       <string>B経路 next</string>
+       <string>B経路 next(&amp;f)</string>
       </property>
      </widget>
      <widget class="QTextEdit" name="tx4_load_name">
@@ -7213,6 +7213,47 @@ GREEN</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_6">
+     <attribute name="title">
+      <string>tf読み込み</string>
+     </attribute>
+     <widget class="QPushButton" name="bt6_liesseTF">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>401</width>
+        <height>161</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>50</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>LIESSE TF</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt6_rainbowTF">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>30</y>
+        <width>401</width>
+        <height>161</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>50</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Rainbow TF</string>
       </property>
      </widget>
     </widget>

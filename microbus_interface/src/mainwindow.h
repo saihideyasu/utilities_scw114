@@ -232,6 +232,8 @@ private slots:
     void click_specified_speed_minus1();
     void click_specified_speed_plus5();
     void click_specified_speed_minus5();
+    void click_TF_liesse();
+    void click_TF_rainbow();
     void slide_specified_speed(int val);
 };
 

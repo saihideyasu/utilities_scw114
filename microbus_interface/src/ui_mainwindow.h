@@ -272,6 +272,9 @@ public:
     QLabel *lb5_can_send_velocity;
     QLineEdit *li5_can_velocity;
     QLabel *lb5_can_velocity;
+    QWidget *tab_6;
+    QPushButton *bt6_liesseTF;
+    QPushButton *bt6_rainbowTF;
     QPushButton *bt_emergency_clear;
     QGroupBox *gb_shift;
     QPushButton *bt_shift_P;
@@ -1965,13 +1968,13 @@ public:
         tab_4->setObjectName(QStringLiteral("tab_4"));
         bt4_backA = new QPushButton(tab_4);
         bt4_backA->setObjectName(QStringLiteral("bt4_backA"));
-        bt4_backA->setGeometry(QRect(140, 380, 281, 101));
+        bt4_backA->setGeometry(QRect(120, 380, 331, 101));
         QFont font8;
         font8.setPointSize(40);
         bt4_backA->setFont(font8);
         bt4_nextA = new QPushButton(tab_4);
         bt4_nextA->setObjectName(QStringLiteral("bt4_nextA"));
-        bt4_nextA->setGeometry(QRect(560, 380, 271, 101));
+        bt4_nextA->setGeometry(QRect(530, 380, 321, 101));
         bt4_nextA->setFont(font8);
         lb4_read_global_waypoints = new QLabel(tab_4);
         lb4_read_global_waypoints->setObjectName(QStringLiteral("lb4_read_global_waypoints"));
@@ -2018,12 +2021,12 @@ public:
         lb4_log_flag->setAlignment(Qt::AlignCenter);
         bt4_backB = new QPushButton(tab_4);
         bt4_backB->setObjectName(QStringLiteral("bt4_backB"));
-        bt4_backB->setGeometry(QRect(140, 490, 281, 101));
+        bt4_backB->setGeometry(QRect(120, 490, 331, 101));
         bt4_backB->setFont(font8);
         bt4_backB->setCheckable(false);
         bt4_nextB = new QPushButton(tab_4);
         bt4_nextB->setObjectName(QStringLiteral("bt4_nextB"));
-        bt4_nextB->setGeometry(QRect(560, 490, 271, 101));
+        bt4_nextB->setGeometry(QRect(530, 490, 321, 101));
         bt4_nextB->setFont(font8);
         tx4_load_name = new QTextEdit(tab_4);
         tx4_load_name->setObjectName(QStringLiteral("tx4_load_name"));
@@ -2094,6 +2097,17 @@ public:
         lb5_can_velocity->setScaledContents(false);
         lb5_can_velocity->setAlignment(Qt::AlignCenter);
         tab3->addTab(tab_5, QString());
+        tab_6 = new QWidget();
+        tab_6->setObjectName(QStringLiteral("tab_6"));
+        bt6_liesseTF = new QPushButton(tab_6);
+        bt6_liesseTF->setObjectName(QStringLiteral("bt6_liesseTF"));
+        bt6_liesseTF->setGeometry(QRect(20, 30, 401, 161));
+        bt6_liesseTF->setFont(font10);
+        bt6_rainbowTF = new QPushButton(tab_6);
+        bt6_rainbowTF->setObjectName(QStringLiteral("bt6_rainbowTF"));
+        bt6_rainbowTF->setGeometry(QRect(520, 30, 401, 161));
+        bt6_rainbowTF->setFont(font10);
+        tab3->addTab(tab_6, QString());
         bt_emergency_clear = new QPushButton(centralWidget);
         bt_emergency_clear->setObjectName(QStringLiteral("bt_emergency_clear"));
         bt_emergency_clear->setGeometry(QRect(980, 830, 101, 25));
@@ -2499,7 +2513,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tab3->setCurrentIndex(4);
+        tab3->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -2620,14 +2634,14 @@ public:
         bt2_blinker_right->setText(QApplication::translate("MainWindow", "RIGHT", Q_NULLPTR));
         bt2_blinker_left->setText(QApplication::translate("MainWindow", "LEFT", Q_NULLPTR));
         bt2_blinker_stop->setText(QApplication::translate("MainWindow", "STOP", Q_NULLPTR));
-        bt2_log_write->setText(QApplication::translate("MainWindow", "LOG WRITE", Q_NULLPTR));
+        bt2_log_write->setText(QApplication::translate("MainWindow", "LOG WRITE(&w)", Q_NULLPTR));
         bt2_log_folder->setText(QApplication::translate("MainWindow", "folder", Q_NULLPTR));
         gb2_signal->setTitle(QApplication::translate("MainWindow", "SIGNAL", Q_NULLPTR));
         lb2_signal_change_time->setText(QApplication::translate("MainWindow", "CHANGE_TIME", Q_NULLPTR));
         lb2_cmd_node->setText(QApplication::translate("MainWindow", "cmd_node", Q_NULLPTR));
         lb2_log_flag->setText(QString());
-        bt2_log_stop->setText(QApplication::translate("MainWindow", "LOG STOP", Q_NULLPTR));
-        tab3->setTabText(tab3->indexOf(tab_2), QApplication::translate("MainWindow", "Tab 2", Q_NULLPTR));
+        bt2_log_stop->setText(QApplication::translate("MainWindow", "LOG STOP(&s)", Q_NULLPTR));
+        tab3->setTabText(tab3->indexOf(tab_2), QApplication::translate("MainWindow", "Tab 2(&2)", Q_NULLPTR));
         gb3_signal_time->setTitle(QApplication::translate("MainWindow", "SIGNAL_TIME", Q_NULLPTR));
         bt3_signal_time->setText(QApplication::translate("MainWindow", "signal\n"
 "time", Q_NULLPTR));
@@ -2642,16 +2656,16 @@ public:
 "GREEN", Q_NULLPTR));
         lb3_signal_time_difference->setText(QApplication::translate("MainWindow", "difference", Q_NULLPTR));
         tab3->setTabText(tab3->indexOf(tab_3), QApplication::translate("MainWindow", "tab3", Q_NULLPTR));
-        bt4_backA->setText(QApplication::translate("MainWindow", "A\347\265\214\350\267\257 back", Q_NULLPTR));
-        bt4_nextA->setText(QApplication::translate("MainWindow", "A\347\265\214\350\267\257 next", Q_NULLPTR));
+        bt4_backA->setText(QApplication::translate("MainWindow", "A\347\265\214\350\267\257 back(&a)", Q_NULLPTR));
+        bt4_nextA->setText(QApplication::translate("MainWindow", "A\347\265\214\350\267\257 next(&s)", Q_NULLPTR));
         lb4_read_global_waypoints->setText(QApplication::translate("MainWindow", "GLOBAL WAYPOINT", Q_NULLPTR));
         lb4_auto_ok->setText(QApplication::translate("MainWindow", "AUTO", Q_NULLPTR));
         lb4_log_flag->setText(QString());
-        bt4_backB->setText(QApplication::translate("MainWindow", "B\347\265\214\350\267\257 back", Q_NULLPTR));
-        bt4_nextB->setText(QApplication::translate("MainWindow", "B\347\265\214\350\267\257 next", Q_NULLPTR));
+        bt4_backB->setText(QApplication::translate("MainWindow", "B\347\265\214\350\267\257 back(&d)", Q_NULLPTR));
+        bt4_nextB->setText(QApplication::translate("MainWindow", "B\347\265\214\350\267\257 next(&f)", Q_NULLPTR));
         tx4_load_name->setDocumentTitle(QString());
         tx4_load_name->setPlaceholderText(QString());
-        tab3->setTabText(tab3->indexOf(tab_4), QApplication::translate("MainWindow", "tab4", Q_NULLPTR));
+        tab3->setTabText(tab3->indexOf(tab_4), QApplication::translate("MainWindow", "tab4(&4)", Q_NULLPTR));
         bt5_can_send->setText(QApplication::translate("MainWindow", "send", Q_NULLPTR));
         bt5_can_stop->setText(QApplication::translate("MainWindow", "stop", Q_NULLPTR));
         bt5_plus1->setText(QApplication::translate("MainWindow", "+1", Q_NULLPTR));
@@ -2661,6 +2675,9 @@ public:
         lb5_can_send_velocity->setText(QApplication::translate("MainWindow", "\346\214\207\344\273\244\345\200\244(km/h)", Q_NULLPTR));
         lb5_can_velocity->setText(QApplication::translate("MainWindow", "\345\256\237\346\270\254\345\200\244(km/h)", Q_NULLPTR));
         tab3->setTabText(tab3->indexOf(tab_5), QApplication::translate("MainWindow", "\346\214\207\345\256\232\351\200\237\345\272\246\345\205\245\345\212\233", Q_NULLPTR));
+        bt6_liesseTF->setText(QApplication::translate("MainWindow", "LIESSE TF", Q_NULLPTR));
+        bt6_rainbowTF->setText(QApplication::translate("MainWindow", "Rainbow TF", Q_NULLPTR));
+        tab3->setTabText(tab3->indexOf(tab_6), QApplication::translate("MainWindow", "tf\350\252\255\343\201\277\350\276\274\343\201\277", Q_NULLPTR));
         bt_emergency_clear->setText(QApplication::translate("MainWindow", "\345\256\211\345\205\250\346\251\237\350\203\275\350\247\243\351\231\244", Q_NULLPTR));
         gb_shift->setTitle(QApplication::translate("MainWindow", "Shift", Q_NULLPTR));
         bt_shift_P->setText(QApplication::translate("MainWindow", "P", Q_NULLPTR));

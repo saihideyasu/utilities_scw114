@@ -173,6 +173,8 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     connect(ui->bt5_minus1, SIGNAL(clicked()), this, SLOT(click_specified_speed_minus1()));
     connect(ui->bt5_plus5, SIGNAL(clicked()), this, SLOT(click_specified_speed_plus5()));
     connect(ui->bt5_minus5, SIGNAL(clicked()), this, SLOT(click_specified_speed_minus5()));
+    connect(ui->bt6_liesseTF, SIGNAL(clicked()), this, SLOT(click_TF_liessee()));
+    connect(ui->bt6_rainbowTF, SIGNAL(clicked()), this, SLOT(click_TF_rainbow()));
     connect(ui->slider_can_send_velocity, SIGNAL(valueChanged(int)), this, SLOT(slide_specified_speed(int)));
 
     nh_ = nh;  private_nh_ = p_nh;
@@ -1779,6 +1781,16 @@ void MainWindow::click_specified_speed_plus5()
 void MainWindow::click_specified_speed_minus5()
 {
     specified_speed_add(-5);
+}
+
+void MainWindow::click_TF_liesse()
+{
+
+}
+
+void MainWindow::click_TF_rainbow()
+{
+
 }
 
 void MainWindow::slide_specified_speed(int val)

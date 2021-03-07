@@ -173,9 +173,9 @@ private:
 	//stroke params
 	const short PEDAL_VOLTAGE_CENTER_ = 1024;//1052;//計測値は1025;
 
-	//liesse params
-	double wheelrad_to_steering_can_value_left = 20935.4958411006;//cmdのwheel指令をcanのハンドル指令に変換する係数(左回り用)
-	double wheelrad_to_steering_can_value_right = 20791.4464661611;//cmdのwheel指令をcanのハンドル指令に変換する係数(右回り用)
+	//vehicle params
+	double wheelrad_to_steering_can_value_left_ = 25009.6727514125;//liesse 20935.4958411006;//cmdのwheel指令をcanのハンドル指令に変換する係数(左回り用)
+	double wheelrad_to_steering_can_value_right_ = 26765.9140133745;//liesse 20791.4464661611;//cmdのwheel指令をcanのハンドル指令に変換する係数(右回り用)
 
 	//canの送信コード0x100のdriveモード指定
 	const unsigned char MODE_STROKE   = 0x0A;//strokeモード
@@ -663,7 +663,7 @@ private:
 	void NdtGnssCheck()
 	{
 		bool flag = true;
-		if(localizer_select_num_ == 0 && gnss_stat_ != 3) flag = false;
+		//if(localizer_select_num_ == 0 && gnss_stat_ != 3) flag = false;
 		//if(ndt_stat_string != "NDT_OK") flag = false;
 
 		double ndtx = ndt_pose_.pose.position.x;
@@ -1387,7 +1387,7 @@ private:
 		std::cout << "acceleration," << acc << "," << acc2 << std::endl;
 		double wheel_base = 3.935;
 		//double tire_angle;
-		//if(twist_.ctrl_cmd.steering_angle > 0) tire_angle = twist_.ctrl_cmd.steering_angle*wheelrad_to_steering_can_value_left;
+		//if(twist_.ctrl_cmd.steering_angle > 0) tire_angle = twist_.ctrl_cmd.steering_angle*wheelrad_to_steering_can_value_left_;
 		//else tire_angle = twist_.ctrl_cmd.steering_angle*wheelrad_to_steering_can_value_right;
 
 		writeLog();
@@ -1413,7 +1413,7 @@ private:
 
 		ros::Duration rostime = msg->header.stamp - twist_.header.stamp;
 		double time_sa = rostime.sec + rostime.nsec * 1E-9;
-		double ws_ave = (wheelrad_to_steering_can_value_left + wheelrad_to_steering_can_value_right) / 2.0;
+		double ws_ave = (wheelrad_to_steering_can_value_left_ + wheelrad_to_steering_can_value_right_) / 2.0;
 		double deg = fabs(msg->ctrl_cmd.steering_angle - twist_.ctrl_cmd.steering_angle) * ws_ave * 720.0 / 15000.0;
 		double zisoku = msg->ctrl_cmd.linear_velocity * 3.6;
 
@@ -1834,11 +1834,11 @@ private:
 				double zisoku = twist_.ctrl_cmd.linear_velocity * 3.6;
 				if(wheel_ang > 0)
 				{
-					steer_val = wheel_ang * wheelrad_to_steering_can_value_left * steer_correction_;
+					steer_val = wheel_ang * wheelrad_to_steering_can_value_left_ * steer_correction_;
 				}
 				else
 				{
-					steer_val = wheel_ang * wheelrad_to_steering_can_value_right * steer_correction_;
+					steer_val = wheel_ang * wheelrad_to_steering_can_value_right_ * steer_correction_;
 				}
 			}
 			std::cout << "steer_correction : " << steer_correction_ << std::endl;
@@ -2655,6 +2655,10 @@ public:
 		private_nh_.param<int>("use_velocity_data", use_velocity_data_, USE_VELOCITY_TWIST);
 		private_nh_.param<int>("use_acceleration_data", use_acceleration_data_, USE_ACCELERATION_IMU);
 
+		//ステア角とホイール角の変換係数をglobal paramから読み込む デフォルトはレインボー用
+		nh_.param<double>("/vehicle_info/wheelrad_to_steering_can_value_left", wheelrad_to_steering_can_value_left_, 25009.6727514125);
+		nh_.param<double>("/vehicle_info/wheelrad_to_steering_can_value_right", wheelrad_to_steering_can_value_right_, 26765.9140133745);
+		
 		can_receive_501_.emergency = true;
 		can_receive_501_.blinker = false;
 		canStatus res = kc.init(kvaser_channel, canBITRATE_500K);
@@ -2879,8 +2883,8 @@ public:
 					pub_tmp_.publish(str_pub.str());
 				}
 				else angle_val = target_steer_;*/
-				if(can_receive_502_.angle_actual > 0) status.angle = angle_val / wheelrad_to_steering_can_value_left;
-				else status.angle = angle_val / wheelrad_to_steering_can_value_right;
+				if(can_receive_502_.angle_actual > 0) status.angle = angle_val / wheelrad_to_steering_can_value_left_;
+				else status.angle = angle_val / wheelrad_to_steering_can_value_right_;
 				pub_vehicle_status_.publish(status);
 
 				/*std::stringstream str_pub;
