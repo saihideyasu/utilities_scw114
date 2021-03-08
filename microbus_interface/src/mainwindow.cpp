@@ -121,7 +121,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     palette_period_signal_takeover_.setColor(QPalette::Text, QColor("#FF0000"));
     palette_stop_line_middle_.setColor(QPalette::Base, QColor("#FF0000"));
     palette_stop_line_stop_.setColor(QPalette::Base, QColor("#0000A0"));
-    palette_auto_check_ok_.setColor(QPalette::Base, QColor("#0000A0"));
+    palette_auto_check_ok_.setColor(QPalette::Base, QColor("#00FF00"));
     palette_auto_check_error_.setColor(QPalette::Base, QColor("#FF0000"));
     ui->tx2_period_signal_takeover->setPalette(palette_period_signal_takeover_);
     ui->lb2_ndt->setPalette(palette_lb_localize_);
