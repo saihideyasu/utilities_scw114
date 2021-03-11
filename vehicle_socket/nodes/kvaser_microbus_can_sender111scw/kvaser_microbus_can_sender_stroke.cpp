@@ -235,6 +235,7 @@ private:
 	ros::Subscriber sub_cruse_velocity_, sub_mobileye_frame_, sub_mobileye_obstacle_data_, sub_temporary_fixed_velocity_;
 	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_log_write_, sub_cruse_error_;
 	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_override_, sub_drive_override_, sub_way_increase_distance_;
+	ros::Subscriber sub_nmea_device_status_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
 	message_filters::Subscriber<geometry_msgs::PoseStamped> *sub_current_pose_;
@@ -315,6 +316,26 @@ private:
 	double last_steer_override_value_;//steerオーバーライド終了時の上書き値
 	double mpc_steer_gradually_change_distance_;//steer指令を上書き状態からmpc指令に徐々に戻す距離
 	double target_steer_;//現在canに送信したsteer_targetの値
+
+	void callbacNmeaDeviceStatus(const std_msgs::String::ConstPtr &msg)
+	{
+		if(msg->data == "error_canReceiveData")
+		{
+			/*if(can_receive_501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_AUTO)
+				drive_clutch_ = false;
+			if(can_receive_501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_AUTO)
+				steer_clutch_ = false;*/
+			//flag_drive_mode_ = false;
+			//flag_steer_mode_ = false;
+			shift_auto_ = false;
+			std::cout << "Denger! nmea_device_status : error_canReceiveData" << std::endl;
+			std::stringstream safety_error_message;
+			safety_error_message << "nmea_device_status : error_canReceiveData";
+			publishStatus(safety_error_message.str());
+			//system("aplay -D plughw:PCH /home/autoware/one33.wav");
+			//can_send();
+		}
+	}
 
 	void callbackCruseError(const std_msgs::String::ConstPtr &msg)
 	{
@@ -2737,6 +2758,7 @@ public:
 		sub_steer_override_ = nh.subscribe("/microbus/steer_override", 10 , &kvaser_can_sender::callbackSteerOverride, this);
 		sub_drive_override_ = nh.subscribe("/microbus/drive_override", 10 , &kvaser_can_sender::callbackDriveOverride, this);
 		sub_way_increase_distance_ = nh.subscribe("/way_increase_distance", 10 , &kvaser_can_sender::callbackWayIncreaseDistance, this);
+		sub_nmea_device_status_ = nh.subscribe("/nmea_device_status", 10 , &kvaser_can_sender::callbacNmeaDeviceStatus, this);
 		//sub_interface_config_ = nh_.subscribe("/config/microbus_interface", 10, &kvaser_can_sender::callbackConfigInterface, this);
 
 		sub_current_pose_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(nh_, "/current_pose", 10);
