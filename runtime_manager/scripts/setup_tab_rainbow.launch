@@ -1,4 +1,7 @@
 <launch>
+  <arg name="autoware_path" default="/home/autoware/saiko_car_ware_ai114"/>
+
+
   <arg name="x" default="3.35"/>
   <arg name="y" default="0.0"/>
   <arg name="z" default="2.7"/>
@@ -17,9 +20,9 @@
   <param name="/tf_roll" value="$(arg roll)"/>
 
 //base_link_to_gnss antena
-  <param name="/gx1" value="1.695"/>
+  <param name="/gx1" value="0.0"/>
   <param name="/gy1" value="0.0"/>
-  <param name="/gz1" value="2.64"/>
+  <param name="/gz1" value="2.4"/>
   <param name="/gyaw1" value="0.0"/>
   <param name="/gpitch1" value="0.0"/>
   <param name="/groll1" value="0.0"/>
@@ -78,4 +81,8 @@
 
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_localizer" args="$(arg x) $(arg y) $(arg z) $(arg yaw) $(arg pitch) $(arg roll) $(arg frame_id) $(arg child_frame_id) $(arg period_in_ms)"/>
 
+
+
+  <arg name="info_path" default="$(arg autoware_path)/src/autoware/visualization_scw114/vehicle_description/param/rainbow.yaml"/>
+  <rosparam command="load" file="$(arg info_path)"/>
 </launch>

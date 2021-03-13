@@ -283,7 +283,7 @@ private:
 	ros::Time automatic_door_time_;
 	ros::Time blinker_right_time_, blinker_left_time_, blinker_stop_time_;
 	ros::Time drive_clutch_timer_, steer_clutch_timer_;
-	ros::Time can_send_time_, localizer_timer_;
+	ros::Time can_send_time_, localizer_timer_, gnss_stat_error_time_;
 	double waypoint_id_ = -1;
 	double ndt_gnss_angle_;
 	tf::Quaternion waypoint_localizer_angle_;
@@ -681,7 +681,7 @@ private:
 		difference_toWaypoint_distance_ekf_ = *msg;
 	}
 	
-	void NdtGnssCheck()
+	void NdtGnssCheck(ros::Time nowtime)
 	{
 		bool flag = true;
 		//if(localizer_select_num_ == 0 && gnss_stat_ != 3) flag = false;
@@ -690,15 +690,24 @@ private:
 		double ndtx = ndt_pose_.pose.position.x;
 		double ndty = ndt_pose_.pose.position.y;
 		double gnssx = gnss_pose_.pose.position.x;
-		double gnssy = gnss_pose_.pose.position.y; 
+		double gnssy = gnss_pose_.pose.position.y;
 		double diff_x = ndtx - gnssx;
 		double diff_y = ndty - gnssy;
 		double distance = sqrt(diff_x * diff_x + diff_y* diff_y);
 
 		autoware_msgs::LocalizerMatchStat lms;
-		lms.header.stamp = ros::Time::now();
+		lms.header.stamp = nowtime;//ros::Time::now();
 
-		std::string gnss_stat_string = (gnss_stat_ == 3) ? "GNSS_OK" : "GNSS_ERROR";
+		//gnssステートのチェック
+		//std::string gnss_stat_string = (gnss_stat_ == 3) ? "GNSS_OK" : "GNSS_ERROR";
+		std::string gnss_stat_string;
+		if(gnss_stat_error_time_ == ros::Time(0)) gnss_stat_string = "GNSS_OK";
+		else
+		{
+			if(gnss_stat_error_time_ < nowtime) gnss_stat_string = "GNSS_OK";
+			else gnss_stat_string = "GNSS_ERROR";
+		}
+		
 		std::cout << "stat : " << ndt_stat_string_ << "," << gnss_stat_string << std::endl;
 
 		if(config_localizer_switch_.localizer_check == 2)
@@ -900,6 +909,15 @@ private:
 
 	void callbackGnssStat(const std_msgs::UInt8::ConstPtr &msg)
 	{
+		if(msg->data != 3)
+		{
+			if(gnss_stat_ == 3)
+			{
+				ros::Time nowtime = ros::Time::now();
+				gnss_stat_error_time_ = ros::Time(nowtime.sec + 1, 0);
+			}
+		}
+		else gnss_stat_error_time_ = ros::Time(0);
 		gnss_stat_ = msg->data;
 	}
 
@@ -2772,6 +2790,7 @@ public:
 		waypoint_param_.blinker = 0;
 		automatic_door_time_ = blinker_right_time_ = blinker_left_time_ =
 		        blinker_stop_time_ = can_send_time_ = localizer_timer_ = ros::Time::now();
+		gnss_stat_error_time_ = ros::Time(0);
 
 		ros::Time nowtime = ros::Time::now();
 		pid_params.init(0.0);
@@ -2838,7 +2857,7 @@ public:
 				localizerTimeCheck(nowtime);
 
 				//ndtとgnssのチェック
-				NdtGnssCheck();
+				NdtGnssCheck(nowtime);
 
 				double current_velocity = 0;// = can_receive_502_.velocity_average / 100.0;
 

@@ -897,6 +897,10 @@ void MainWindow::window_updata()
         str_vehicle_cmd << std::fixed << std::setprecision(keta) << vehicle_cmd_.ctrl_cmd.linear_velocity * 3.6;
         ui->tx2_cmd_vel->setText(str_vehicle_cmd.str().c_str());
 
+        std::stringstream str_way_vel;
+        str_way_vel << std::fixed << std::setprecision(keta) << waypoint_param_.global_twist.linear.x * 3.6;
+        ui->tx2_way_vel->setText(str_way_vel.str().c_str());
+
         std::stringstream str_acc;
         str_acc << std::fixed << std::setprecision(keta) << can_velocity_param_.acceleration;
         ui->tx_can_accel->setText(str_acc.str().c_str());
