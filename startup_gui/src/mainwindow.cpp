@@ -18,7 +18,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::pushUseStartup()
 {
-    system("gnome-terminal -- bash -c 'bash /home/autoware/saiko_car_ware_ai114/src/autoware/utilities_scw114/runtime_manager/scripts/all_boot.bash; bash' &");
+    system("gnome-terminal -- bash -c 'bash ~/saiko_car_ware_ai114/src/autoware/utilities_scw114/runtime_manager/scripts/all_boot.bash; bash' &");
     close();
 }
 

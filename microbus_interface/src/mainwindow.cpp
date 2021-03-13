@@ -310,7 +310,7 @@ void MainWindow::error_view(std::string error_message)
     ui->tx_error_text->setText(error_message.c_str());
     ui->tx2_error_text->setText(error_message.c_str());
     error_text_lock_ = true;
-    system("aplay -D plughw:PCH /home/autoware/one33.wav &");
+    system("aplay -D plughw:PCH ~/one33.wav &");
 
     ros::Time now = ros::Time::now();
     timer_error_lock_ = ros::Time(now.sec+1, now.nsec);

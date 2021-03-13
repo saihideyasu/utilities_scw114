@@ -1,8 +1,8 @@
 #!/bin/bash
 
-AUTOWARE_PATH="/home/autoware/saiko_car_ware_ai114"
-VELODYNE_APTH="/home/autoware/velodyne_vls"
-WAYPOINT_FILE="/home/autoware/load_data/sibusawa/2021_02_06/1-doramakan-kitakouen/2021_02_15_go_end_waypoint_fix.csv"
+AUTOWARE_PATH="${HOME}/saiko_car_ware_ai114"
+VELODYNE_APTH="${HOME}/velodyne_vls"
+WAYPOINT_FILE="${HOME}/load_data/sibusawa/2021_02_06/1-doramakan-kitakouen/2021_02_15_go_end_waypoint_fix.csv"
 
 source /opt/ros/melodic/setup.bash
 source ${VELODYNE_APTH}/install/setup.bash
@@ -43,7 +43,7 @@ sleep 3
 echo "currency : gnss2"
 
 # Set lidar
-#roslaunch runtime_manager VLS128_points_single.launch calibration:=${VELODYNE_APTH}/src/velodyne_pointcloud/params/VeloView_VLS-128_FS1.yaml &
+roslaunch runtime_manager VLS128_points_single.launch calibration:=${VELODYNE_APTH}/src/velodyne_pointcloud/params/VeloView_VLS-128_FS1.yaml &
 sleep 3
 echo "currency : velodyne 128"
 
