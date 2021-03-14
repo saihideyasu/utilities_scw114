@@ -42,12 +42,12 @@
   <!-- param name="/groll2" value="-0.0010026966"/ -->
 
   <!-- 2020/12/16 liesse hund keisoku -->
-  <param name="/gx2" value="1.695"/>
-  <param name="/gy2" value="0.0"/>
-  <param name="/gz2" value="2.64"/>
-  <param name="/gyaw2" value="0.0"/>
-  <param name="/gpitch2" value="0.0"/>
-  <param name="/groll2" value="0.0"/>
+  <param name="/gx1" value="0.0"/>
+  <param name="/gy1" value="0.0"/>
+  <param name="/gz1" value="2.4"/>
+  <param name="/gyaw1" value="0.0"/>
+  <param name="/gpitch1" value="0.0"/>
+  <param name="/groll1" value="0.0"/>
 
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_localizer_128" args="3.35 0.0 2.70 0.0 0.0 0.0 base_link velodyne8 10"/>
 

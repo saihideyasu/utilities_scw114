@@ -8419,6 +8419,15 @@ params :
       cmd_param:
         dash     : ''
         delim    : ':='
+    - name : angle_actual_correction
+      desc : angle_actual_correction
+      label: angle_actual_correction
+      min  : -2000
+      max  : 2000
+      v    : 0
+      cmd_param:
+        dash     : ''
+        delim    : ':='
 
   - name  : microbus_can
     topic : /config/microbus_can
