@@ -1,11 +1,11 @@
 <launch>
-  <arg name="autoware_path" default="/home/autoware/saiko_car_ware_ai114"/>
+  <arg name="autoware_path" default="/home/sit/saiko_car_ware_ai114"/>
 
 
-  <arg name="x" default="3.35"/>
+  <arg name="x" default="6.2"/>
   <arg name="y" default="0.0"/>
-  <arg name="z" default="2.7"/>
-  <arg name="yaw" default="0.0"/>
+  <arg name="z" default="2.5"/>
+  <arg name="yaw" default="-0.04"/>
   <arg name="pitch" default="0.0"/>
   <arg name="roll" default="0.0"/>
   <arg name="frame_id" default="base_link"/>
@@ -42,9 +42,9 @@
   <!-- param name="/groll2" value="-0.0010026966"/ -->
 
   <!-- 2020/12/16 liesse hund keisoku -->
-  <param name="/gx2" value="1.695"/>
+  <param name="/gx2" value="0.0"/>
   <param name="/gy2" value="0.0"/>
-  <param name="/gz2" value="2.64"/>
+  <param name="/gz2" value="2.4"/>
   <param name="/gyaw2" value="0.0"/>
   <param name="/gpitch2" value="0.0"/>
   <param name="/groll2" value="0.0"/>
@@ -71,7 +71,7 @@
 
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_me" args="6.31 0.0 1.43 -0.026 0.0 0.0 base_link me_viz 10"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_front_base_link" args="4.55 0.0 0.0 0.0 0.0 0.0 base_link front_base_link 10"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_front_base_link" args="6.18 0.0 0.0 0.0 0.0 0.0 base_link front_base_link 10"/>
 
   <node pkg="tf" type="static_transform_publisher" name="velodyne_to_camera" args="1.69 0.165 -0.905 -1.5875 0.0 -1.4510 velodyne camera 10"/>
 

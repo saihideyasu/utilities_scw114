@@ -814,6 +814,13 @@ subs :
          param: waypoint_adjustment
          gui  :
            dialog_height : 450
+       - name : map_normalizer
+         desc : map_normalizer desc sample
+         cmd  : roslaunch waypoint_maker map_normalizer.launch
+         param: map_normalizer
+         gui  :
+           dialog_width  : 600
+           dialog_height : 350
     - name : waypoint_planner
       desc : waypoint_planner desc sample
       subs :
@@ -821,6 +828,10 @@ subs :
         desc : astar_avoid desc sample
         cmd  : roslaunch waypoint_planner astar_avoid.launch
         param: astar_avoid_param
+      - name : clothoid_avoidance
+        desc : clothoid_avoidance desc sample
+        cmd  : roslaunch waypoint_planner clothoid_avoidance.launch
+        param: clothoid_avoidance
       - name : local_waypoint_adjustment
         desc : local_waypoint_adjustment desc sample
         cmd  : roslaunch waypoint_planner local_waypoint_adjustment.launch
@@ -2445,7 +2456,7 @@ params :
       desc  : velocity_change_limit desc sample
       label : Velocity Change Limit (km/h)
       min   : 5
-      max   : 40
+      max   : 100
       v     : 7.0
     - name  : temporal_waypoints_size
       desc  : temporal_waypoints_size desc sample
@@ -7502,6 +7513,104 @@ params :
         dash        : ''
         delim       : ':='
 
+  - name  : map_normalizer
+    vars  :
+    - name      : load_map_filename
+      desc      : load_map_filename desc sample
+      label     : Load_Map_FileName
+      kind      : path
+      path_type : multi
+      v         : ''
+      cmd_param :
+        var_name    : load_map_name
+        dash        : ''
+        delim       : ':='
+    - name      : load_csv_filename
+      desc      : load_csv_filename desc sample
+      label     : Load_Csv_FileName
+      kind      : path
+      path_type : multi
+      v         : ''
+      cmd_param :
+        var_name    : load_csv_name
+        dash        : ''
+        delim       : ':='
+    - name      : save_map_filename
+      desc      : save_map_filename desc sample
+      label     : Save_Map_FileName
+      kind      : path
+      path_type : save
+      v         : '/tmp/normalize_map.pcd'
+      cmd_param :
+        var_name    : save_map_name
+        dash        : ''
+        delim       : ':='
+    - name      : save_use_csv_filename
+      desc      : save_use_csv_filename desc sample
+      label     : Save_Use_Csv_FileName
+      kind      : path
+      path_type : save
+      v         : '/tmp/normalize_use_path.csv'
+      cmd_param :
+        var_name    : save_use_csv_name
+        dash        : ''
+        delim       : ':='
+    - name      : save_all_csv_filename
+      desc      : save_all_csv_filename desc sample
+      label     : Save_All_Csv_FileName
+      kind      : path
+      path_type : save
+      v         : '/tmp/normalize_all_path.csv'
+      cmd_param :
+        var_name    : save_all_csv_name
+        dash        : ''
+        delim       : ':='
+    - name : limit_gnss_deviation_lat
+      desc : limit_gnss_deviation_lat each two waypoints
+      label: Limit Gnss_Deviation Lat
+      min  : 0.0
+      max  : 5.0
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : limit_gnss_deviation_lon
+      desc : limit_gnss_deviation_lon each two waypoints
+      label: Limit Gnss_Deviation Lon
+      min  : 0.0
+      max  : 5.0
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : limit_gnss_deviation_alt
+      desc : limit_gnss_deviation_alt each two waypoints
+      label: Limit Gnss_Deviation Alt
+      min  : 0.0
+      max  : 5.0
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : limit_ndt_score
+      desc : limit_ndt_score each two waypoints
+      label: Limit Ndt Score
+      min  : 0.0
+      max  : 100
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : limit_ndt_exe_time
+      desc : limit_ndt_exe_time each two waypoints
+      label: Limit Ndt Exe Time
+      min  : 0.0
+      max  : 100.0
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+
   - name  : microbus_pseudo_can_publisher
     topic : /config/microbus_pseudo_can_publisher
     msg   : ConfigMicrobusPseudoCanPublisher
@@ -7817,6 +7926,58 @@ params :
       cmd_param:
         dash     : ''
         delim    : ':='
+
+  - name  : clothoid_avoidance
+    topic : /config/clothoid_avoidance
+    msg   : ConfigClothoidAvoidance
+    vars  :
+    - name  : avoid_flag
+      desc  : avoid_flag
+      label : avoid_flag
+      kind  : radio_box
+      choices:
+      - return
+      - go
+      descs :
+      - return
+      - go
+      v     : 0
+    - name  : move_lane_length
+      desc  : move_lane_length
+      label : move_lane_length(m)
+      min   : 0.0
+      max   : 20.0
+      v     : 1.5
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : phiV
+      desc  : phiV
+      label : phiV(deg)
+      min   : -100
+      max   : 100
+      v     : 30
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : phiU
+      desc  : phiU
+      label : phiU(deg)
+      min   : -1000
+      max   : 1000
+      v     : 500
+      cmd_param :
+        dash        : ''
+        delim       : ':='
+    - name  : step_count
+      desc  : step_count
+      label : step_count
+      min   : 1
+      max   : 10000
+      v     : 5000
+      cmd_param :
+        dash        : ''
+        delim       : ':='
 
   - name  : lookahead_ratio_magn
     topic : /config/lookahead_ratio_magn

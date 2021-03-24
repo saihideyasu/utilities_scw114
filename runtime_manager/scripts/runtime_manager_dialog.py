@@ -88,6 +88,7 @@ from autoware_config_msgs.msg import ConfigStraightLineFix
 from autoware_config_msgs.msg import ConfigPeriodSignal
 from autoware_config_msgs.msg import ConfigRegionTlr
 from autoware_config_msgs.msg import ConfigWaypointAdjustment
+from autoware_config_msgs.msg import ConfigClothoidAvoidance
 from tablet_socket_msgs.msg import mode_cmd
 from tablet_socket_msgs.msg import gear_cmd
 from tablet_socket_msgs.msg import Waypoint

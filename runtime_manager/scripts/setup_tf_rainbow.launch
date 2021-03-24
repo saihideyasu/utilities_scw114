@@ -68,7 +68,7 @@
 
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_me" args="6.31 0.0 1.43 -0.026 0.0 0.0 base_link me_viz 10"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_front_base_link" args="4.55 0.0 0.0 0.0 0.0 0.0 base_link front_base_link 10"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_front_base_link" args="6.18 0.0 0.0 0.0 0.0 0.0 base_link front_base_link 10"/>
 
   <node pkg="tf" type="static_transform_publisher" name="velodyne_to_camera" args="1.69 0.165 -0.905 -1.5875 0.0 -1.4510 velodyne camera 10"/>
 

@@ -316,6 +316,7 @@ private:
 	double last_steer_override_value_;//steerオーバーライド終了時の上書き値
 	double mpc_steer_gradually_change_distance_;//steer指令を上書き状態からmpc指令に徐々に戻す距離
 	double target_steer_;//現在canに送信したsteer_targetの値
+	double local_way_max_vel_mps_;
 
 	void callbacNmeaDeviceStatus(const std_msgs::String::ConstPtr &msg)
 	{
@@ -1686,6 +1687,18 @@ private:
 		tf::Quaternion waypoint_orientation;
 		waypoint_id_ = msg->waypoints[1].waypoint_param.id;
 		tf::quaternionMsgToTF(msg->waypoints[1].pose.pose.orientation, waypoint_orientation);
+
+		//PID tyouseiyou
+		if(stopper_distance_.distance < 0)
+		{
+			local_way_max_vel_mps_ = 0;
+			for(int wc=0; wc<msg->waypoints.size(); wc++)
+			{
+				double vel = msg->waypoints[wc].twist.twist.linear.x;
+				if(vel > local_way_max_vel_mps_) local_way_max_vel_mps_ = vel;
+			}
+		}
+		else local_way_max_vel_mps_ = 0;
 	}
 
 	/*void callbackPositionChecker(const autoware_msgs::PositionChecker::ConstPtr &msg)
@@ -1937,7 +1950,7 @@ private:
 		const double minvel = 10;
 		const double maxvel = 20;
 		const double minsrk = 0;
-		const double maxsrk = 200;
+		double maxsrk = (stopper_distance_.distance != -1 && stopper_distance_.fixed_velocity == 0) ? 1 : 150;
 		double stroke_kagen;
 		if(current_velocity > maxvel) stroke_kagen = maxsrk;
 		else if(current_velocity < minvel) stroke_kagen = minsrk;
@@ -1956,7 +1969,7 @@ private:
 		const double minvel = 10;
 		const double maxvel = 20;
 		const double minsrk = 0;
-		const double maxsrk = 200;
+		double maxsrk = (stopper_distance_.distance != -1 && stopper_distance_.fixed_velocity == 0) ? 1 : 150;
 		double stroke_kagen;
 		if(current_velocity > maxvel) stroke_kagen = maxsrk;
 		else if(current_velocity < minvel) stroke_kagen = minsrk;
@@ -2025,7 +2038,13 @@ private:
 		double e_i;
 		pid_params.plus_accel_diff_sum_velocity(e);
 		if (pid_params.get_acclel_diff_sum_velocity() > setting_.accel_max_i)
-			e_i = setting_.accel_max_i;
+		{
+			double max_i;
+			double vel_diff = local_way_max_vel_mps_ * 3.6 - current_velocity;
+			if(vel_diff < 10) max_i = setting_.accel_max_i;
+			else max_i = setting_.accel_max_i * 1.2;
+			e_i = max_i;
+		}
 		else
 			e_i = pid_params.get_acclel_diff_sum_velocity();
 
@@ -2068,8 +2087,11 @@ private:
 	}
 
 	double e_i_val_;
+	double stopD_first_velocity_;//停止判定の初期判定時の速度
 	double _brake_stroke_pid_control(double current_velocity, double cmd_velocity, double acceleration)
 	{
+		if(stopper_distance_.distance == -1) stopD_first_velocity_ = 0;
+
 		e_i_val_ = 0;
 		double brake_stroke_step = setting_.brake_stroke_step_max;//2;
 		double vel_sa = current_velocity - cmd_velocity;
@@ -2084,9 +2106,14 @@ private:
 		}
 		bool use_step_flag = true;
 
-		const double velocity_magn = 1.7;
-		double stopper_distance_th = (setting_.stopper_distance1 > cmd_velocity*velocity_magn) ? setting_.stopper_distance1 : cmd_velocity*velocity_magn;
-	
+		//const double velocity_magn = 0.9;
+		//double stopper_distance_th = (setting_.stopper_distance1 > cmd_velocity*velocity_magn) ? setting_.stopper_distance1 : cmd_velocity*velocity_magn;
+		double velocity_magn;
+		if(stopD_first_velocity_ > 30) velocity_magn = 1.1;
+		else if(stopD_first_velocity_ > 20) velocity_magn = 1.0;
+		else velocity_magn = 0.9;
+		double stopper_distance_th = current_velocity*velocity_magn;
+
 		if(pid_params.get_stroke_prev() > 0 && (stopper_distance_.distance < 0 || stopper_distance_.distance > stopper_distance_th))
 		{
 			pid_params.clear_diff_velocity();
@@ -2098,6 +2125,7 @@ private:
 			//if(current_velocity > cmd_velocity)
 			if(use_slow_accel_release_ == true)//ゆっくりアクセルを離すか？
 			{
+				if(stopD_first_velocity_ == 0) stopD_first_velocity_ = current_velocity;
 				double stroke_kagen = math_stroke_kagen_brake(cmd_velocity);
 				std::cout << "kagen : " << stroke_kagen << std::endl;
 				double stroke = pid_params.get_stroke_prev()-brake_stroke_step;
@@ -2144,8 +2172,14 @@ private:
 		//D
 		double e_d = e - pid_params.get_brake_e_prev_velocity();
 
+		double brake_i;
+		if(current_velocity > 30) brake_i = 0.45;//setting_.k_brake_i_velocity;
+		else if(current_velocity > 20) brake_i = 0.50;
+		else if(current_velocity > 10) brake_i = 0.525;
+		else brake_i = 0.55;
+	
 		double target_brake_stroke = setting_.k_brake_p_velocity * e +
-		        setting_.k_brake_i_velocity * e_i +
+		        brake_i * e_i +
 		        setting_.k_brake_d_velocity * e_d;
 		pid_params.set_brake_e_prev_velocity(e);
 		e_i_val_ = e_i;
@@ -2206,15 +2240,20 @@ private:
 				{
 					//target_brake_stroke = 0.0 + 500.0 * pow((2.0-distance)/2.0,0.5);
 					brake_stroke_step = 0.5;
-					target_brake_stroke = 0.0 + stop_stroke_max_ * (setting_.stopper_distance3 - stopper_distance_.distance)/2.0;
+					target_brake_stroke = pid_params.get_stop_stroke_prev() / 1.005;
+					//if(stopper_distance_.distance == 0) target_brake_stroke = stop_stroke_max_;
+					if(stopper_distance_.distance == 0 || current_velocity_.twist.linear.x <= 0.04)
+						target_brake_stroke = stop_stroke_max_;
+					/*target_brake_stroke = 0.0 + stop_stroke_max_ * (setting_.stopper_distance3 - stopper_distance_.distance)/setting_.stopper_distance3;
 					if(target_brake_stroke < pid_params.get_stop_stroke_prev())
-						target_brake_stroke = pid_params.get_stop_stroke_prev();
-					if(target_brake_stroke == stop_stroke_max_ && can_receive_502_.velocity_mps != 0) 
+						target_brake_stroke = pid_params.get_stop_stroke_prev();*/
+					
+					/*if(target_brake_stroke == stop_stroke_max_ && can_receive_502_.velocity_mps != 0) 
 					{
 						stop_distance_over_sum_ += stop_distance_over_add_;
 						brake_stroke_step = 0.1;
 					}
-					target_brake_stroke += stop_distance_over_sum_;
+					target_brake_stroke += stop_distance_over_sum_;*/
 				}
 				else
 				{
@@ -2563,19 +2602,19 @@ pub_tmp_.publish(str_ret);*/
 		{
 			buf[6] |= 0x02; //blinker_right_ = false;
 			ros::Time time = ros::Time::now();
-			if(time > blinker_right_time_)  blinker_right_ = false;
+			//if(time > blinker_right_time_)  blinker_right_ = false;
 		}
 		else if(blinker_left_ == true)
 		{
 			buf[6] |= 0x01;
 			ros::Time time = ros::Time::now();
-			if(time > blinker_left_time_)  blinker_left_ = false;
+			//if(time > blinker_left_time_)  blinker_left_ = false;
 		}
 		else if(blinker_stop_ == true)
 		{
 			buf[6] |= 0x03;
 			ros::Time time = ros::Time::now();
-			if(time > blinker_stop_time_)  blinker_stop_ = false;
+			//if(time > blinker_stop_time_)  blinker_stop_ = false;
 		}
 		if(light_high_ == true) buf[7] |= 0x20;
 
@@ -2665,8 +2704,8 @@ public:
 	    , angle_limit_over_(false)
 	    , steer_correction_(1.0)
 		, localizer_select_num_(1)
-		, accel_avoidance_distance_min_(10)
-		, stop_stroke_max_(320)
+		, accel_avoidance_distance_min_(20)
+		, stop_stroke_max_(200)
 		, in_accel_mode_(true)
 		, in_brake_mode_(true)
 		, use_stopper_distance_(true)
@@ -2685,6 +2724,8 @@ public:
 		, drive_override_value_(DRIVE_OVERRIDE_TH)
 		, mpc_steer_gradually_change_distance_(0)
 		, last_steer_override_value_(0)
+		, local_way_max_vel_mps_(0)
+		, stopD_first_velocity_(0)
 	{
 		stopper_distance_.distance = -1;
 		stopper_distance_.send_process = autoware_msgs::StopperDistance::UNKNOWN;

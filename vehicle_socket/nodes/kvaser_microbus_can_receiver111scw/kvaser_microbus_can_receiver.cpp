@@ -163,6 +163,7 @@ public:
 
 					unsigned char *vel_tmp = (unsigned char*)&can.velocity_actual;
 					vel_tmp[0] = data[7];  vel_tmp[1] = data[6];
+					can.velocity_actual /= 2.0;
 
 					short acceleration = 0;
 					can.cycle_time = nowtime.toSec() - prev_time_502_.toSec();
