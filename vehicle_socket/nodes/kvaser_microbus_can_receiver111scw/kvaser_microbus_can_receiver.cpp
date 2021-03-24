@@ -2,6 +2,7 @@
 #include <autoware_can_msgs/MicroBusCan501.h>
 #include <autoware_can_msgs/MicroBusCan502.h>
 #include <autoware_can_msgs/MicroBusCan503.h>
+#include <autoware_config_msgs/ConfigMicroBusCan111SCW.h>
 #include <std_msgs/String.h>
 #include "kvaser_can111scw.h"
 
@@ -10,6 +11,7 @@ class kvaser_can_receiver
 private:
 	ros::NodeHandle nh_, private_nh_;
 	ros::Publisher pub_microbus_can_501_, pub_microbus_can_502_, pub_microbus_can_503_, pub_tmp_;
+	ros::Subscriber sub_config_;
 
 	//stroke params
 	const short PEDAL_VOLTAGE_CENTER_ = 1024;//1052;//計測値は1025;
@@ -34,11 +36,18 @@ private:
 		bool read501, read502;
 	} read_id_flag_;
 
+	autoware_config_msgs::ConfigMicroBusCan111SCW config_;
 	std::vector<short> velocity_list_;
 	std::vector<short> acceleration_list_;
 	std::vector<short> angle_list_;
 	ros::Time prev_time_501_, prev_time_502_, prev_time_503_;
 	const int list_pushback_size = 5;
+
+	void callbackConfig(const autoware_config_msgs::ConfigMicroBusCan111SCW::ConstPtr &msg)
+	{
+		config_ = *msg;
+	}
+
 public:
 	kvaser_can_receiver(ros::NodeHandle nh, ros::NodeHandle p_nh, int kvaser_channel)
 	    : nh_(nh)
@@ -52,6 +61,8 @@ public:
 		pub_microbus_can_502_ = nh_.advertise<autoware_can_msgs::MicroBusCan502>("/microbus/can_receive502", 10);
 		pub_microbus_can_503_ = nh_.advertise<autoware_can_msgs::MicroBusCan503>("/microbus/can_receive503", 10);
 		pub_tmp_ = nh_.advertise<std_msgs::String>("/microbus/receiver_tmp", 10);
+
+		sub_config_ = nh_.subscribe("/config/microbus_can111scw", 10, &kvaser_can_receiver::callbackConfig, this);//このノードのconfig設定
 	}
 
 	bool isOpen() {return kc.isOpen();}
@@ -199,7 +210,7 @@ public:
 
 					unsigned char *str_tmp = (unsigned char*)&can.angle_actual;
 					str_tmp[0] = data[5];  str_tmp[1] = data[4];
-					can.angle_actual += (-700);//ズレ補正
+					can.angle_actual += (config_.angle_actual_correction);//ズレ補正
 					angle_list_.insert(angle_list_.begin(), can.angle_actual);
 					if(angle_list_.size() == list_pushback_size) angle_list_.resize(list_pushback_size);
 					if(can.velocity_actual >= 0) can.angle_deg = can.angle_actual * angle_magn_left;

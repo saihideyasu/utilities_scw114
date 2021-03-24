@@ -41,7 +41,6 @@
   <!-- param name="/gpitch2" value="-0.0006652615"/ -->
   <!-- param name="/groll2" value="-0.0010026966"/ -->
 
-  <!-- 2020/12/16 liesse hund keisoku -->
   <param name="/gx2" value="0.0"/>
   <param name="/gy2" value="0.0"/>
   <param name="/gz2" value="2.4"/>
