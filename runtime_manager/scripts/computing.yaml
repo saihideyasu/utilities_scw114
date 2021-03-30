@@ -814,6 +814,13 @@ subs :
          param: waypoint_adjustment
          gui  :
            dialog_height : 450
+       - name : map_normalizer
+         desc : map_normalizer desc sample
+         cmd  : roslaunch waypoint_maker map_normalizer.launch
+         param: map_normalizer
+         gui  :
+           dialog_width  : 600
+           dialog_height : 350
     - name : waypoint_planner
       desc : waypoint_planner desc sample
       subs :
@@ -7205,6 +7212,104 @@ params :
       min  : 0.0
       max  : 1.0
       v    : 0.1
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+
+  - name  : map_normalizer
+    vars  :
+    - name      : load_map_filename
+      desc      : load_map_filename desc sample
+      label     : Load_Map_FileName
+      kind      : path
+      path_type : multi
+      v         : ''
+      cmd_param :
+        var_name    : load_map_name
+        dash        : ''
+        delim       : ':='
+    - name      : load_csv_filename
+      desc      : load_csv_filename desc sample
+      label     : Load_Csv_FileName
+      kind      : path
+      path_type : multi
+      v         : ''
+      cmd_param :
+        var_name    : load_csv_name
+        dash        : ''
+        delim       : ':='
+    - name      : save_map_filename
+      desc      : save_map_filename desc sample
+      label     : Save_Map_FileName
+      kind      : path
+      path_type : save
+      v         : '/tmp/normalize_map.pcd'
+      cmd_param :
+        var_name    : save_map_name
+        dash        : ''
+        delim       : ':='
+    - name      : save_use_csv_filename
+      desc      : save_use_csv_filename desc sample
+      label     : Save_Use_Csv_FileName
+      kind      : path
+      path_type : save
+      v         : '/tmp/normalize_use_path.csv'
+      cmd_param :
+        var_name    : save_use_csv_name
+        dash        : ''
+        delim       : ':='
+    - name      : save_all_csv_filename
+      desc      : save_all_csv_filename desc sample
+      label     : Save_All_Csv_FileName
+      kind      : path
+      path_type : save
+      v         : '/tmp/normalize_all_path.csv'
+      cmd_param :
+        var_name    : save_all_csv_name
+        dash        : ''
+        delim       : ':='
+    - name : limit_gnss_deviation_lat
+      desc : limit_gnss_deviation_lat each two waypoints
+      label: Limit Gnss_Deviation Lat
+      min  : 0.0
+      max  : 5.0
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : limit_gnss_deviation_lon
+      desc : limit_gnss_deviation_lon each two waypoints
+      label: Limit Gnss_Deviation Lon
+      min  : 0.0
+      max  : 5.0
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : limit_gnss_deviation_alt
+      desc : limit_gnss_deviation_alt each two waypoints
+      label: Limit Gnss_Deviation Alt
+      min  : 0.0
+      max  : 5.0
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : limit_ndt_score
+      desc : limit_ndt_score each two waypoints
+      label: Limit Ndt Score
+      min  : 0.0
+      max  : 10
+      v    : 0.01
+      cmd_param:
+        dash     : ''
+        delim    : ':='
+    - name : limit_ndt_exe_time
+      desc : limit_ndt_exe_time each two waypoints
+      label: Limit Ndt Exe Time
+      min  : 0.0
+      max  : 100.0
+      v    : 0.01
       cmd_param:
         dash     : ''
         delim    : ':='

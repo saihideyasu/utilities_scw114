@@ -38,9 +38,14 @@ sleep 3
 echo "currency : map to world launch"
 
 # Set novatel gnss 2
-roslaunch novatel_oem7 novatel_oem7_tcp.launch __ns:=novatel_oem7_2 ip:=192.168.1.151 &
-sleep 3
-echo "currency : gnss2"
+#roslaunch novatel_oem7 novatel_oem7_tcp.launch __ns:=novatel_oem7_2 ip:=192.168.1.151 &
+#sleep 3
+#echo "currency : gnss2"
+
+# Set novatek usb
+roslaunch novatel_oem7 novatel_oem7.launch __ns:=novatel_oem7_1 port:=/dev/ttyUSB0 baud:=115200 &
+sleep 5
+echo "currency : novatel_oem7_1
 
 # Set lidar
 roslaunch runtime_manager VLS128_points_single.launch calibration:=${VELODYNE_APTH}/src/velodyne_pointcloud/params/VeloView_VLS-128_FS1.yaml &
@@ -48,7 +53,7 @@ sleep 3
 echo "currency : velodyne 128"
 
 # Set plane of gnss
-roslaunch gnss_localizer nmea2tfpose_RTK2.launch plane:=9 nmea_topic:=/novatel_oem7_2/nmea_sentence name_space:=True &
+roslaunch gnss_localizer nmea2tfpose_RTK1.launch plane:=9 nmea_topic:=/novatel_oem7_1/nmea_sentence name_space:=True &
 sleep 3
 echo "currency : nmea2tfpose"
 
@@ -91,7 +96,7 @@ rostopic pub __name:=config_localizer_switch /config/localizer_switch autoware_c
 fusion_select: 1
 localizer_check: 1
 yaw_correction1: 0.0
-yaw_correction2: -0.1" -l &
+yaw_correction2: 0.0" -l &
 sleep 1
 echo "currency : /config/localizer_switch"
 

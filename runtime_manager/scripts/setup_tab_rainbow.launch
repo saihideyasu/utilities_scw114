@@ -2,9 +2,9 @@
   <arg name="autoware_path" default="/home/autoware/saiko_car_ware_ai114"/>
 
 
-  <arg name="x" default="3.35"/>
+  <arg name="x" default="6.2"/>
   <arg name="y" default="0.0"/>
-  <arg name="z" default="2.7"/>
+  <arg name="z" default="2.5"/>
   <arg name="yaw" default="0.0"/>
   <arg name="pitch" default="0.0"/>
   <arg name="roll" default="0.0"/>
