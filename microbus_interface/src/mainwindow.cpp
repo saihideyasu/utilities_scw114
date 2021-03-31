@@ -71,7 +71,6 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     automode_mileage_(0),
     //load_name_count_(1),
     use_first_waypoint_interface_(false),
-    log_write_flag_(false),
     use_specified_speed_(false)
 {
     ui->setupUi(this);
@@ -176,6 +175,7 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     connect(ui->bt6_liesseTF, SIGNAL(clicked()), this, SLOT(click_TF_liessee()));
     connect(ui->bt6_rainbowTF, SIGNAL(clicked()), this, SLOT(click_TF_rainbow()));
     connect(ui->slider_can_send_velocity, SIGNAL(valueChanged(int)), this, SLOT(slide_specified_speed(int)));
+    connect(ui->bt4_rviz_restart, SIGNAL(clicked()), this, SLOT(click_rviz_restart()));
 
     nh_ = nh;  private_nh_ = p_nh;
 
@@ -227,7 +227,6 @@ MainWindow::MainWindow(ros::NodeHandle nh, ros::NodeHandle p_nh, QWidget *parent
     sub_cmd_select_ = nh.subscribe("/cmd_selector/select", 10 , &MainWindow::callbackCmdSelect, this);
     sub_load_name_ = nh.subscribe("/load_name", 10 , &MainWindow::callbackLoadName, this);
     sub_base_waypoints_ = nh.subscribe("/lane_waypoints_array", 10 , &MainWindow::callbackBaseWaypoints, this);
-    sub_log_write_flag_ = nh.subscribe("/microbus/log_write", 10 , &MainWindow::callbackLogWriteFlag, this);
 
     can_status_.angle_limit_over = can_status_.position_check_stop = true;
     error_text_lock_ = false;
@@ -297,6 +296,7 @@ MainWindow::~MainWindow()
         ofs_log.write(log_folder_.c_str(), log_folder_.size());
     }
 
+    system("rosnode kill /rviz_restart");
     delete ui;
 }
 
@@ -1443,24 +1443,6 @@ void MainWindow::callbackBaseWaypoints(const autoware_msgs::LaneArray &msg)
 
 }
 
-void MainWindow::callbackLogWriteFlag(const std_msgs::Bool &msg)
-{
-    if(msg.data == true)
-    {
-        ui->lb2_log_flag->setText("記録中");
-        ui->lb4_log_flag->setText("ＬＯＧ記録中");
-        ui->bt2_log_write->setText("LOG STOP");
-        log_write_flag_ = true;
-    }
-    else
-    {
-        ui->lb2_log_flag->setText("");
-        ui->lb4_log_flag->setText("");
-        ui->bt2_log_write->setText("LOG WRITE");
-        log_write_flag_ = false;
-    }
-}
-
 void MainWindow::publish_emergency_clear()
 {
     std_msgs::Empty msg;
@@ -1795,6 +1777,11 @@ void MainWindow::click_TF_liesse()
 void MainWindow::click_TF_rainbow()
 {
 
+}
+
+void MainWindow::click_rviz_restart()
+{
+    system("rosrun rviz_restart rviz_restart &");
 }
 
 void MainWindow::slide_specified_speed(int val)

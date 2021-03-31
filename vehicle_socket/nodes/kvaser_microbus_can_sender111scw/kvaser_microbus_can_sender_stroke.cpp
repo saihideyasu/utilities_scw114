@@ -1098,7 +1098,7 @@ private:
 		str << std::setprecision(10) ;
 		str << "," << waypoint_id_;
 		name << ",waypoint_id";
-		str << "," <<  gnss_time_.year << "/" << +gnss_time_.month << "/" << +gnss_time_.hour << "/" << +gnss_time_.min << "/" << gnss_time_.sec;
+		str << "," <<  gnss_time_.year << "/" << +gnss_time_.month << "/" << +gnss_time_.day << "/" << +gnss_time_.hour << "/" << +gnss_time_.min << "/" << gnss_time_.sec;
 		//str << "," << time_str;//timeString(time_str);
 		name << "," << "gnss_time";
 		str <<  "," << twist_.ctrl_cmd.linear_velocity * 3.6;

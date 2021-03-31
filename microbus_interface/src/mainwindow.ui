@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -6951,33 +6951,6 @@ GREEN</string>
        <set>Qt::TextSelectableByMouse</set>
       </property>
      </widget>
-     <widget class="QLabel" name="lb4_log_flag">
-      <property name="geometry">
-       <rect>
-        <x>600</x>
-        <y>750</y>
-        <width>341</width>
-        <height>81</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>50</pointsize>
-       </font>
-      </property>
-      <property name="cursor">
-       <cursorShape>SplitVCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="scaledContents">
-       <bool>false</bool>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
      <widget class="QPushButton" name="bt4_backB">
       <property name="geometry">
        <rect>
@@ -7057,6 +7030,24 @@ GREEN</string>
       </property>
       <property name="placeholderText">
        <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt4_rviz_restart">
+      <property name="geometry">
+       <rect>
+        <x>550</x>
+        <y>700</y>
+        <width>321</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>40</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>rviz自動起動</string>
       </property>
      </widget>
     </widget>

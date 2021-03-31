@@ -1128,7 +1128,7 @@ private:
 			cmd_velocity = input_drive_ / 100.0;
 		double accel_mode_avoidance_distance = (current_velocity > accel_avoidance_distance_min_) ? current_velocity : accel_avoidance_distance_min_;
 
-		std::cout << "twist.ctrl_cmd " << vehicle_cmd_.ctrl_cmd.linear_velocity * 3.6 << ", cmd_velocity " << cmd_velocity << std::endl;
+		std::cout << "current_vel " << current_velocity << ", cmd_velocity " << cmd_velocity << std::endl;
 
 		std::cout << "auto_mode" << std::endl;
 		std::cout << "cur_cmd : " << current_velocity << "," << cmd_velocity << "," << setting_.velocity_limit << std::endl;
@@ -1138,12 +1138,12 @@ private:
 		std::cout << "flag : " << (int)checkMobileyeObstacleStop(nowtime) << "," << stopper_distance_.distance << "," << in_accel_mode_ << std::endl;
 
 		//加速判定
-		if (checkMobileyeObstacleStop(nowtime) == false
-				&& fabs(cmd_velocity) > current_velocity + setting_.acceptable_velocity_variation
-				&& current_velocity < setting_.velocity_limit
-				&& stopper_distance_accele_checker(accel_mode_avoidance_distance, current_velocity)
+		if (//checkMobileyeObstacleStop(nowtime) == false &&
+				fabs(cmd_velocity) > current_velocity + setting_.acceptable_velocity_variation &&
+				current_velocity < setting_.velocity_limit &&
+				stopper_distance_accele_checker(accel_mode_avoidance_distance, current_velocity) &&
 				//&& lane_pitch_ > -1.2 * M_PI / 180.0//経路勾配への暫定的な対応
-				&& in_accel_mode_ == true)
+				in_accel_mode_ == true)
 		{
 			std::cout << " stroke drive" << std::endl;
 			pid_params_.set_stroke_state_mode_(PID_params::STROKE_STATE_MODE_ACCEL_);

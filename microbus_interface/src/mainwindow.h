@@ -103,7 +103,6 @@ private:
     ros::Subscriber sub_cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
     ros::Subscriber sub_load_name_;//waypointを読み込むlaunchファイルでload_nameトピック(std_msgs/String)を投げると、その文字列を表示(場所確認用)
     ros::Subscriber sub_base_waypoints_;//base_waypoints(global waypointの最終情報)がpublishされている場合、tab4でOKを出す
-    ros::Subscriber sub_log_write_flag_;//canからのlog書き込み情報
 
     void callbackCan501(const autoware_can_msgs::MicroBusCan501 &msg);//マイコン応答ID501
     void callbackCan502(const autoware_can_msgs::MicroBusCan502 &msg);//マイコン応答ID502
@@ -136,7 +135,6 @@ private:
     void callbackCmdSelect(const std_msgs::Int32 &msg);
     void callbackLoadName(const autoware_msgs::WaypointsSerialNumLaunch &msg);
     void callbackBaseWaypoints(const autoware_msgs::LaneArray &msg);
-    void callbackLogWriteFlag(const std_msgs::Bool &msg);
 
     void runWaypointsNode(int num, std::string branch);
 
@@ -169,7 +167,6 @@ private:
     autoware_msgs::VehicleCmd vehicle_cmd_;
     int cmd_select_;//ctrl_rawとtwist_rawをpublishしているノードの種類
     bool use_first_waypoint_interface_;//callbackLoadNameでの経路読み込みが行われたかのフラグ
-    bool log_write_flag_;//現在log出力が行われいるか？
     bool use_specified_speed_;//固定指令速度を送信するか?
 
     //タイマー
@@ -234,6 +231,7 @@ private slots:
     void click_specified_speed_minus5();
     void click_TF_liesse();
     void click_TF_rainbow();
+    void click_rviz_restart();
     void slide_specified_speed(int val);
 };
 

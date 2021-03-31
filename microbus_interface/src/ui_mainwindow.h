@@ -258,10 +258,10 @@ public:
     QTextEdit *tx4_read_global_waypoints;
     QLabel *lb4_auto_ok;
     QTextEdit *tx4_auto_ok;
-    QLabel *lb4_log_flag;
     QPushButton *bt4_backB;
     QPushButton *bt4_nextB;
     QTextEdit *tx4_load_name;
+    QPushButton *bt4_rviz_restart;
     QWidget *tab_5;
     QLineEdit *li5_can_send_velocity_;
     QPushButton *bt5_can_send;
@@ -2031,13 +2031,6 @@ public:
         tx4_auto_ok->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tx4_auto_ok->setReadOnly(true);
         tx4_auto_ok->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        lb4_log_flag = new QLabel(tab_4);
-        lb4_log_flag->setObjectName(QStringLiteral("lb4_log_flag"));
-        lb4_log_flag->setGeometry(QRect(600, 750, 341, 81));
-        lb4_log_flag->setFont(font10);
-        lb4_log_flag->setCursor(QCursor(Qt::SplitVCursor));
-        lb4_log_flag->setScaledContents(false);
-        lb4_log_flag->setAlignment(Qt::AlignCenter);
         bt4_backB = new QPushButton(tab_4);
         bt4_backB->setObjectName(QStringLiteral("bt4_backB"));
         bt4_backB->setGeometry(QRect(120, 490, 331, 101));
@@ -2060,6 +2053,10 @@ public:
         tx4_load_name->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tx4_load_name->setReadOnly(true);
         tx4_load_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        bt4_rviz_restart = new QPushButton(tab_4);
+        bt4_rviz_restart->setObjectName(QStringLiteral("bt4_rviz_restart"));
+        bt4_rviz_restart->setGeometry(QRect(550, 700, 321, 101));
+        bt4_rviz_restart->setFont(font8);
         tab3->addTab(tab_4, QString());
         tab_5 = new QWidget();
         tab_5->setObjectName(QStringLiteral("tab_5"));
@@ -2532,7 +2529,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tab3->setCurrentIndex(1);
+        tab3->setCurrentIndex(3);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -2680,11 +2677,11 @@ public:
         bt4_nextA->setText(QApplication::translate("MainWindow", "A\347\265\214\350\267\257 next(&s)", Q_NULLPTR));
         lb4_read_global_waypoints->setText(QApplication::translate("MainWindow", "GLOBAL WAYPOINT", Q_NULLPTR));
         lb4_auto_ok->setText(QApplication::translate("MainWindow", "AUTO", Q_NULLPTR));
-        lb4_log_flag->setText(QString());
         bt4_backB->setText(QApplication::translate("MainWindow", "B\347\265\214\350\267\257 back(&d)", Q_NULLPTR));
         bt4_nextB->setText(QApplication::translate("MainWindow", "B\347\265\214\350\267\257 next(&f)", Q_NULLPTR));
         tx4_load_name->setDocumentTitle(QString());
         tx4_load_name->setPlaceholderText(QString());
+        bt4_rviz_restart->setText(QApplication::translate("MainWindow", "rviz\350\207\252\345\213\225\350\265\267\345\213\225", Q_NULLPTR));
         tab3->setTabText(tab3->indexOf(tab_4), QApplication::translate("MainWindow", "tab4(&4)", Q_NULLPTR));
         bt5_can_send->setText(QApplication::translate("MainWindow", "send", Q_NULLPTR));
         bt5_can_stop->setText(QApplication::translate("MainWindow", "stop", Q_NULLPTR));

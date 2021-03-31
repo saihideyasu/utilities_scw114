@@ -9,17 +9,16 @@ int main(int argc, char *argv[])
     ros::NodeHandle nh, private_nh("~");
 
     MainWindow w(nh, private_nh);
+    w.setAttribute(Qt::WA_DeleteOnClose);
     w.show();
 
     //return a.exec();
 
     ros::Rate loop_rate(100);
-    while (ros::ok()){
+    while (ros::ok() && w.isVisible()){
       ros::spinOnce();
       a.processEvents();
-
       w.window_updata();
-
       loop_rate.sleep();
     }
 }
