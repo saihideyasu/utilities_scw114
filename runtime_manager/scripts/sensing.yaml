@@ -448,6 +448,9 @@ cmds:
       param: multi_lidar_calibrator
       gui  :
         dialog_height : 450
+    - name : calibration_toolkit
+      desc : calibration_toolkit
+      cmd  : rosrun calibration_toolkit calibration_toolkit
 
 buttons:
   calibration_publisher :

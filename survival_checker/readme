@@ -1,0 +1,18 @@
+rosrun survival_checker survival_checker.py でノード,トピック生存チェックノードsurvival_checkerが起動
+
+survival_checkerが参照するファイル
+・params/node_check_list : 生存確認したいノード一覧
+    データ形式 : ノード名(先頭に「/」を含む)。
+                 先頭に「#」でコメント行となる。
+・params/topic_check_list: 生存確認したいトピック一覧
+    データ形式 : トピック名(先頭に「/」を含む),トピックの型(std_msgs/StringならStringとだけ書く),生存判定時間。
+                 先頭に「#」でコメント行となる。
+    	         なお、使用したいトピックの型のimportをsurvival_checker.pyに追加する必要がある。
+paramsフォルダのファイルは変更があった場合はパッケージをビルドする必要がある。
+
+subscriber
+・なし
+
+publisher
+・/not_survival_node_and_topic : 生存していないノード,トピックの一覧
+    型 : autoware_msgs/NotSurvivaNodeAndTopic

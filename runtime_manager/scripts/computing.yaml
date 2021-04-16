@@ -1107,6 +1107,9 @@ subs :
       desc : microbus_pseudo_can_publisher desc sample
       cmd  : roslaunch vehicle_socket microbus_pseudo_can_publisher.launch
       param: microbus_pseudo_can_publisher
+    - name : survival_checker(scw)
+      desc : survival_checker desc sample
+      cmd  : rosrun survival_checker survival_chker.py
 
   - name : Decision
     desc : decision groups

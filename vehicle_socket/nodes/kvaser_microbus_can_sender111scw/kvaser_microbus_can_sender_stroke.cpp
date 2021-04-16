@@ -43,6 +43,7 @@
 #include <autoware_msgs/StopperDistance.h>
 #include <autoware_msgs/SteerOverride.h>
 #include <autoware_msgs/DriveOverride.h>
+#include <autoware_msgs/SurvivalReport.h>
 #include <tf/tf.h>
 #include "kvaser_can111scw.h"
 #include <time.h>
@@ -235,7 +236,7 @@ private:
 	ros::Subscriber sub_cruse_velocity_, sub_mobileye_frame_, sub_mobileye_obstacle_data_, sub_temporary_fixed_velocity_;
 	ros::Subscriber sub_antenna_pose_, sub_antenna_pose_sub_, sub_gnss_time_, sub_log_write_, sub_cruse_error_;
 	ros::Subscriber sub_log_folder_, sub_waypoints_file_name_, sub_steer_override_, sub_drive_override_, sub_way_increase_distance_;
-	ros::Subscriber sub_nmea_device_status_;
+	ros::Subscriber sub_nmea_device_status_, sub_not_survival_node_and_topic_;
 
 	message_filters::Subscriber<geometry_msgs::TwistStamped> *sub_current_velocity_;
 	message_filters::Subscriber<geometry_msgs::PoseStamped> *sub_current_pose_;
@@ -316,6 +317,30 @@ private:
 	double last_steer_override_value_;//steerオーバーライド終了時の上書き値
 	double mpc_steer_gradually_change_distance_;//steer指令を上書き状態からmpc指令に徐々に戻す距離
 	double target_steer_;//現在canに送信したsteer_targetの値
+
+	void callbackSurvivalReport(const autoware_msgs::SurvivalReport::ConstPtr &msg)
+	{
+		if(msg->no_node.size() != 0 || msg->no_survival_topic.size() != 0 ||
+		   msg->no_relevant_topic.size() != 0 || msg->no_response_topic.size() != 0)
+		{
+			if(can_receive_501_.drive_auto == autoware_can_msgs::MicroBusCan501::DRIVE_AUTO)
+				drive_clutch_ = false;
+			if(can_receive_501_.steer_auto == autoware_can_msgs::MicroBusCan501::STEER_AUTO)
+				steer_clutch_ = false;
+			//flag_drive_mode_ = false;
+			//flag_steer_mode_ = false;
+			shift_auto_ = false;
+
+			std::stringstream safety_error_message;
+			safety_error_message << "NotSurvivalNode,";
+			for(std::string node : msg->no_node) safety_error_message << node << ",";
+			for(std::string topic : msg->no_survival_topic) safety_error_message << topic << ",";
+			for(std::string topic : msg->no_relevant_topic) safety_error_message << topic << ",";
+			for(std::string topic : msg->no_response_topic) safety_error_message << topic << ",";
+			std::cout <<safety_error_message.str() << std::endl;
+			publishStatus(safety_error_message.str());
+		}
+	}
 
 	void callbacNmeaDeviceStatus(const std_msgs::String::ConstPtr &msg)
 	{
@@ -2777,6 +2802,7 @@ public:
 		sub_drive_override_ = nh.subscribe("/microbus/drive_override", 10 , &kvaser_can_sender::callbackDriveOverride, this);
 		sub_way_increase_distance_ = nh.subscribe("/way_increase_distance", 10 , &kvaser_can_sender::callbackWayIncreaseDistance, this);
 		sub_nmea_device_status_ = nh.subscribe("/nmea_device_status", 10 , &kvaser_can_sender::callbacNmeaDeviceStatus, this);
+		sub_not_survival_node_and_topic_ = nh.subscribe("/survival_report", 10 , &kvaser_can_sender::callbackSurvivalReport, this);
 		//sub_interface_config_ = nh_.subscribe("/config/microbus_interface", 10, &kvaser_can_sender::callbackConfigInterface, this);
 
 		sub_current_pose_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(nh_, "/current_pose", 10);

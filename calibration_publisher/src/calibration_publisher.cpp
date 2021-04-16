@@ -150,7 +150,7 @@ static void image_raw_cb(const sensor_msgs::Image &image_msg)
   }
 
   if (isPublish_cameraInfo)
-  {
+  {std::cout << "aaa" << std::endl;
     cameraInfo_sender(CameraMat, DistCoeff, ImageSize, DistModel, timeStampOfImage);
   }
   if (isPublish_extrinsic)
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
   camera_info_pub = n.advertise<sensor_msgs::CameraInfo>(camera_info_name, 10, true);
 
   projection_matrix_pub = n.advertise<autoware_msgs::ProjectionMatrix>(projection_matrix_topic, 10, true);
-
+std::cout << "spin" << std::endl;
   ros::spin();
 
   return 0;
