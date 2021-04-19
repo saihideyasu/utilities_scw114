@@ -172,7 +172,6 @@ class SurvivalChecker:
 					break
 			if check_flag == False:
 				ret.append(check_node)
-		#print ret
 		return ret
 
 	#トピックの生存確認
@@ -221,8 +220,6 @@ class SurvivalChecker:
 				continue
 
 			#トピックから応答が一定時間ない場合、ret_no_response_topicにトピック名を追加
-			print topic_callback.getTimeDt(nowtime)
-			print check_dt
 			if topic_callback.getTimeDt(nowtime) > check_dt:
 				ret_no_response_topic.append(check_topic_name)
 
@@ -252,14 +249,18 @@ class SurvivalChecker:
 				sys.stderr.write("error: topic info1\n")
 				continue
 
-			#トピックの型か無い、またはトピック名が無い場合は処理しない
+			#トピックの型か無い、またはトピック名が無い場合は、すでにsubscribeしているものを破棄
 			if(topic_type is None or real_topic is None):
+				for topic_callback in self.__topic_callbacks:
+					if topic_callback.getName() == check_topic_name:
+						self.__topic_callbacks.remove(topic_callback)
+						break
 				continue
 
 			#すでにsubscribeしているトピックに同名トピックが無いかを確認
 			sub_flag = False
 			for topic_callback in self.__topic_callbacks:
-				if topic_callback.getName() == real_topic:
+				if topic_callback.getName() == check_topic_name:
 					sub_flag = True
 					break
 
@@ -267,7 +268,6 @@ class SurvivalChecker:
 			if sub_flag == False:
 				callback = TopicCallback(real_topic, check_topic_name, topic_type, rostopic_data)
 				self.__topic_callbacks.append(callback)
-				print rostopic_data
 
 	#ノードとトピックの生存確認
 	def __survival_check(self):
@@ -294,6 +294,5 @@ class SurvivalChecker:
 		rospy.Timer(rospy.Duration(0.05), self.__timerCallback)
 
 if __name__ == '__main__':
-	print sys.argv
 	checker = SurvivalChecker()
 	rospy.spin()

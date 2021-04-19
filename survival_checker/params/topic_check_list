@@ -1,2 +1,2 @@
 #/current_pose,/estimate_to_baselink,1.0
-/microbus/can_receive502,/microbus_pseudo_can_publisher,1.0
+/microbus/can_receive502,/microbus_pseudo_can_publisher,0.00001
